@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- Q. Is it possible to prepare bean configuration without id attribute?
+Ans. YES!!
+- In bean configuration, we can provide bean class configuration with “name” attribute and without id attribute.
+name attribute will take one or more number of values separated with a  , or ; or space.
+- If we provide more than one value then first value is treated as identity for the bean object and the remaining values are treated as alias names to the bean identity.
+- Like this alias names can be provided implicitly.
+- We can provide alias names explicitly using <alias> tag as well.
+
+NOTE: This is if we do not have an id attribute.
+- If id attribute is present, then all the values of name attribute, will be treated as alias names.
+
+Q. Is it possible to prepare bean configuration with both id and name attribute?
+Ans. YES!!
+id attribute value will be treated as bean identity and name attribute value(s) are treated as bean alias names. -->
+
+    <bean id="hello" name="empBean;empBean1 empBean2,empBean3" class="com.get_tt_right.beans.Employee">  
+        <property name="eno" value="111"/>
+        <property name="ename" value="Colince"/>
+        <property name="esal" value="1000000"/>
+        <property name="eaddr" value="211Handidi"/>
+    </bean>
+<!-- Like this aliasing is going on explicitly using <alias> tag.
+- hello is a.k.a empBean4.
+- empBean is a.k.a empBean5.
+- empBean4 is a.k.a empBean6.
+NOTE: hello is a.k.a empBean4 which is a.k.a empBean which is a.k.a empBean5 which is a.k.a empBean6
+ -->
+    <alias name="hello" alias="empBean4"/>
+    <alias name="empBean" alias="empBean5"/>
+    <alias name="empBean4" alias="empBean6"/>
+ </beans>
