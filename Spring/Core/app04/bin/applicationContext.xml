@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="hello" name="empBean;empBean1 empBean2,empBean3" class="com.get_tt_right.beans.Employee" scope="prototype">  
+        <property name="eno" value="111"/>
+        <property name="ename" value="Colince"/>
+        <property name="esal" value="1000000"/>
+        <property name="eaddr" value="211Handidi"/>
+    </bean>
+
+ </beans>
