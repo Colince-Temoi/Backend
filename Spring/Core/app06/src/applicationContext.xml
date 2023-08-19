@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+  <bean id="helloBean" class="com.get_tt_right.beans.HelloBean" scope="thread" />
+  <bean id="threadScope" class="com.get_tt_right.scopes.ThreadScope"/>
+<!-- Custom scope configuration 
+1. Register ThreadScope as well as CustomScopeConfigurer as beans.
+NOTE: In case of Java, to get fully qualified name for any predefine class to keep them under XML file, type it directly in any class, and happily we are going to get an import statement.
+      Copy from this import statement the fully qualified name and happily use it in the XML file.
+3.Declare “scopes” as a property in CustomScopeConfigurer bean configuration.
+4.Declare map under scopes property. Map is nothing but a collection of entries.[Find detail information about maps in Core java JCF].
+5.Declare Entry under map. Entry is nothing but a key value pair.
+6.In entry, declare scope name as key and scope object as value-ref.
+
+NOTE: value-ref
+- If normal value, say numeric value, int, float, String,..etc directly we can use the attribute, "value"
+- To provide reference of another bean object which is available in the same configuration file, we use the attribute, "value-ref".
+- This is used to indicate that it is not a normal value, it is just reference to another bean object which is available in the same configuration file.
+
+The meaning of the below code is, inside scopes, i want to keep threadScope object.
+threadScope object is available, that i want to keep in map object as an entry of key value pair.
+So, now scope is registered with our CustomeScopeConfigurer where this custom scope name now is: thread
+This custom scope, you can then go ahead and apply to your required beans.
+
+Above, we have applied it to helloBean.
+Now, whenever we are calling this bean object over this thread scope, automatically we are able to check whether bean object is already available in thread scope or not.
+If it is available, return that bean object, if not available, keep it inside the scope and return that.
+
+That's all for Registering user defined scope class  in Spring configuration file.
+Now go to Test.java for testing how this is working.
+-->  
+
+
+<bean id="scopeConfigurer" class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+    <property name="scopes">
+        <map>
+            <entry key="thread" value-ref="threadScope"/>
+        </map>
+    </property>
+</bean> 
+
+</beans>
