@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- Creating bean instance By using Static Factory method. 
+  - factory-method attribute is used to specify the static factory method where the IoC container should go to to create bean object.
+  - If we had configured the factory method in some separate class, then some extra attribute we need provide: factory-bean
+  - This attribute take an id to the configured bean class and like this, IOC container will be able to tell where it is going to create bean object from.
+  - This factory-bean attribute we will utilize it in the next application. Checkout to see.
+ -->
+    <bean id="helloBean" class="com.get_tt_right.beans.HelloBean" factory-method="getInstance"/> 
+</beans>
