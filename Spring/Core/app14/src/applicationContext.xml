@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd"
+        
+        default-init-method="customInit"
+        default-destroy-method="customDestroy"
+        >
+
+    <bean id="helloBean" class="com.get_tt_right.beans.HelloBean">
+     
+      <property name="name" value="Colince"/>
+      <property name="message" value="Good Morning!"/> 
+      
+    </bean>
+    
+    <bean id="wishBean" class="com.get_tt_right.beans.WishBean">
+     
+      <property name="name" value="Colince"/>
+      <property name="message" value="Good morning!"/> 
+      
+    </bean>
+
+    <bean id="haiBean" class="com.get_tt_right.beans.HiBean">
+     
+      <property name="name" value="Colince"/>
+      <property name="message" value="Good Morning!"/> 
+      
+    </bean>
+     
+</beans>
