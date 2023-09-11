@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="e1" class="com.get_tt_right.beans.Engine">
+        <property name="modelyear" value="2020"/>
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    
+    <bean id="e2" class="com.get_tt_right.beans.Engine">
+        <property name="modelyear" value="2022"/>
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    
+    <bean id="e3" class="com.get_tt_right.beans.Engine">
+        <property name="modelyear" value="2023"/>
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+
+    <bean id="c" class="com.get_tt_right.beans.Car">
+        <property name="carnames">
+           <list>
+             <value>Audi</value>
+             <value>G-Wagon</value>
+             <value>Benz</value>
+           </list>
+        </property>
+        
+        <property name="engines">
+           <list>
+              <ref bean="e1"/>
+              <ref bean="e2"/>
+              <ref bean="e3"/>     
+           </list>
+        </property>	
+        <!-- additional collaborators and configuration for this bean go here -->
+   
+    </bean>
+    
+    <!-- more bean definitions for services go here -->
+
+</beans>
