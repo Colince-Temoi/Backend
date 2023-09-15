@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+        
+  <bean id="helloBean" class="com.get_tt_right.beans.HelloBean">
+     
+      <property name="fruits">
+       <list>
+         <value>Apple</value>
+         <value>Pineapple</value>
+         <value>Orange</value>
+         <value>Berries</value>
+       </list>
+      </property>
+      
+      <property name="cricketers">
+       <set>
+         <value>Brigade</value>
+         <value>Handidi</value>
+         <value>SokaStars</value>
+         <value>Manchester</value>
+       </set>      
+      </property>
+      
+      <property name="cc">
+       <map>
+        <entry key="Kenya" value="Nairobi"/>
+        <entry key="Ethiopis" value="Addis"/>
+        <entry key="Somalia" value="Mogadishu"/>
+        <entry key="Rwanda" value="Kigali"/>
+       </map>
+      </property>
+      
+  </bean>
+</beans>
