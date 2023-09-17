@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+        <!-- bean definitions here -->
+  <bean id="helloBean" class="com.get_tt_right.beans.HelloBean">
+      <property name="fruits">
+          <util:list list-class="java.util.Vector">
+             <value>Apple</value>
+             <value>Mango</value>
+             <value>Banana</value>
+          </util:list>
+      </property>
+      
+      <property name="criketers">
+         <util:set set-class="java.util.TreeSet">
+             <value>Brigade</value>
+             <value>Handidi</value>
+             <value>Lurambi</value>
+             <value>Kach</value>          
+         </util:set>
+      </property>
+      
+      <property name="cc">
+        <util:map map-class="java.util.Hashtable">
+          <entry key="Nigeria" value="Abuja"/>
+          <entry key="Namibia" value="WindHoek"/>
+          <entry key="Ghana" value="Accra"/>
+          <entry key="Tunisia" value="Tunis"/>
+        </util:map>
+      </property>
+  
+  </bean>
+
+</beans>
