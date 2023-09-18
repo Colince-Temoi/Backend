@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+        <!-- bean definitions here -->
+        <bean id="helloBean" class="com.get_tt_right.beans.HelloBean">
+            <property name="driver">
+               <props>
+                 <prop key="DriverClass">Oracle.Jdbc.OracleDriver</prop>
+                 <prop key="url">Oracle Url</prop>
+                 <prop key="password">pwd</prop>
+                 <prop key="username">Manager</prop>
+               </props>
+            </property>
+        </bean>
+
+</beans>
