@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    
+    <!-- dependency checking through <bean id=”-” class=”-” dependency-check=”-”> tag attribute in applicationContext.xml configuration file
+       may have been discontinued from Spring 5.2.9 onwards. Don't utilize this option; instead utilize @Required annotation for Dependency checking concept. See app23 for @Required annotation concept.      
+     -->
+
+    <bean id="e" class="com.get_tt_right.beans.Engine" dependency-check="none">
+        <!-- Not mandatory(We are not forced) to invoke Setter methods here when dependency-check="none"[default]-->
+        <property name="modelyear" value="2015"/>   
+    </bean>
+    
+    <bean id="car" class="com.get_tt_right.beans.Car" dependency-check="all">
+       <!-- We are forced to inject both primitive and secondary dependencies of this bean class -->
+       <property name="carname" value="Audi"/>
+       <property name="engine" ref="e"/>
+
+    </bean>
+
+    
+    <!-- more bean definitions for services go here -->
+
+</beans>
