@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- Oracle connection -->
+
+<!--     <bean id="dao" class="com.get_tt_right.beans.DAO">  
+        collaborators and configuration for this bean go here
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@DESKTOP-CR6ONMF:1521:xe"/>
+        <property name="username" value="System"/>
+        <property name="password" value="Tmi@2022"/>
+    </bean>
+ -->
+<!-- MySQL connection -->
+    <bean id="dao" class="com.get_tt_right.beans.DAO">  
+        <!-- collaborators and configuration for this bean go here -->
+        <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306"/>
+        <property name="username" value="root"/>
+        <property name="password" value="Tmi@2022"/>
+
+    </bean>
+    <!-- more bean definitions go here -->
+
+</beans>
