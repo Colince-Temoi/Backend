@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- p and c namespace for setter and constructor DI respectively
+   - Recommended->Good perfomancewise than the old approach for setter and constructor DI.
+   - Be using this approach onwards.
+ -->
+
+    <bean id="c" class="com.get_tt_right.beans.Car"
+        p:carname="Audi"
+        p:engine-ref="e"/>
+        
+<!-- 1-arg parameterized constructor will be invoked for Engine bean class -->      
+    <bean id="e" class="com.get_tt_right.beans.Engine"
+        c:modelyear="2015"/>
+
+</beans>
