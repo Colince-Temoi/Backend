@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    https://www.springframework.org/schema/beans/spring-beans.xsd"
+    
+    default-autowire="byName"
+    >
+
+<!--Autowiring byName mechanism
+   - After Spring xml configuration file is loaded into Container, Container will see the root tag(beans) attribute; default-autowire="byName"
+   -Container during creation of configured beans objects, it will identify the respective beans dependencies||associtions.
+   -It will treat a bean class association||attribute as a dependent attribute||association||dependency on condition it has a respective Setter method, else it won't.
+   -For these Secondary associations||dependencies it will read the TYPE as well as the reference name.
+   -During automatic secondary DI||autowiring, it will search through the Spring xml file for valid bean configuration TYPES and reference name that match the TYPE and reference name it had read earlier.
+   -On finding one, it will treat that as a valid candidate to autowire.
+   -No chance of ambiguity issues arising. REASON; TYPE and reference name||id are used to select the valid candidate to autowire. And as we know; id's are always unique.
+   -If reference name of read TYPE does not match any id in Spring configuration file, then no autowiring will take place. Null object is what will be wired, hence we will get a NullPointerException.
+ -->
+
+
+    <bean id="e1" class="com.get_tt_right.beans.Engine"
+        p:modelyear="2015"
+        />
+
+    <bean id="c" class="com.get_tt_right.beans.Car"
+        p:carname="Audi"
+       />
+
+</beans>

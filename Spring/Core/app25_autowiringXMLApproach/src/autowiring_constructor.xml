@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    https://www.springframework.org/schema/beans/spring-beans.xsd"
+    
+    default-autowire="constructor"
+    >
+
+<!--Autowiring constructor mechanism
+   - After Spring xml configuration file is loaded into Container, Container will see the root tag(beans) attribute; default-autowire="constructor"
+   -Container during creation of configured beans objects, it will identify the respective beans dependencies||associtions.
+   -It will treat a bean class association||attribute as a dependent attribute||association||dependency on condition it is a parameter to some param constructor, else it won't.
+   -For these Secondary associations||dependencies it will read the TYPE.
+   -During automatic secondary DI||autowiring, it will search through the Spring xml file for valid bean configuration TYPES that match the TYPE it had read earlier.
+   -On finding one, it will treat that as a valid candidate to autowire.
+   -On finding more than one valid 	TYPE, ambiguity issues will arise.
+   -To solve the ambiguity issues-utilize; autowire-candidate="false" bean tag attribute to exclude bean you don't want to participate in autowiring hence avoiding ambiguity.    
+ -->
+
+    <bean id="engine" class="com.get_tt_right.beans.Engine"
+        p:modelyear="2016"
+        />
+
+    <bean id="e1" class="com.get_tt_right.beans.Engine"
+        p:modelyear="2015"
+        autowire-candidate="false"
+        />
+
+<!-- 2 arg Constructor will be invoked-The Sec type argument will be autowired
+     The primitive type argument, am configuring it as can be seen below using; c-namespace
+ -->
+    <bean id="b" class="com.get_tt_right.beans.Bus"
+        c:busname="MAN"
+       />
+       
+
+</beans>
