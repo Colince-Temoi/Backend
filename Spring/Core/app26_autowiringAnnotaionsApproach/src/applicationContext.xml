@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    https://www.springframework.org/schema/beans/spring-beans.xsd"
+    
+    >
+
+<!--Autowiring through annotations
+- To activate the autowiring annotaions(@Autowired and @Qualifier("id") annotaions) you need to instantiate the class; org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
+- To activate these two annotations, you need to instantiate one class namely; AutowiredAnnotaionBeanPostProcessor.
+- Actually, just configure this class inside Spring Configuration file and Container will instantiate it for us. Remember to use its fully qualified name during configuration.
+ -->
+
+<!-- Activate Autowiring annotaions -->
+<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+
+    <bean id="engine" class="com.get_tt_right.beans.Engine"
+        p:modelyear="2015"
+        />
+        
+    <bean id="e2" class="com.get_tt_right.beans.Engine"
+        p:modelyear="2016"
+        /> 
+ 
+    <bean id="c" class="com.get_tt_right.beans.Car"
+        p:carname="Audi"
+       />
+
+</beans>
