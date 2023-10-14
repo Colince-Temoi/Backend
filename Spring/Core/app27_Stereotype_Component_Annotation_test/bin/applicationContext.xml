@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+<!-- Auto-scanning packages
+Container on encountering this tag:
+  - It will scan the configured packages for its classes.
+  - If classes have any stereotype annotation on top of them, Container will automatically create objects for these classes.
+The use of <context:component-scan> implicitly enables the functionality of <context:annotation-config>. 
+There is usually NO NEED to include the <context:annotation-config> element when using <context:component-scan>
+Therefore all BeanPostProcessor classes will be instantiated activating various annotations such as: @Autowired, ...etc;
+ -->
+
+    <context:component-scan base-package="com.get_tt_right.vehicles"/>
+    
+ 
+<!-- Perform Manual bean class configuration ONLY if the respective bean classes have ANY primitive dependencies||attributes||associations that need to be passed||injected from xml file. -->
+   
+    <bean id="engine" class="com.get_tt_right.engines.Engine" p:modelyear="2015"/>
+    <bean id="e2" class="com.get_tt_right.engines.Engine" p:modelyear="2016"/>
+    
+</beans>
