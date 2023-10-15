@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  https://www.springframework.org/schema/context/spring-context.xsd">
+  
+ <!-- Static data DI through XML file
+	We have one predefine class in Spring called; MethodInvokingFactoryBean.
+	In this class, they have given 2 setter methods:
+	setArguments(arguments)
+	setStaticMethod(staticmethod)
+	By using one setter method[setStaticMethod(staticmethod)], your method name (Fully qualified name)you should configure and by using the other setter method[setArguments(arguments)], you need to pass that method arguments –Actually it takes Object[] array of arguments.
+	By using the method; setStaticMethod(staticMethod) you need to pass; the fully qualified method static setter method name . i.e., com.get_tt_right.beans.Car.setName
+	Then, by using setArguments(arguments), you need to pass Object array of arguments.
+	I don’t want those many arguments, just one simple argument I need to pass; the carname. i.e., Audi
+	So inside Spring configuration file, you NO NEED to inject values to static variables for a given bean class through the configured bean class. There is a reason for that.
+	Just, configure MethodInvokingFactoryBean bean class and by using the configuration below inside the Spring XML file, perform the injection of values to your static variables||associations inside bean class.
+	If you use the dynamic||non-static approach of DI that we have been using for a long time, to perform injection of values to static attributes||associations inside a bean class; happily, it will still work. But do not use this approach as we know that static data should not be changeable but can only be shareable by multiple objects.
+	What we have seen is the 1st option; through xml approach to inject static data to bean classes. I understand there are other options even better and simple than this option. Find out how to use the other options as well.
+  -->
+  
+ <!--<bean id="c" class="com.get_tt_right.beans.Car"/> -->
+ 
+ <!-- Into the static setter method, "com.get_tt_right.beans.Car.setCarname"; MethodInvokingFactoryBean will pass the static data  -->
+ <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+     <property name="staticMethod" value="com.get_tt_right.beans.Car.setCarname"/>
+     <property name="arguments">
+       <list>
+         <value>Toyota</value>
+       </list>
+     </property>
+  </bean> 
+  
+</beans>
