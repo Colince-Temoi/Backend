@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+ <!-- Beans configuration --> 
+
+ <!-- User-defined singleton class; I have implemented it by myself
+  - What Container will understand by below configuration is;
+  - Create Singleton class object by calling getInstance method, then return the reference and store that in singleton id||reference
+  - Now by using this singleton id||reference, we can be able to access Singleton class object from our Client||Test class.
+  -->
+  <bean id="singleton" class="com.get_tt_right.beans.Singleton" factory-method="getInstance"/>
+  
+ <!-- Predefined singleton class; from java.util package. prepared by Java people.
+  - What Container will understand by below configuration is;
+  - Create Calendar class object by calling getInstance method, then return the reference and store that in Calendar id||reference
+  -Now by using this calendar id||reference, we can be able to access Calendar class object from our Client||Test class.
+  -->
+  <bean id="calendar" class="java.util.Calendar" factory-method="getInstance"/>
+  
+<!-- Note
+A singleton class is a special type of factory class that ensures that only one instance of the class is ever created for entire main stack(In simple words; per main method).
+    - Singleton classes return ALWAYS that factory class object ONLY. NOT other class objects.
+    - Factory classes return other class objects||Implementation partners' class objects.
+For Factory classes that return other class objects; see app30 
+ -->
+</beans>
