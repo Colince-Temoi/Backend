@@ -1,0 +1,17 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+  <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+  
+  <bean id="daobean" class="com.get_tt_right.beans.DaoBean"
+         p:driver="oracle.jdbc.driver.OracleDriver"
+         p:username="system"
+         p:url="jdbc:oracle:thin:@localhost:1521:xe"
+         p:password="system"/>
+
+  
+
+</beans>
