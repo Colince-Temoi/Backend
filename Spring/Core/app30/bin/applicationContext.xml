@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+  
+<!-- Static factory class configuration to help create implementation partner class objects. --> 
+  
+<!-- Injecting values into static bean class dependencies||attribute||variables
+- We have one support class; MethodInvokingFactoryBean.
+- By configuring this class we can achieve injection of static variables into our respective bean classes as required.
+- We have to invoke 2 setter methods of this class as seen in the configuration below to achieve our goal.
+      => setStaticMethod
+      => setArguments
+- The property; staticMethod takes the input-the static setter method of the bean class we need to inject a value into.
+      => Make sure to provide the fully qualified name to the static setter method.
+- The property; arguments takes an array of Objects as values.
+      => To inject array values; utilize list element.
+      => Can String values be passed into an Object array. Yess! why not.
+      => For our case we are not interested into injecting those many values. Only one; the implementation partner class name. Make sure to provide the fully qualified name.
+-And that is how to inject values||inputs into static variables||attributes.    
+- Looks to be a lot of configurations; haha -Check for alternative ways as this is just one way.
+ -->
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+        p:staticMethod="com.get_tt_right.factoryclasses.StaticCarFactory.setCarname"
+  >
+        <property name="arguments">
+           <list>
+              <value>com.get_tt_right.implementationpartnerclasses.Swift</value>
+           </list>
+        </property>
+  </bean>
+  
+ <!-- What will Container understand by this configurations?
+ - It will interpret; I am going to invoke getCar() factory-method and the returned object i will store into the configured id.
+ - That returned object in this case is implementation partner class object.
+ - That object we are upcasting into interface reference. See the factory class factory-method logic to verify this.
+ - That's why for the id below am just using the expected reference object from the container.
+ -Inside Client||Test class; whenever you try to access this created Container object by using the id;car,Happily implementation partner class object we are going to get.
+  --> 
+  <bean id="car" class="com.get_tt_right.factoryclasses.StaticCarFactory"
+        factory-method="getCar">
+   
+  </bean>
+        
+        
+<!-- Instance factory class configuration to help create implementation partner class objects. -->    
+    
+<!-- Steps
+- Inject the input to InstanceCarFactory class.
+   => The input here is; fully qualified name of implementation partner implementation class 
+- Configure a separate bean element with the 3 attributes:
+  => factory-bean: As a value to this attribute; pass the id of the configured instance factory class.
+  => factory-method: As a value to this attribute; pass the fully qualified name of the instance factory-method that is present inside the instance factory class.
+  => id: Holds the reference of the implementation partner class object that has been created as a result of instantiation through the instance factory class.
+      - For my case-Colince Temoi; I am going to use  the id with the name; car because the expected object will be upcasted into Car(I) reference. Confirm this from the instance-factory method return type inside InstanceCarFactory class.
+      - But since in this document I already have some id with name; car, I will have to utilize some other id name.
+      - But you can use your preferred id name as it suits you.
+- And that's all!
+ -->   
+  <bean id="instancecarfactory" class="com.get_tt_right.factoryclasses.InstanceCarFactory" 
+         p:carname="com.get_tt_right.implementationpartnerclasses.Audi"/>
+  
+<!-- What will Container understand by the below configurations.
+- It will know that using the bean-factory, invoke the factory-method and the returned object of the implementation partner store that into the id.
+-Now using the id we can access this created object.
+ -->
+  <bean id="carfrominstancefactoryclass" factory-bean="instancecarfactory"
+                 factory-method="getCar"/>
+ 
+ <!-- factory class(One which we have prepared through the approach of implementing Spring given interface: FactoryBean(I) ) configuration to help create implementation partner class objects. --> 
+ <!-- Steps
+ - We configure it just like we configure the normal beans; Nothing special or fancy.
+    => It may look like a normal bean but in real sense it is a factory bean class.
+ - See configuration below.
+ -For the id-For me Colince Temoi- I recommend using the expected return type from the factory class; i.e., car interface reference.
+ -But since I have already used an id; car somewhere else in this document; I have decided to use some other different for the id in the configuration below.
+ 
+  -->
+  <bean id="factorybeaninterfacecarfactory" class="com.get_tt_right.factoryclasses.FactoryBeanInterfaceCarFactory"
+         p:carname="com.get_tt_right.implementationpartnerclasses.Honda"/>
+ 
+ 
+ 
+</beans>
