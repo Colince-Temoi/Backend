@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
+  https://www.springframework.org/schema/context/spring-context.xsd">
+  
+   <!-- Bean(s) configuration
+   - TicketVendingMachine bean class is an abstract; Spring is not able to create objects for abstract classes.
+   - Spring on encountering the configurations below;
+     => It will generate one runtime proxy class for TicketVendingMachine class. i.e., TicketVendingMachineProxy
+     => It will extend the runtime proxy class(TicketVendingMachineProxy) from TicketVendingMachine class.
+         TicketVendingMachineProxy extends TicketVendingMachine {
+              //logic
+         }
+     => For the logic of this proxy class, it will provide implementation for the specified||defined lookup-method in TicketVendingMachine abstract class.
+        +. The look-up method name we are configuring as below.
+     => From the return type of the lookup method, Spring will understand it needs to return Ticket bean class object reference.
+        +. That we are configuring also inside the bean tag, child tag: <lookup-method name="" bean=""> using the attribute bean=""
+        +. So, it is this same bean="ticket", that we are configuring that the generated runtime TicketVendingMachineProxy class will return
+     => Now when we try to access ticketvendingmachine bean from Test||Client class;
+        +. TicketVendingMachine class object|| instance won't be returned, if that is what you were expecting. haha.
+        +. Actually, Spring is not able to create objects to abstract classes.
+        +. Instead, TicketVendingMachineProxy class object is what will be created by the container and returned.
+        +. This returned object||instance we are upcasting it into TicketVendingMachine abstract class-Parent class it is.
+        +. To prove that it is the generated runtime proxy class that is returned, you can try getting the name to confirm; i.e.,
+            S.o.pln(ticketvendingmachine.getClass().getCannonicalName());
+     => Now using ticketvendingmachine reference you can be able to invoke TicketVendingMachineProxy class method. i.e., getTicket() method.
+     => On invoking this method; getTicket() you will be expecting Ticket class object||Instance to be returned. Yess!
+     => Now using the returned Ticket class object reference yoy can be able to access Ticket class methods||data.
+ And yes, this is all about Lookup-method DI concept.
+    -->
+   <bean id="ticketvendingmachine" class="com.get_tt_right.beans.TicketVendingMachine">
+         <lookup-method name="getTicket" bean="ticket"/>
+   </bean>
+   
+   <bean id="ticket" class="com.get_tt_right.beans.Ticket" scope="prototype"/>
+
+
+</beans>
