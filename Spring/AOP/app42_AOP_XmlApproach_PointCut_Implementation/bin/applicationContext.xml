@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  https://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+  
+  <bean name="b" class="com.get_tt_right.business.Bank" p:amt="5000" p:accNo="CBA123"/>
+  
+  <bean id="lbs" class="com.get_tt_right.services.LogBeforeService"/>
+  <bean id="las" class="com.get_tt_right.services.LogAfterService"/>
+  <bean id="las1" class="com.get_tt_right.services.LogAroundService"/>
+  <bean id="lioes" class="com.get_tt_right.services.LogIncaseOfExceptionService"/>
+
+  <bean name="bproxy" class="org.springframework.aop.framework.ProxyFactoryBean" p:target-ref="b">
+     <property name="interceptorNames">
+        <list>
+        <!-- Like this you can add any number of services to your target bean class method(s). -->
+        <value>lbs</value>
+        <value>las</value>
+        <value>las1</value>
+        <value>lioes</value>
+        </list>
+     </property>
+  </bean>
+
+</beans>
