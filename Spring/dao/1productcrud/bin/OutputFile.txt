@@ -1,0 +1,360 @@
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+1
+Enter Product Id
+1
+Enter Product name
+Pen
+Enter Product unit price
+10
+Enter Product Manufacturing date[dd/mm/yyyy]
+23/12/2023
+
+1 product added!
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+1
+Enter Product Id
+2
+Enter Product name
+Book
+Enter Product unit price
+20
+Enter Product Manufacturing date[dd/mm/yyyy]
+12/03/2018
+
+1 product added!
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+1
+Enter Product Id
+3
+Enter Product name
+Desk
+Enter Product unit price
+30
+Enter Product Manufacturing date[dd/mm/yyyy]
+17/01/2014
+
+1 product added!
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+1
+Enter Product Id
+4
+Enter Product name
+Board
+Enter Product unit price
+40.00
+Enter Product Manufacturing date[dd/mm/yyyy]
+04/02/2020
+
+1 product added!
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+1
+Enter Product Id
+7
+Enter Product name
+HeadPhones
+Enter Product unit price
+7
+Enter Product Manufacturing date[dd/mm/yyyy]
+09/11/2023
+
+1 product added!
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+2
+
+--------All products---------
+
+ProductVo [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=23/12/2023]
+ProductVo [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=12/03/2018]
+ProductVo [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=17/01/2014]
+ProductVo [productId=4, productName=Board, unitPrice=40.0, manufacturingDate=04/02/2020]
+ProductVo [productId=7, productName=HeadPhones, unitPrice=7.0, manufacturingDate=09/11/2023]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+3
+
+Enter Product Id your want to search for: 
+7
+
+---------Returned Product------
+
+ProductVo [productId=7, productName=HeadPhones, unitPrice=7.0, manufacturingDate=09/11/2023]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+4
+
+---Update product details-------
+
+
+Enter Id to product you want to update
+
+4
+
+---------Old product details------
+
+ProductVo [productId=4, productName=Board, unitPrice=40.0, manufacturingDate=04/02/2020]
+
+Enter new Product name
+WhiteBoard
+Enter new Product unit price
+80
+Enter new Product Manufacturing date[dd/mm/yyyy]
+06/10/2021
+4
+4
+Product [productId=4, productName=Board, unitPrice=40.0, manufacturingDate=Tue Feb 04 00:00:00 EAT 2020]
+Success
+
+---------New updated product details------
+
+ProductVo [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=06/10/2021]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+2
+
+--------All products---------
+
+ProductVo [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=23/12/2023]
+ProductVo [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=12/03/2018]
+ProductVo [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=17/01/2014]
+ProductVo [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=06/10/2021]
+ProductVo [productId=7, productName=HeadPhones, unitPrice=7.0, manufacturingDate=09/11/2023]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+5
+
+Enter Id to product you want to delete
+
+7
+Successfully removed the product at index: 4
+
+--------All products after deletion of product with the id 7 ---------
+
+ProductVo [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=23/12/2023]
+ProductVo [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=12/03/2018]
+ProductVo [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=17/01/2014]
+ProductVo [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=06/10/2021]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+2
+
+--------All products---------
+
+ProductVo [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=23/12/2023]
+ProductVo [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=12/03/2018]
+ProductVo [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=17/01/2014]
+ProductVo [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=06/10/2021]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+7
+----------Sorted by price in DSC order----------
+Product [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=Wed Oct 06 00:00:00 EAT 2021]
+Product [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=Fri Jan 17 00:00:00 EAT 2014]
+Product [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=Mon Mar 12 00:00:00 EAT 2018]
+Product [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=Sat Dec 23 00:00:00 EAT 2023]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+6
+----------Sorted by price ASC order----------
+Product [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=Sat Dec 23 00:00:00 EAT 2023]
+Product [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=Mon Mar 12 00:00:00 EAT 2018]
+Product [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=Fri Jan 17 00:00:00 EAT 2014]
+Product [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=Wed Oct 06 00:00:00 EAT 2021]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+8
+----------Sorted by manufacturing date in DSC order----------
+Product [productId=1, productName=Pen, unitPrice=10.0, manufacturingDate=Sat Dec 23 00:00:00 EAT 2023]
+Product [productId=4, productName=WhiteBoard, unitPrice=80.0, manufacturingDate=Wed Oct 06 00:00:00 EAT 2021]
+Product [productId=2, productName=Book, unitPrice=20.0, manufacturingDate=Mon Mar 12 00:00:00 EAT 2018]
+Product [productId=3, productName=Desk, unitPrice=30.0, manufacturingDate=Fri Jan 17 00:00:00 EAT 2014]
+
+-----------Menu-------------
+1.Add Product.
+2.Show All Products.
+3.Search Product by Id.
+4.Update Product by Id.
+5.Delete a product by id
+6.Sort By price ASC.
+7.Sort By price DSC.
+8.Sort by Manufacturing Date Dcs.
+9.Exit
+
+ Enter you choice: 
+
+9
+
+Exiting the application. Goodbye!

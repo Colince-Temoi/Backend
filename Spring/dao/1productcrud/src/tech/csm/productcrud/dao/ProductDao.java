@@ -21,4 +21,6 @@ public interface ProductDao {
 	List<Product> sortByPriceDsc();
 
 	List<Product> sortByManufacturingDateDesc();
+
+//	String updateProductById(Product prod, Integer id);
 }

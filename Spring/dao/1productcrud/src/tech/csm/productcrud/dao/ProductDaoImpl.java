@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import tech.csm.productcrud.domain.Product;
+
 /*Dao layer
  * 1. Used by service layer
  * 2. Interacts directly with the data store. This case our data store is AL.
@@ -65,6 +66,17 @@ public class ProductDaoImpl implements ProductDao {
 
 	}
 
+	/*
+	 * @Override public String updateProductById(Product prod,Integer id) {
+	 * 
+	 * Product product = getProductById(id); int index=
+	 * productList.indexOf(product); productList.set(index, prod);
+	 * 
+	 * return "Success!";
+	 * 
+	 * }
+	 */
+
 	@Override
 	public String updateProduct(Product product) {
 //		find the product in store you want to update
@@ -76,11 +88,11 @@ public class ProductDaoImpl implements ProductDao {
 		return "Success";
 	}
 
-	/* Several things you need to do for the success of this operation.
-	 * 1. Check if whatever you want to delete is existed or not. i.e., findById
-	 * 2. Then you need to located where it is
-	 * 3. Perform deletion on it.
-	 * */
+	/*
+	 * Several things you need to do for the success of this operation. 1. Check if
+	 * whatever you want to delete is existed or not. i.e., findById 2. Then you
+	 * need to located where it is 3. Perform deletion on it.
+	 */
 	@Override
 	public String deleteProduct(Integer id) {
 
@@ -96,51 +108,51 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Override
 	public List<Product> sortByPriceAsc() {
-		
+
 		productList.sort(new Comparator<Product>() {
 
 			@Override
 			public int compare(Product o1, Product o2) {
-				return (int) (o1.getUnitPrice()-o2.getUnitPrice());
+				return (int) (o1.getUnitPrice() - o2.getUnitPrice());
 			}
-			
+
 		});
-		
+
 		return productList;
-		
+
 //		System.out.println(productList);
-		
+
 	}
+
 	@Override
 	public List<Product> sortByPriceDsc() {
-		
+
 		productList.sort(new Comparator<Product>() {
 
 			@Override
 			public int compare(Product o1, Product o2) {
-				return (int) -(o1.getUnitPrice()+o2.getUnitPrice());
+				return (int) -(o1.getUnitPrice() + o2.getUnitPrice());
 			}
-			
+
 		});
-		
+
+//		System.out.println(productList); sort by price DESC
 		return productList;
-		
-//		System.out.println(productList); SORT BY MANUFACTURING DATE DESC
-		
+
 	}
-	
+
 	@Override
 	public List<Product> sortByManufacturingDateDesc() {
-		
+
 		productList.sort(new Comparator<Product>() {
 
 			@Override
 			public int compare(Product o1, Product o2) {
-				return (int) (o2.getManufacturingDate().getTime()-o1.getManufacturingDate().getTime());
+				return o2.getManufacturingDate().compareTo(o1.getManufacturingDate());
 			}
 		});
-		
+
 		return productList;
-		
+
 	}
 }

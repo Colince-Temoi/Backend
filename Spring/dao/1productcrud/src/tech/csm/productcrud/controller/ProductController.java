@@ -86,11 +86,13 @@ public class ProductController {
 			case 4: {
 				System.out.println("\n---Update product details-------\n");
 				System.out.println("\nEnter Id to product you want to update\n");
-				int id = sc.nextInt();
+				Integer id = sc.nextInt();
 
 				System.out.println("\n---------Old product details------\n");
 				System.out.println(productService.getProductById(id).toString());
 
+				pvo.setProductId(id.toString());
+				
 				System.out.println("\nEnter new Product name");
 				pvo.setProductName(sc.next());
 
@@ -145,21 +147,22 @@ public class ProductController {
 			}
 			
 			case 8: {
-				System.out.println("----------Sorted by BY MANUFACTURING DATE DESC in DSC order----------");
+				System.out.println("----------Sorted by manufacturing date in DSC order----------");
 				for (Product x : productService.sortByManufacturingDateDesc()) {
-					System.out.println(x);
+					System.out.println(x.toString());
 				}
 
 				break;
 			}
-			case 9: {
+			case 9: 
 //				Like this we can exit the program execution
+				System.out.println("\nExiting the application. Goodbye!");
 				break;
-			}
 
 			default:
+				System.out.println("\nInvalid choice. Please try again.");
 				break;
 			}
-		} while (choice <= 9);
+		} while (choice != 9);// Loop until the user chooses to exit
 	}
 }

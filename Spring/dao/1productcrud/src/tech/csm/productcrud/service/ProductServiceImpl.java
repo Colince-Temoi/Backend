@@ -90,6 +90,10 @@ public class ProductServiceImpl implements ProductService {
 
 //		Conversion from Vo to Dto
 		product.setProductId(Integer.parseInt(pvo.getProductId()));
+		
+		System.out.println(Integer.parseInt(pvo.getProductId()));
+		System.out.println(product.getProductId());
+		
 		product.setProductName(pvo.getProductName());
 		product.setUnitPrice(Double.parseDouble(pvo.getUnitPrice()));
 
@@ -99,8 +103,9 @@ public class ProductServiceImpl implements ProductService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return productDao.updateProduct(product);
+
+//		return productDao.updateProductById(product, product.getProductId());
 
 	}
 
