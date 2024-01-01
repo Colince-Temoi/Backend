@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
@@ -17,13 +18,13 @@ public class Runner2 {
 		String selectByIdQuery = "SELECT product_id,product_name,unit_price,mfg_date FROM productjdbc.t_product where product_id=?";
 		String selectAllQuery = "SELECT product_id,product_name,unit_price,mfg_date FROM productjdbc.t_product where unit_price>?";
 		String countQuery = "select count(*) from productjdbc.t_product where unit_price>?";
-		String insertQuery = "INSERT INTO productjdbc.t_product (product_id, product_name, unit_price, mfg_date) VALUES (?, ?, ?, ?)";
+		String insertQuery = "INSERT INTO productjdbc.t_product (product_name, unit_price, mfg_date) VALUES (?, ?, ?)";
 
 //		get Db connection
 		try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/productjdbc", "root",
 				"Tmi@2022");
 				Scanner sc = new Scanner(System.in);
-				PreparedStatement ps = con.prepareStatement(insertQuery);
+				PreparedStatement ps = con.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
 				PreparedStatement psCount = con.prepareStatement(countQuery);
 
 		) {
@@ -54,8 +55,7 @@ public class Runner2 {
 			do {
 
 //				Take inputs from the user
-				System.out.println("\nEnter product_id");
-				Integer id = sc.nextInt();
+
 				System.out.println("Enter product_name");
 				String name = sc.next();
 				System.out.println("Enter unit_price");
@@ -64,15 +64,21 @@ public class Runner2 {
 				String date = sc.next();
 
 //				1. Set the values
-				ps.setInt(1, id);
-				ps.setString(2, name);
-				ps.setDouble(3, price);
-				ps.setDate(4, new Date(new SimpleDateFormat("yyy-MM-dd").parse(date).getTime()));
+				ps.setString(1, name);
+				ps.setDouble(2, price);
+				ps.setDate(3, new Date(new SimpleDateFormat("yyy-MM-dd").parse(date).getTime()));
 
 //				2. Fire the executeUpdate method of PS
-				numOfInsertedRecords += ps.executeUpdate();
+				Integer count = ps.executeUpdate();
+				numOfInsertedRecords += count;
 				
-				System.out.println("\nRecord inserted!\n");
+//				Get the generated key after the insert is successful
+				ResultSet key = ps.getGeneratedKeys();
+				
+				key.next();
+				
+
+				System.out.println("\n"+count+" Record inserted sucessfully with the id "+key.getInt(1)+"\n");
 
 				System.out.println("Do you want to insert another record![y/n]");
 				option = sc.next().charAt(0);
