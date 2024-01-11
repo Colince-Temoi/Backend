@@ -9,6 +9,7 @@ import tech.get_tt_right.service.DepartmentService;
 import tech.get_tt_right.service.DepartmentServiceImpl;
 import tech.get_tt_right.service.EmployeeService;
 import tech.get_tt_right.service.EmployeeServiceImpl;
+import tech.get_tt_right.util.DbUtil;
 
 public class EmployeeController {
 
@@ -41,6 +42,7 @@ public class EmployeeController {
 	 */
 	public static void main(String[] args) {
 		int choice;
+		Character exitConfirmation = null;
 
 		new EmployeeController();
 
@@ -59,19 +61,45 @@ public class EmployeeController {
 				break;
 
 			case 2: {
-
+				System.out.println("Enter Employee Id to search:");
+				int employeeId = scan.nextInt();
+				EmployeeVo foundEmployee = employeeService.getEmployeeById(employeeId);
+				if (foundEmployee != null) {
+					System.out.println("Employee details: \n" + foundEmployee.toString());
+				} else {
+					System.out.println("Employee with ID " + employeeId + " not found.");
+				}
+				break;
 			}
 			case 3: {
-
+				List<EmployeeVo> allEmployees = employeeService.getAllEmployees();
+				if (!allEmployees.isEmpty()) {
+					System.out.println("All Employees: \n");
+					for (EmployeeVo evo : allEmployees) {
+						System.out.println(evo.toString() + "\n");
+					}
+				} else {
+					System.out.println("No employees found.");
+				}
 				break;
 			}
 			case 4: {
 
+				System.out.println("Enter Employee Id to update:");
+				Integer updateEmployeeId = scan.nextInt();
+				EmployeeVo updatedEmployee = addEmployee(); // You canreuse the addEmployee() method for updates
+				updatedEmployee.setEmpId(updateEmployeeId.toString()); // Set the employee ID to update the correct record
+				String updateMessage = employeeService.updateEmployee(updatedEmployee);
+				System.out.println(updateMessage);
 				break;
+
 			}
 			case 5: {
-
-				break;
+				System.out.println("Enter Employee Id to delete:");
+			    int deleteEmployeeId = scan.nextInt();
+			    String deleteMessage = employeeService.deleteEmployee(deleteEmployeeId);
+			    System.out.println(deleteMessage);
+			    break;
 			}
 			case 6: {
 
@@ -87,15 +115,28 @@ public class EmployeeController {
 			}
 
 			case 9:
+				System.out.println("Are you sure you want to exit the application[y/n]");
+				exitConfirmation = scan.next().charAt(0);
 
-				System.out.println("\nExiting the application. Goodbye!");
-				break;
+				if (exitConfirmation == 'y') {
+					DbUtil.closeConnection();
+					System.out.println("\nExiting the application. Goodbye!");
+					break;
+				} else {
+					break;
+				}
 
 			default:
 				System.out.println("\nInvalid choice. Please try again.");
 				break;
 			}
-		} while (choice != 9);// Loop until the user chooses to exit
+
+			/*
+			 * For the while condotion below-truth table knowledge is required. In case of
+			 * AND when left side evelautes to false right side will not be checked. In case
+			 * of OR when left side evelautes to true right side will not be checked.
+			 */
+		} while (choice != 9 || exitConfirmation != 'y');// Loop until the user chooses to exit
 	}
 
 //	Behavior to receive input
@@ -108,6 +149,8 @@ public class EmployeeController {
 		employeeVo.setHire_date(scan.next());
 		System.out.println("Enter Employee Salary");
 		employeeVo.setSalary(scan.next());
+
+		employeeVo.setIsDeleted("NO");
 		System.out.println("Available departements");
 
 //		Displaying all Departments information to the user to pick one while inputing a new employees details.

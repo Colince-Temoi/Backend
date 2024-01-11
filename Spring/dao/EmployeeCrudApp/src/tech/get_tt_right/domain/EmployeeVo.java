@@ -4,14 +4,16 @@ import java.io.Serializable;
 
 public class EmployeeVo implements Serializable {
 
-/**
-	 * 
-	 */
+	/**
+		 * 
+		 */
 	private static final long serialVersionUID = 1L;
-	//	Primitive dependencies
+	// Primitive dependencies
+	private String empId;
 	private String name;
 	private String hire_date;
 	private String salary;
+	private String isDeleted;
 
 //	Secondary depandencies
 	private DepartmentVo department;
@@ -20,6 +22,14 @@ public class EmployeeVo implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getEmpId() {
+		return empId;
+	}
+
+	public void setEmpId(String empId) {
+		this.empId = empId;
 	}
 
 	public void setName(String name) {
@@ -50,11 +60,20 @@ public class EmployeeVo implements Serializable {
 		this.department = department;
 	}
 
-//	You will edit this toString method to incorporate department inofrmation.
+	public String getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(String isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	@Override
 	public String toString() {
-		return "EmployeeVo [name=" + name + ", hire_date=" + hire_date + ", salary=" + salary + ", department="
-				+ department + "]";
+		return "EmployeeVo [empId=" + empId + ", name=" + name + ", hire_date=" + hire_date + ", salary=" + salary
+				+ ", departmentId=" + department.getDepartmentId() + "]";
 	}
+
+	// You will edit this toString method to incorporate department inofrmation.
 
 }

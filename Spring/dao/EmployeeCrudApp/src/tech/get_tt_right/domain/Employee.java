@@ -5,22 +5,32 @@ import java.util.Date;
 
 public class Employee implements Serializable {
 
-/**
-	 * 
-	 */
+	/**
+		 * 
+		 */
 	private static final long serialVersionUID = 1L;
-	//	Primitive dependencies
+	// Primitive dependencies
+	private Integer empId;
 	private String name;
 	private Date hire_date;
 	private Double salary;
+	private String isDeleted;
 
 //	Secondary depandencies
 	private Department department;
-	
+
 //	Getters and setters.
 
 	public String getName() {
 		return name;
+	}
+
+	public Integer getEmpId() {
+		return empId;
+	}
+
+	public void setEmpId(Integer empId) {
+		this.empId = empId;
 	}
 
 	public void setName(String name) {
@@ -51,10 +61,20 @@ public class Employee implements Serializable {
 		this.department = department;
 	}
 
+	public String getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(String isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+//	The isDeleted value should not be shown to the user; so make sure to omit it from the toString.
+
 	@Override
 	public String toString() {
-		return "Employee [name=" + name + ", hire_date=" + hire_date + ", salary=" + salary + ", department="
-				+ department + "]";
+		return "Employee [empId=" + empId + ", name=" + name + ", hire_date=" + hire_date + ", salary=" + salary
+				+ ", isDeleted=" + isDeleted + ", department=" + department + "]";
 	}
 
 }
