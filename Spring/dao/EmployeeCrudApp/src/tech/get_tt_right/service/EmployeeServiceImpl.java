@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import tech.get_tt_right.dao.EmployeeDao;
@@ -39,7 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee convertFromVoToDto(EmployeeVo evo) {
 
 //		Conversion from Vo to Dto
-		employee.setEmpId(Integer.parseInt(evo.getEmpId()));
+//		employee.setEmpId(Integer.parseInt(evo.getEmpId()));
 		employee.setName(evo.getName());
 		employee.setSalary(Double.parseDouble(evo.getSalary()));
 
@@ -121,14 +122,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public String updateEmployee(EmployeeVo updatedEmployee) {
-		// Convert EmployeeVo to Employee
-		Employee employeeToUpdate = convertFromVoToDto(updatedEmployee);
+	    // Check if the employee with the given ID exists and is not soft-deleted
+	    Employee existingEmployee = employeeDao.getEmployeeById(Integer.parseInt(updatedEmployee.getEmpId()));
+	    if (existingEmployee != null && !"YES".equals(existingEmployee.getIsDeleted())) {
+	        // Employee with the given ID is not soft-deleted
+	        // Convert EmployeeVo to Employee
+	        Employee employeeToUpdate = convertFromVoToDto(updatedEmployee);
 
-		// Invoke DAO method to update the employee
-		String msg = employeeDao.updateEmployee(employeeToUpdate);
+	        // Invoke DAO method to update the employee
+	        String msg = employeeDao.updateEmployee(employeeToUpdate);
 
-		return msg;
+	        return msg;
+	    } else {
+	        return "Failed to update employee. Employee not found or is soft-deleted.";
+	    }
 	}
+
 
 	@Override
 	public String deleteEmployee(int deleteEmployeeId) {
@@ -137,6 +146,67 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	    return deleteMessage;
 	}
+	@Override
+	public String getReportBySalary(double salary) {
+	    List<Employee> employees = employeeDao.getEmployeesBySalary(salary);
+
+	    if (!employees.isEmpty()) {
+	        StringBuilder report = new StringBuilder("Salary Report for Employees with Salary >= " + salary + ":\n");
+	        for (Employee employee : employees) {
+	            report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
+	            report.append("Name: ").append(employee.getName()).append(", ");
+	            report.append("Salary: ").append(employee.getSalary()).append("\n");
+	        }
+	        return report.toString();
+	    } else {
+	        return "No employees found with salary >= " + salary;
+	    }
+	}
+
+	@Override
+	public String getReportByHireDate(String hireDate) {
+	    try {
+	        Date formattedDate = new SimpleDateFormat("dd/MM/yyyy").parse(hireDate);
+	        List<Employee> employees = employeeDao.getEmployeesByHireDate(formattedDate);
+
+	        if (!employees.isEmpty()) {
+	            StringBuilder report = new StringBuilder("Hire Date Report for Employees hired on " + hireDate + ":\n");
+	            for (Employee employee : employees) {
+	                report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
+	                report.append("Name: ").append(employee.getName()).append(", ");
+	                report.append("Hire Date: ").append(employee.getHire_date()).append("\n");
+	            }
+	            return report.toString();
+	        } else {
+	            return "No employees found hired on " + hireDate;
+	        }
+	    } catch (ParseException e) {
+	        return "Invalid date format. Please use dd/MM/yyyy.";
+	    }
+	}
+
+	@Override
+	public String getReportByDepartment(String departmentId) {
+	    try {
+	        int deptId = Integer.parseInt(departmentId);
+	        List<Employee> employees = employeeDao.getEmployeesByDepartment(deptId);
+
+	        if (!employees.isEmpty()) {
+	            StringBuilder report = new StringBuilder("Department Report for Employees in Department ID " + departmentId + ":\n");
+	            for (Employee employee : employees) {
+	                report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
+	                report.append("Name: ").append(employee.getName()).append(", ");
+	                report.append("Department ID: ").append(employee.getDepartment().getDepartmentId()).append("\n");
+	            }
+	            return report.toString();
+	        } else {
+	            return "No employees found in Department ID " + departmentId;
+	        }
+	    } catch (NumberFormatException e) {
+	        return "Invalid department ID format. Please provide a valid integer.";
+	    }
+	}
+
 
 
 }

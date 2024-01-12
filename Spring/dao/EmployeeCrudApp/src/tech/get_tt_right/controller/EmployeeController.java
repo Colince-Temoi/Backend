@@ -84,34 +84,63 @@ public class EmployeeController {
 				break;
 			}
 			case 4: {
-
 				System.out.println("Enter Employee Id to update:");
 				Integer updateEmployeeId = scan.nextInt();
-				EmployeeVo updatedEmployee = addEmployee(); // You canreuse the addEmployee() method for updates
-				updatedEmployee.setEmpId(updateEmployeeId.toString()); // Set the employee ID to update the correct record
-				String updateMessage = employeeService.updateEmployee(updatedEmployee);
-				System.out.println(updateMessage);
+
+				// Check if the employee with the given ID exists and is not soft-deleted
+				EmployeeVo existingEmployee = employeeService.getEmployeeById(updateEmployeeId);
+				if (existingEmployee != null && !"YES".equals(existingEmployee.getIsDeleted())) {
+					// Employee with the given ID is not soft-deleted
+					EmployeeVo updatedEmployee = addEmployee(); // You can reuse the addEmployee() method for updates
+					updatedEmployee.setEmpId(updateEmployeeId.toString()); // Set the employee ID to update the correct
+																			// record
+					String updateMessage = employeeService.updateEmployee(updatedEmployee);
+					System.out.println(updateMessage);
+				} else {
+					System.out.println("Employee with ID " + updateEmployeeId + " not found or is soft-deleted.");
+				}
 				break;
 
 			}
 			case 5: {
 				System.out.println("Enter Employee Id to delete:");
-			    int deleteEmployeeId = scan.nextInt();
-			    String deleteMessage = employeeService.deleteEmployee(deleteEmployeeId);
-			    System.out.println(deleteMessage);
-			    break;
+				int deleteEmployeeId = scan.nextInt();
+				String deleteMessage = employeeService.deleteEmployee(deleteEmployeeId);
+				System.out.println(deleteMessage);
+				break;
 			}
 			case 6: {
+				System.out.println("Enter salary to get report:");
+				double salary = scan.nextDouble();
 
+				// Call service method to get the report by salary
+				String salaryReport = employeeService.getReportBySalary(salary);
+
+				// Print the report
+				System.out.println(salaryReport);
 				break;
 			}
 			case 7: {
+				System.out.println("Enter hire date to get report [dd/mm/yyyy]:");
+				String hireDate = scan.next();
 
+				// Call service method to get the report by hire date
+				String hireDateReport = employeeService.getReportByHireDate(hireDate);
+
+				// Print the report
+				System.out.println(hireDateReport);
 				break;
 			}
 			case 8: {
-
-				break;
+				System.out.println("Enter department ID to get report:");
+			    String departmentId = scan.next();
+			    
+			    // Call service method to get the report by department
+			    String departmentReport = employeeService.getReportByDepartment(departmentId);
+			    
+			    // Print the report
+			    System.out.println(departmentReport);
+			    break;
 			}
 
 			case 9:
