@@ -127,6 +127,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    if (existingEmployee != null && !"YES".equals(existingEmployee.getIsDeleted())) {
 	        // Employee with the given ID is not soft-deleted
 	        // Convert EmployeeVo to Employee
+
+//	    	Converting id from inside this method
+	    	employee.setEmpId(Integer.parseInt(updatedEmployee.getEmpId()));
+//	    	The rest other properties will be converted from the method: convertFromVoToDto
 	        Employee employeeToUpdate = convertFromVoToDto(updatedEmployee);
 
 	        // Invoke DAO method to update the employee
@@ -151,7 +155,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    List<Employee> employees = employeeDao.getEmployeesBySalary(salary);
 
 	    if (!employees.isEmpty()) {
-	        StringBuilder report = new StringBuilder("Salary Report for Employees with Salary >= " + salary + ":\n");
+	        StringBuilder report = new StringBuilder("Salary Report for Employees with Salary >= " + salary + ":\n\n");
 	        for (Employee employee : employees) {
 	            report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
 	            report.append("Name: ").append(employee.getName()).append(", ");
@@ -170,7 +174,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	        List<Employee> employees = employeeDao.getEmployeesByHireDate(formattedDate);
 
 	        if (!employees.isEmpty()) {
-	            StringBuilder report = new StringBuilder("Hire Date Report for Employees hired on " + hireDate + ":\n");
+	            StringBuilder report = new StringBuilder("Hire Date Report for Employees hired on >= " + hireDate + ":\n\n");
 	            for (Employee employee : employees) {
 	                report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
 	                report.append("Name: ").append(employee.getName()).append(", ");
@@ -192,7 +196,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	        List<Employee> employees = employeeDao.getEmployeesByDepartment(deptId);
 
 	        if (!employees.isEmpty()) {
-	            StringBuilder report = new StringBuilder("Department Report for Employees in Department ID " + departmentId + ":\n");
+	            StringBuilder report = new StringBuilder("Department Report for Employees in Department ID " + departmentId + ":\n\n");
 	            for (Employee employee : employees) {
 	                report.append("Employee ID: ").append(employee.getEmpId()).append(", ");
 	                report.append("Name: ").append(employee.getName()).append(", ");
