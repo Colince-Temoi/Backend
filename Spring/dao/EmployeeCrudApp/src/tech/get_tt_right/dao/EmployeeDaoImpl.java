@@ -68,7 +68,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
 	@Override
 	public List<Employee> getAllEmployees() {
-		final String selectQuery = "SELECT emp_id,name, salary, hire_date,dept_id FROM empcrud_schema.t_emp;";
+		final String selectQuery = "SELECT emp_id,name, salary, hire_date,dept_id FROM empcrud_schema.t_emp WHERE is_deleted = 'NO';";
 
 		List<Employee> employeeList = new ArrayList<>();
 
@@ -105,17 +105,96 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
 	@Override
 	public Employee getEmployeeById(int employeeId) {
-	    final String selectQuery = "SELECT emp_id, name, salary, hire_date, dept_id FROM empcrud_schema.t_emp WHERE emp_id = ?;";
-	    Employee employee = null;
+		final String selectQuery = "SELECT emp_id, name, salary, hire_date, dept_id FROM empcrud_schema.t_emp WHERE emp_id = ? AND is_deleted = 'NO'";
+		Employee employee = null;
+
+		try {
+			PreparedStatement ps = con.prepareStatement(selectQuery);
+			ps.setInt(1, employeeId);
+
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				employee = new Employee();
+				employee.setEmpId(rs.getInt("emp_id"));
+				employee.setName(rs.getString("name"));
+				employee.setSalary(rs.getDouble("salary"));
+				employee.setHire_date(rs.getDate("hire_date"));
+
+				// Set only the department ID
+				Department department = new Department();
+				department.setDepartmentId(rs.getInt("dept_id"));
+				employee.setDepartment(department);
+			}
+
+			rs.close();
+			ps.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return employee;
+	}
+
+	@Override
+	public String updateEmployee(Employee employee) {
+		final String updateQuery = "UPDATE empcrud_schema.t_emp SET name = ?, salary = ?, hire_date = ?, dept_id = ?, is_deleted = ? WHERE emp_id = ?";
+
+		try {
+			PreparedStatement ps = con.prepareStatement(updateQuery);
+			ps.setString(1, employee.getName());
+			ps.setDouble(2, employee.getSalary());
+			ps.setDate(3, new Date(employee.getHire_date().getTime()));
+			ps.setInt(4, employee.getDepartment().getDepartmentId());
+			ps.setString(5, employee.getIsDeleted());
+			ps.setInt(6, employee.getEmpId());
+
+			int count = ps.executeUpdate();
+			if (count > 0) {
+				return "Employee updated successfully.";
+			} else {
+				return "Failed to update employee.";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "Error updating employee.";
+		}
+	}
+
+	@Override
+	public String deleteEmployee(int deleteEmployeeId) {
+		final String updateQuery = "UPDATE empcrud_schema.t_emp SET is_deleted = 'YES' WHERE emp_id = ?;";
+
+		try {
+			PreparedStatement ps = con.prepareStatement(updateQuery);
+			ps.setInt(1, deleteEmployeeId);
+
+			int count = ps.executeUpdate();
+			if (count > 0) {
+				return "Employee with ID " + deleteEmployeeId + " soft deleted successfully.";
+			} else {
+				return "Failed to soft delete employee. Employee with ID " + deleteEmployeeId + " not found.";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "Error soft deleting employee.";
+		}
+	}
+
+	@Override
+	public List<Employee> getEmployeesByHireDate(java.util.Date formattedDate) {
+	    final String selectQuery = "SELECT emp_id, name, salary, hire_date, dept_id FROM empcrud_schema.t_emp WHERE hire_date >= ? AND is_deleted = 'NO';";
+	    List<Employee> employeeList = new ArrayList<>();
 
 	    try {
 	        PreparedStatement ps = con.prepareStatement(selectQuery);
-	        ps.setInt(1, employeeId);
+	        ps.setDate(1, new Date(formattedDate.getTime()));
 
 	        ResultSet rs = ps.executeQuery();
 
-	        if (rs.next()) {
-	            employee = new Employee();
+	        while (rs.next()) {
+	            Employee employee = new Employee();
 	            employee.setEmpId(rs.getInt("emp_id"));
 	            employee.setName(rs.getString("name"));
 	            employee.setSalary(rs.getDouble("salary"));
@@ -125,6 +204,8 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	            Department department = new Department();
 	            department.setDepartmentId(rs.getInt("dept_id"));
 	            employee.setDepartment(department);
+
+	            employeeList.add(employee);
 	        }
 
 	        rs.close();
@@ -134,55 +215,80 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	        e.printStackTrace();
 	    }
 
-	    return employee;
+	    return employeeList;
 	}
 
 	@Override
-	public String updateEmployee(Employee employee) {
-	    final String updateQuery = "UPDATE empcrud_schema.t_emp SET name = ?, salary = ?, hire_date = ?, dept_id = ?, is_deleted = ? WHERE emp_id = ?;";
+	public List<Employee> getEmployeesBySalary(double salary) {
+	    final String selectQuery = "SELECT emp_id, name, salary, hire_date, dept_id FROM empcrud_schema.t_emp WHERE salary >= ? AND is_deleted = 'NO';";
+	    List<Employee> employeeList = new ArrayList<>();
 
 	    try {
-	        PreparedStatement ps = con.prepareStatement(updateQuery);
-	        ps.setString(1, employee.getName());
-	        ps.setDouble(2, employee.getSalary());
-	        ps.setDate(3, new Date(employee.getHire_date().getTime()));
-	        ps.setInt(4, employee.getDepartment().getDepartmentId());
-	        ps.setString(5, employee.getIsDeleted());
-	        ps.setInt(6, employee.getEmpId());
+	        PreparedStatement ps = con.prepareStatement(selectQuery);
+	        ps.setDouble(1, salary);
 
-	        int count = ps.executeUpdate();
-	        if (count > 0) {
-	            return "Employee updated successfully.";
-	        } else {
-	            return "Failed to update employee.";
+	        ResultSet rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            Employee employee = new Employee();
+	            employee.setEmpId(rs.getInt("emp_id"));
+	            employee.setName(rs.getString("name"));
+	            employee.setSalary(rs.getDouble("salary"));
+	            employee.setHire_date(rs.getDate("hire_date"));
+
+	            // Set only the department ID
+	            Department department = new Department();
+	            department.setDepartmentId(rs.getInt("dept_id"));
+	            employee.setDepartment(department);
+
+	            employeeList.add(employee);
 	        }
+
+	        rs.close();
+	        ps.close();
+
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	        return "Error updating employee.";
 	    }
+
+	    return employeeList;
 	}
 
 	@Override
-	public String deleteEmployee(int deleteEmployeeId) {
-	    final String updateQuery = "UPDATE empcrud_schema.t_emp SET is_deleted = 'YES' WHERE emp_id = ?;";
+	public List<Employee> getEmployeesByDepartment(int deptId) {
+	    final String selectQuery = "SELECT emp_id, name, salary, hire_date, dept_id FROM empcrud_schema.t_emp WHERE dept_id = ? AND is_deleted = 'NO';";
+	    List<Employee> employeeList = new ArrayList<>();
 
 	    try {
-	        PreparedStatement ps = con.prepareStatement(updateQuery);
-	        ps.setInt(1, deleteEmployeeId);
+	        PreparedStatement ps = con.prepareStatement(selectQuery);
+	        ps.setInt(1, deptId);
 
-	        int count = ps.executeUpdate();
-	        if (count > 0) {
-	            return "Employee with ID " + deleteEmployeeId + " soft deleted successfully.";
-	        } else {
-	            return "Failed to soft delete employee. Employee with ID " + deleteEmployeeId + " not found.";
+	        ResultSet rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            Employee employee = new Employee();
+	            employee.setEmpId(rs.getInt("emp_id"));
+	            employee.setName(rs.getString("name"));
+	            employee.setSalary(rs.getDouble("salary"));
+	            employee.setHire_date(rs.getDate("hire_date"));
+
+	            // Set only the department ID
+	            Department department = new Department();
+	            department.setDepartmentId(rs.getInt("dept_id"));
+	            employee.setDepartment(department);
+
+	            employeeList.add(employee);
 	        }
+
+	        rs.close();
+	        ps.close();
+
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	        return "Error soft deleting employee.";
 	    }
+
+	    return employeeList;
 	}
-
-
 
 
 }

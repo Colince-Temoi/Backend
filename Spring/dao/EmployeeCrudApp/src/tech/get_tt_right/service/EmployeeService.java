@@ -16,4 +16,10 @@ public interface EmployeeService {
 
 	String deleteEmployee(int deleteEmployeeId);
 
+	String getReportBySalary(double salary);
+
+	String getReportByHireDate(String hireDate);
+
+	String getReportByDepartment(String departmentId);
+
 }
