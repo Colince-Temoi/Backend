@@ -109,7 +109,9 @@
                                     </td>
                                     <td>${emp.employmentType}</td>
                                     <td>${emp.departments.name}</td>
-                                    <td><a class="btn btn-danger" href="./deleteEmp?empId=${emp.employeeId}">Del</a>
+                                    <td>
+                                        <!-- Links -->
+                                        <a class="btn btn-danger" href="./deleteEmp?empId=${emp.employeeId}">Delete</a>
                                         <a class="btn btn-warning" href="./updateEmp?empId=${emp.employeeId}">Update</a>
                                     </td>
                                 </tr>

@@ -10,4 +10,6 @@ public interface EmployeeDao {
 
 	String saveEmp(Employees emp);
 
+	String deleteEmpById(Integer eId);
+
 }

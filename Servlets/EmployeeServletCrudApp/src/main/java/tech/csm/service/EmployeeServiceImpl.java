@@ -24,4 +24,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeDao.saveEmp(emp);
 	}
 
+	@Override
+	public String deleteEmpById(Integer eId) {
+		return employeeDao.deleteEmpById(eId);
+	}
+
 }

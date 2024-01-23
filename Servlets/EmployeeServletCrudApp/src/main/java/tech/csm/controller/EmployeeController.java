@@ -93,10 +93,21 @@ public class EmployeeController extends HttpServlet {
 			 */
 
 			String msg = employeeService.saveEmp(emp);
-			
+
 			System.out.println(msg);
 //			On successful saving redirect to ./
 			response.sendRedirect("./");
+		} else if (endpoint.equals("/deleteEmp")) {
+//			System.out.println(endpoint);
+			Integer eId = Integer.parseInt(request.getParameter("empId"));
+//			System.out.println(eId+" is the record id to be deleted!");
+			
+//			We are expecting some String, but we cannot print it now until we have an idea on Sessions
+			String msg = employeeService.deleteEmpById(eId);
+			
+//			On successful deleting redirect to ./
+			response.sendRedirect("./");
+
 		}
 
 	}

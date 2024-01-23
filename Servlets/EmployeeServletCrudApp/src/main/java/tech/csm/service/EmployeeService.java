@@ -10,4 +10,6 @@ public interface EmployeeService {
 
 	String saveEmp(Employees emp);
 
+	String deleteEmpById(Integer eId);
+
 }
