@@ -8,4 +8,6 @@ public interface EmployeeDao {
 
 	List<Employees> getAllEmps();
 
+	String saveEmp(Employees emp);
+
 }

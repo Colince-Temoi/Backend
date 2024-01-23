@@ -9,14 +9,19 @@ import tech.csm.entity.Employees;
 public class EmployeeServiceImpl implements EmployeeService {
 
 	private EmployeeDao employeeDao;
-	
+
 	public EmployeeServiceImpl() {
-		employeeDao=new EmployeeDaoImpl();
+		employeeDao = new EmployeeDaoImpl();
 	}
-	
+
 	@Override
 	public List<Employees> getAllEmployees() {
 		return employeeDao.getAllEmps();
+	}
+
+	@Override
+	public String saveEmp(Employees emp) {
+		return employeeDao.saveEmp(emp);
 	}
 
 }

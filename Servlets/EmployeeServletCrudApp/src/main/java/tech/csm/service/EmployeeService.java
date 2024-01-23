@@ -8,4 +8,6 @@ public interface EmployeeService {
 
 	List<Employees> getAllEmployees();
 
+	String saveEmp(Employees emp);
+
 }

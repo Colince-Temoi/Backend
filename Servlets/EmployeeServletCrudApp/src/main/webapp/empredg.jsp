@@ -25,7 +25,7 @@
                         <div class="card-body">
                             <!-- Its a good practice to put a form inside a container -->
                             <div class="container">
-                                <form action="" method="">
+                                <form action="./saveEmp" method="post">
                                     <!-- One row conists 12 columns -->
                                     <div class="row">
                                         <div class="col-4">
