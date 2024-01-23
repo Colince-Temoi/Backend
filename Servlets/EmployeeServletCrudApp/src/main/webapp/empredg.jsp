@@ -79,7 +79,48 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mt-2">
+                        <div class="h3">All Emp Data</div>
+                    </div>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sl.#</th>
+                                <th>Emp Id</th>
+                                <th>Name</th>
+                                <th>Salary</th>
+                                <th>Hire Date</th>
+                                <th>Emp Type</th>
+                                <th>Department</th>
+                                <th>Action</th>
+                            </tr>
+
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${emplist}" var="emp" varStatus="counter">
+                                <tr>
+                                    <!-- This will act as our Serial number -->
+                                    <td>${counter.count}</td>
+                                    <td>${emp.employeeId}</td>
+                                    <td>${emp.name}</td>
+                                    <td>${emp.salary}</td>
+                                    <td>
+                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${emp.hireDate}" />
+                                    </td>
+                                    <td>${emp.employmentType}</td>
+                                    <td>${emp.departments.name}</td>
+                                    <td><a class="btn btn-danger" href="./deleteEmp?empId=${emp.employeeId}">Del</a>
+                                        <a class="btn btn-warning" href="./updateEmp?empId=${emp.employeeId}">Update</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+
+                        </tbody>
+
+                    </table>
+
                 </div>
+
             </body>
 
             </html>
