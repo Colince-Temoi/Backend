@@ -80,4 +80,16 @@ public class EmployeeDaoImpl implements EmployeeDao {
 		return res;
 	}
 
+	@Override
+	public Employees getEmpById(Integer eId) {
+//		Create store to receive the Employee gotten by Id
+		Employees e=null;
+//		Get the Session object
+		Session ses = DBUtil.getSessionFactory().openSession();
+//		This code will return the employee object by the passed id input.
+		e=ses.get(Employees.class, eId);
+		ses.close();
+		return e;
+	}
+
 }

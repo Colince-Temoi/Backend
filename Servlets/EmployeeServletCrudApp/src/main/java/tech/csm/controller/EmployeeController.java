@@ -87,10 +87,11 @@ public class EmployeeController extends HttpServlet {
 			emp.setDepartments(d);
 			emp.setIsDelete("NO");
 
-//			If not empty, that's when we will set; else do not set. It will be AI from the DB end.
-			/*
-			 * if (!eId1.isEmpty()) { emp.setEmployeeId(Integer.parseInt(eId1)); }
-			 */
+//			If not empty, that's when we will set; It will have a value when we hit the ./update end-point
+
+			if (!eId1.isEmpty()) {
+				emp.setEmployeeId(Integer.parseInt(eId1));
+			}
 
 			String msg = employeeService.saveEmp(emp);
 
@@ -101,13 +102,26 @@ public class EmployeeController extends HttpServlet {
 //			System.out.println(endpoint);
 			Integer eId = Integer.parseInt(request.getParameter("empId"));
 //			System.out.println(eId+" is the record id to be deleted!");
-			
+
 //			We are expecting some String, but we cannot print it now until we have an idea on Sessions
 			String msg = employeeService.deleteEmpById(eId);
-			
+
 //			On successful deleting redirect to ./
 			response.sendRedirect("./");
 
+		}else if(endpoint.equals("/updateEmp")) {
+//			Take the id from the query string based on the key
+			Integer eId=Integer.parseInt(request.getParameter("empId"));
+//			Invoke getEmpBy id Service method
+			Employees em=employeeService.getEmpById(eId);
+			
+//			Set the 3 object into the request object ready for dispatching to our form
+			request.setAttribute("deptlist", departmentService.getAllDepartments());
+			request.setAttribute("emplist", employeeService.getAllEmployees());
+			request.setAttribute("e", em);
+//			Now, when you hit this /update end-point these 3 things will be present with us in the form
+			RequestDispatcher rd = request.getRequestDispatcher("/empredg.jsp");
+			rd.forward(request, response);
 		}
 
 	}

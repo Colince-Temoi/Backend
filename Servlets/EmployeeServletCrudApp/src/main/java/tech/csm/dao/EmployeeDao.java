@@ -12,4 +12,6 @@ public interface EmployeeDao {
 
 	String deleteEmpById(Integer eId);
 
+	Employees getEmpById(Integer eId);
+
 }

@@ -12,4 +12,6 @@ public interface EmployeeService {
 
 	String deleteEmpById(Integer eId);
 
+	Employees getEmpById(Integer eId);
+
 }
