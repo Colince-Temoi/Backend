@@ -60,7 +60,7 @@
 											</select>
 										</div>
 										<div class="col-4">
-											<label for="popId" class="font-weight-bold">Upload Auth
+											<label for="adocId" class="font-weight-bold">Upload Auth
 												Doc</label> <input type="file" class="form-control" name="adoc"
 												id="adocId">
 										</div>

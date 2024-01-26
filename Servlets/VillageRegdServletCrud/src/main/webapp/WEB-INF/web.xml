@@ -28,6 +28,16 @@
     	<url-pattern>/getConstituenciesByCountyId</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+    	<servlet-name>saveVillage</servlet-name>
+    	<servlet-class>tech.csm.controller.SaveVillage</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>saveVillage</servlet-name>
+    	<url-pattern>/saveVillage</url-pattern>
+    </servlet-mapping>
+    
     <jsp-config>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
