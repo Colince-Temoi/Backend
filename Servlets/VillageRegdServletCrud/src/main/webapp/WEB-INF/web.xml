@@ -38,6 +38,16 @@
     	<url-pattern>/saveVillage</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+    	<servlet-name>downloadAuthDoc</servlet-name>
+    	<servlet-class>tech.csm.controller.DownloadController</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>downloadAuthDoc</servlet-name>
+    	<url-pattern>/download</url-pattern>
+    </servlet-mapping>
+    
     <jsp-config>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>

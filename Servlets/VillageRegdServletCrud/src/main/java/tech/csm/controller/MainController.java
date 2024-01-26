@@ -11,17 +11,22 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tech.csm.entity.County;
+import tech.csm.entity.Village;
 import tech.csm.service.CountyService;
 import tech.csm.service.CountyServiceImpl;
+import tech.csm.service.VillageService;
+import tech.csm.service.VillageServiceImpl;
 import tech.csm.util.DBUtil;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 5, maxFileSize = 1024 * 1024 * 10)
 public class MainController extends HttpServlet {
 
 	private CountyService countyservice;
+	private VillageService villageService;
 
 	public MainController() {
 		countyservice = new CountyServiceImpl();
+		villageService=new VillageServiceImpl();
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -40,8 +45,13 @@ public class MainController extends HttpServlet {
 		if (endPoint.equals("/")) {
 
 			List<County> countyList = countyservice.getAllCounties();
+			
+			List<Village> villageList=villageService.getAllVillages();
+			
+//			System.out.println(villageList);
 
 			req.setAttribute("countyList", countyList);
+			req.setAttribute("villageList", villageList);
 
 			RequestDispatcher rd = req.getRequestDispatcher("/villageRegdForm.jsp");
 			rd.forward(req, resp);
@@ -53,6 +63,9 @@ public class MainController extends HttpServlet {
 		} else if (endPoint.equals("/saveVlg")) {
 			RequestDispatcher rd = req.getRequestDispatcher("/saveVillage");
 			rd.forward(req, resp);
+		}else if(endPoint.equals("/downloadFile")) {
+			RequestDispatcher rd = req.getRequestDispatcher("/download");
+			rd.forward(req, resp);	
 		}
 	}
 

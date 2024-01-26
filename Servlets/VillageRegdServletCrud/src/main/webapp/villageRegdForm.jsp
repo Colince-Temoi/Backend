@@ -81,7 +81,7 @@
 						<form method="get" action="blockFilter">
 							<div class="row">
 								<div class="col-3">
-									<select name="blockfId" id="blockNamefId" class="form-control"
+									<select name="village" id="blockNamefId" class="form-control"
 										onchange="getPanchayatByBlockId(this.value)">
 										<option value="0">-select-</option>
 										<c:forEach items="${blockList}" var="block">
@@ -116,9 +116,9 @@
 										<td>${vlg.villageId}</td>
 										<td>${vlg.name}</td>
 										<td>${vlg.population}</td>
-										<td>${vlg.panchayat.name}</td>
-										<td>${vlg.panchayat.block.name}</td>
-										<td><a href="./downloadFile?fileName=${vlg.authDoc}">${vlg.authDoc}</a></td>
+										<td>${vlg.constituency.name}</td>
+										<td>${vlg.constituency.county.name}</td>
+										<td><a href="./download?fileName=${vlg.authDoc}">${vlg.authDoc}</a></td>
 									</tr>
 								</c:forEach>
 

@@ -1,7 +1,10 @@
 package tech.csm.dao;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import tech.csm.entity.Village;
 import tech.csm.util.DBUtil;
@@ -27,6 +30,26 @@ public class VillageDaoImpl implements VillageDao {
 		ses.close();
 		
 		return msg;
+	}
+
+	@Override
+	public List<Village> getAllVillages() {
+		
+//		Prepare query
+		final String seQuery="from Village";
+		
+//		Get session object
+		Session ses = DBUtil.getSessionFactory().openSession();
+		
+//		Execute query
+		Query<Village> qr = ses.createQuery(seQuery);
+		
+//		Return a list of Villages
+		List<Village> villageList=qr.list();
+		
+		
+		ses.close();
+		return villageList;
 	}
 
 }
