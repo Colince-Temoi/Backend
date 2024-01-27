@@ -10,4 +10,6 @@ public interface VillageService {
 
 	List<Village> getAllVillages();
 
+	List<Village> getVillageByBlockId(Integer bId);
+
 }

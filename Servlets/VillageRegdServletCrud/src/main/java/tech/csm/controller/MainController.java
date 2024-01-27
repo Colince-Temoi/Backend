@@ -40,7 +40,7 @@ public class MainController extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String endPoint = req.getServletPath();
 
-		PrintWriter pw = resp.getWriter();
+//		PrintWriter pw = resp.getWriter();
 
 		if (endPoint.equals("/")) {
 
@@ -65,6 +65,9 @@ public class MainController extends HttpServlet {
 			rd.forward(req, resp);
 		}else if(endPoint.equals("/downloadFile")) {
 			RequestDispatcher rd = req.getRequestDispatcher("/download");
+			rd.forward(req, resp);	
+		}else if(endPoint.equals("/countyFilter")) {
+			RequestDispatcher rd = req.getRequestDispatcher("/filter");
 			rd.forward(req, resp);	
 		}
 	}

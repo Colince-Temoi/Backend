@@ -10,4 +10,6 @@ public interface VillageDao {
 
 	List<Village> getAllVillages();
 
+	List<Village> getVillageByBlockId(Integer bId);
+
 }

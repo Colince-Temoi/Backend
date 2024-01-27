@@ -41,12 +41,33 @@ public class VillageDaoImpl implements VillageDao {
 //		Get session object
 		Session ses = DBUtil.getSessionFactory().openSession();
 		
-//		Execute query
+//		prepare the query: Just like PS object
 		Query<Village> qr = ses.createQuery(seQuery);
 		
-//		Return a list of Villages
+//		Return a list of Villages on top of qr object
 		List<Village> villageList=qr.list();
 		
+		
+		ses.close();
+		return villageList;
+	}
+
+	@Override
+	public List<Village> getVillageByBlockId(Integer cId) {
+//		Prepare query String
+		final String seQuery="from Village v where v.constituency.county.countyId=:cid";
+		
+//		Get session object
+		Session ses = DBUtil.getSessionFactory().openSession();
+		
+//		prepare the query: Just like PS object
+		Query<Village> qr = ses.createQuery(seQuery);
+		
+//		Set values into the query placeholder(s)
+		qr.setParameter("cid", cId);
+		
+//		Return a list of Villages on top of qr object
+		List<Village> villageList=qr.list();
 		
 		ses.close();
 		return villageList;

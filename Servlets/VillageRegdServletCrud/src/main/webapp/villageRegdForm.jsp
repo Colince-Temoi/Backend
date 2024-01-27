@@ -41,8 +41,8 @@
 
 
 										<div class="col-4">
-											<label for="blockNameId" class="font-weight-bold">County</label>
-											<select name="blockId" id="blockNameId" class="form-control"
+											<label for="countyId" class="font-weight-bold">County</label>
+											<select name="county" id="countyId" class="form-control"
 												onchange="getAllConstituenciesByCountyId(this.value)">
 												<option value="0">-select-</option>
 												<c:forEach items="${countyList}" var="county">
@@ -77,20 +77,22 @@
 
 					<div class="mt-2">
 						<div class="h3">All Village Data</div>
+						<!-- We are not saving things to the Server end, we are retriving the things hance for the form we require  to make its method attribute as GET -->
 
-						<form method="get" action="blockFilter">
+						<!-- <div class="container"> -->
+						<form method="get" action="countyFilter">
 							<div class="row">
 								<div class="col-3">
-									<select name="village" id="blockNamefId" class="form-control"
-										onchange="getPanchayatByBlockId(this.value)">
+									<!-- <label for="countyfilterId" class="font-weight-bold">Filter By County</label> -->
+									<select name="countyfilter" id="countyfilterId" class="form-control"
+										onchange="getAllConstituenciesByCountyId(this.value)">
 										<option value="0">-select-</option>
-										<c:forEach items="${blockList}" var="block">
-											<option value="${block.blockId}">${block.name}</option>
+										<c:forEach items="${countyList}" var="county">
+											<option value="${county.countyId}">${county.name}</option>
 										</c:forEach>
 									</select>
 								</div>
-								<input type="submit" class="btn btn-success" value="search" class="form-control">
-
+								<input type="submit" class="btn btn-success" value="Search" class="form-control">
 							</div>
 						</form>
 
@@ -118,7 +120,7 @@
 										<td>${vlg.population}</td>
 										<td>${vlg.constituency.name}</td>
 										<td>${vlg.constituency.county.name}</td>
-										<td><a href="./download?fileName=${vlg.authDoc}">${vlg.authDoc}</a></td>
+										<td><a href="./downloadFile?fileName=${vlg.authDoc}">${vlg.authDoc}</a></td>
 									</tr>
 								</c:forEach>
 

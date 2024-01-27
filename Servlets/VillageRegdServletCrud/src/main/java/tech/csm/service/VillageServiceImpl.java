@@ -20,5 +20,9 @@ public class VillageServiceImpl implements VillageService {
 	public List<Village> getAllVillages() {
 		return villageDao.getAllVillages();
 	}
+	@Override
+	public List<Village> getVillageByBlockId(Integer cId) {
+		return villageDao.getVillageByBlockId(cId);
+	}
 
 }

@@ -48,6 +48,16 @@
     	<url-pattern>/download</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+    	<servlet-name>filterController</servlet-name>
+    	<servlet-class>tech.csm.controller.FilterController</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>filterController</servlet-name>
+    	<url-pattern>/filter</url-pattern>
+    </servlet-mapping>
+    
     <jsp-config>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
