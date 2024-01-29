@@ -35,6 +35,8 @@ public class FilterController extends HttpServlet {
 //		Get County Id based on which to perform filtration
 		Integer cId=Integer.parseInt(req.getParameter("countyfilter"));
 		
+//		Perform appropriate modifications here to make sure that pagination also applies for the filtered villages by county id
+		
 		List<Village> villageList=villageService.getVillageByBlockId(cId);
 		
 //		Set the list of filtered villages to request object 
