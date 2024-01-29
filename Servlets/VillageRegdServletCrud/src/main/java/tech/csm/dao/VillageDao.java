@@ -8,8 +8,10 @@ public interface VillageDao {
 
 	String saveVillage(Village v);
 
-	List<Village> getAllVillages();
+	List<Village> getAllVillages(Integer pageNo, Integer pageSize);
 
 	List<Village> getVillageByBlockId(Integer bId);
+
+	Long getTableSize();
 
 }

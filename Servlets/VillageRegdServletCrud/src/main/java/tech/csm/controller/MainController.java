@@ -2,6 +2,7 @@ package tech.csm.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.RequestDispatcher;
@@ -20,7 +21,14 @@ import tech.csm.util.DBUtil;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 5, maxFileSize = 1024 * 1024 * 10)
 public class MainController extends HttpServlet {
+	
+//	primitive dependencies
+//	Setting the default page size.
+	Integer pageSize = 4;  
 
+	
+
+//	Secondary dependencies
 	private CountyService countyservice;
 	private VillageService villageService;
 
@@ -43,15 +51,41 @@ public class MainController extends HttpServlet {
 //		PrintWriter pw = resp.getWriter();
 
 		if (endPoint.equals("/")) {
+			Integer pageNo = 0;  
 
+//			Getting all Counties
 			List<County> countyList = countyservice.getAllCounties();
 			
-			List<Village> villageList=villageService.getAllVillages();
+
+			
+			
+//			Getting the table size: The count of records in Villages table
+			Long noOfRecords=villageService.getTableSize();
+			
+//			A list to store the # of possible pages
+			List<Integer> pageList=new ArrayList<>();	
+			
+			for(int i=0,j=1;i<noOfRecords;i+=pageSize,j++)
+				pageList.add(j);
 			
 //			System.out.println(villageList);
+//			System.out.println(noOfRecords);
+//			System.out.println(pageList);
+			
+//			Grabbing the page number the user has clicked and storing it into the pageNo variable
+			if(!(req.getParameter("pageNo")==null))
+				pageNo=Integer.parseInt(req.getParameter("pageNo"));
+			
+			
+//			Getting all Villages
+//			List<Village> villageList=villageService.getAllVillages();
+			List<Village> villageList=villageService.getAllVillages(pageNo,pageSize);
+			
+//			System.out.println(page	
 
 			req.setAttribute("countyList", countyList);
 			req.setAttribute("villageList", villageList);
+			req.setAttribute("pageList", pageList);
 
 			RequestDispatcher rd = req.getRequestDispatcher("/villageRegdForm.jsp");
 			rd.forward(req, resp);

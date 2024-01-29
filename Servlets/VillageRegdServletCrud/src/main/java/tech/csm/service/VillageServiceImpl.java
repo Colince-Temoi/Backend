@@ -7,22 +7,36 @@ import tech.csm.dao.VillageDaoImpl;
 import tech.csm.entity.Village;
 
 public class VillageServiceImpl implements VillageService {
-	private VillageDao  villageDao;
+	private VillageDao villageDao;
+
 	public VillageServiceImpl() {
-		villageDao=new VillageDaoImpl();
+		villageDao = new VillageDaoImpl();
 	}
+
 	@Override
 	public String saveVillage(Village v) {
-		
+
 		return villageDao.saveVillage(v);
 	}
+
+	/*
+	 * @Override public List<Village> getAllVillages() { return
+	 * villageDao.getAllVillages(); }
+	 */
+
 	@Override
-	public List<Village> getAllVillages() {
-		return villageDao.getAllVillages();
+	public List<Village> getAllVillages(Integer pageNo, Integer pageSize) {
+		return villageDao.getAllVillages(pageNo, pageSize);
 	}
+
 	@Override
 	public List<Village> getVillageByBlockId(Integer cId) {
 		return villageDao.getVillageByBlockId(cId);
+	}
+
+	@Override
+	public Long getTableSize() {
+		return villageDao.getTableSize();
 	}
 
 }
