@@ -14,4 +14,6 @@ public interface VillageService {
 
 	Long getTableSize();
 
+	List<Village> getAllVillages();
+
 }

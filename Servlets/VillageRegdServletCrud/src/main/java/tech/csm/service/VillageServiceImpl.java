@@ -19,10 +19,10 @@ public class VillageServiceImpl implements VillageService {
 		return villageDao.saveVillage(v);
 	}
 
-	/*
-	 * @Override public List<Village> getAllVillages() { return
-	 * villageDao.getAllVillages(); }
-	 */
+	@Override
+	public List<Village> getAllVillages() {
+		return villageDao.getAllVillages();
+	}
 
 	@Override
 	public List<Village> getAllVillages(Integer pageNo, Integer pageSize) {

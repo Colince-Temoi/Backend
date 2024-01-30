@@ -104,6 +104,10 @@ public class MainController extends HttpServlet {
 			RequestDispatcher rd = req.getRequestDispatcher("/filter");
 			rd.forward(req, resp);	
 		}
+		else if(endPoint.equals("/getVillageRedgForm1")) {
+			RequestDispatcher rd = req.getRequestDispatcher("/getVillageRedgForm1");
+			rd.forward(req, resp);	
+		}
 	}
 
 	@Override

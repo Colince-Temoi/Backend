@@ -58,6 +58,16 @@
     	<url-pattern>/filter</url-pattern>
     </servlet-mapping>
     
+    <servlet>
+    	<servlet-name>getVillageRedgForm1</servlet-name>
+    	<servlet-class>tech.csm.controller.GetRedgForm1</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>getVillageRedgForm1</servlet-name>
+    	<url-pattern>/getVillageRedgForm1</url-pattern>
+    </servlet-mapping>
+    
     <jsp-config>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>

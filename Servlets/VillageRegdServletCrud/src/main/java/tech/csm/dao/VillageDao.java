@@ -14,4 +14,6 @@ public interface VillageDao {
 
 	Long getTableSize();
 
+	List<Village> getAllVillages();
+
 }
