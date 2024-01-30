@@ -130,7 +130,7 @@
 
 						<div>
 							<c:forEach items="${pageList}" var="pn">
-								<a class="btn btn-success" href="./getRegdForm?pageNo=${pn-1}">${pn}</a>
+								<a class="btn btn-success" href="./?pageNo=${pn-1}">${pn}</a>
 							</c:forEach>
 
 

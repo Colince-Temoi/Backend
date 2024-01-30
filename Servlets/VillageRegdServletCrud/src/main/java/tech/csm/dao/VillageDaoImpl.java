@@ -32,9 +32,25 @@ public class VillageDaoImpl implements VillageDao {
 		return msg;
 	}
 
+	/*
+	 * @Override public List<Village> getAllVillages() {
+	 * 
+	 * // Prepare query final String seQuery="from Village";
+	 * 
+	 * // Get session object Session ses = DBUtil.getSessionFactory().openSession();
+	 * 
+	 * // prepare the query: Just like PS object Query<Village> qr =
+	 * ses.createQuery(seQuery);
+	 * 
+	 * // Return a list of Villages on top of qr object List<Village>
+	 * villageList=qr.list();
+	 * 
+	 * 
+	 * ses.close(); return villageList; }
+	 */
+	
 	@Override
-	public List<Village> getAllVillages() {
-		
+	public List<Village> getAllVillages(Integer pageNo, Integer pageSize) {
 //		Prepare query
 		final String seQuery="from Village";
 		
@@ -43,6 +59,10 @@ public class VillageDaoImpl implements VillageDao {
 		
 //		prepare the query: Just like PS object
 		Query<Village> qr = ses.createQuery(seQuery);
+		
+//		Write the below 2 lines before executing the query
+		qr.setFirstResult(pageNo * pageSize);
+		qr.setMaxResults(pageSize);
 		
 //		Return a list of Villages on top of qr object
 		List<Village> villageList=qr.list();
@@ -72,5 +92,23 @@ public class VillageDaoImpl implements VillageDao {
 		ses.close();
 		return villageList;
 	}
+
+	@Override
+	public Long getTableSize() {
+//		Prepare a query to get the # of records in table
+		final String seQuery="select count(*) from Village";
+		
+//		Get Session object
+		Session ses = DBUtil.getSessionFactory().openSession();
+		
+//		ready the query: just like PS in JDBC
+		Query<Long> qr = ses.createQuery(seQuery);	
+//		Execute the query
+		Long nr=qr.uniqueResult();
+		ses.close();
+		return nr;
+	}
+
+
 
 }
