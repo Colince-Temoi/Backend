@@ -43,9 +43,7 @@
 										</div>
 										<div class="col-2">
 											<label for="noOfUnitsId" class="font-weight-bold">Number of Units</label>
-											<!-- <input
-												 type="text" class="form-control" name="noOfUnits" id="noOfUnitsId"
-												value="${noOfUnits.noOfUnits}" /> -->
+											<input type="text" class="form-control" name="noOfUnits" id="noOfUnitsId" />
 										</div>
 									</div>
 

@@ -20,8 +20,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Table(name = "t_constituency")
-public class Sales implements Serializable {
+@Table(name = "sales")
+public class Sale implements Serializable {
 
 	/**
 	 * 
