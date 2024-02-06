@@ -1,5 +1,7 @@
 package tech.csm.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpServletResponse;
 import tech.csm.entity.Customer;
 import tech.csm.entity.Product;
 import tech.csm.entity.Sale;
@@ -35,34 +39,19 @@ public class MainController {
 		
 		List<Customer> customerList = customerService.getAllCustomers();
 		List<Product> productList = productService.getAllProducts();
+		List<Sale> salesList = saleService.getAllSales();
 		
 		model.addAttribute("customerList", customerList);
 		model.addAttribute("productList", productList);
+		model.addAttribute("salesList", salesList);
 		
 		return "salesform";
 	}
 	
 	@PostMapping("/saveSale")
 	public String saveSale(@ModelAttribute Sale sale) {
-		/*Set Sales entity with some data
-		 * 
-		 * We need to create a Sales object? Spring Container will take care of that.
-		 * We need to set our inputs to the Created entity object? @ModelAttribute is binding our Form data with all possible attributes of our Sales entity.
-		 * In this case, @ModelAttribute is behind the scenes setting for us:
-		    primitive attributes
-		    --------------------
-		      1. noOfUnits
-		      
-		    Secondary attributes
-		    --------------------
-		      1.customer
-		      2.product
-		 *It is doing so because these attributes we have them as input parameters in our form from which the /saveSale request is coming.
-		 *Whatever is not coming from the form. i.e., salesDate and salesId, these 2 we need to set them explicitly
-		 *Here we will only set the salesDate, salesId will be auto-generated from the DB hence no need to worry about it.
-		 *This is how to go about this situation given a scenario where you are getting data from a form in Spring boot.
-		 *NOTE: THE ATTRIBUTES WHICH WE ARE SETTING, THEIR RESPECTIVE INPUT FIELDS name ATTRIBUTE SHOULD MATCH!!! WHEN UTILIZING @ModelAttribute ANNOTATION.
-		 */	
+
+//		Set date-Reason: This is not coming from the form.
 		 sale.setSalesDate(new Date());
 		 
 //			Test to see that the data is coming
@@ -78,4 +67,20 @@ public class MainController {
 
 		return "redirect:./getSalesForm";
 	}
+	
+	@GetMapping("/getQuantityByProductId")
+	public void getQuantityByProductId(@RequestParam("productId") Integer productId,  HttpServletResponse resp) throws IOException {
+//		Get the Product
+		Product product = productService.getProduct(productId);	
+//		Sending the the response object back to the AJAX client
+		resp.getWriter().print(product.getProductStock());
+		
+	}
+	@GetMapping("/delSale")
+	public void name(@RequestParam("sid") Integer sid) {
+//		Invoke Service method to delete a Sale
+		Sale sale = saleService.deleteSale(sid);
+	}
+
+	
 }

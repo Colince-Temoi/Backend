@@ -1,5 +1,7 @@
 package tech.csm.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,19 @@ public class SaleServiceImpl implements SaleService {
 		return sale1;
 		
 		
+	}
+
+	@Override
+	public List<Sale> getAllSales() {
+		List<Sale> salesList = saleRepo.findAll();
+		return salesList;
+	}
+
+	@Override
+	public Sale deleteSale(Integer sid) {
+//		Logic to delete a Sale
+		
+		return null;
 	}
 
 }
