@@ -25,4 +25,19 @@ public class ProductServiceImpl implements ProductService {
 		return productRepo.findById(productId).get();
 	}
 
+	@Override
+	public Product updateProductStockUnits(Integer noOfUnits, Integer productId) {
+		Product product = getProduct(productId);
+		
+		Integer updatedStockUnits = Math.max(0, product.getProductStock()-noOfUnits);
+		
+		product.setProductStock(updatedStockUnits);
+		
+		productRepo.save(product);
+		
+		return product;
+	}
+	
+	
+
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tech.csm.entity.Product;
 import tech.csm.entity.Sale;
 import tech.csm.repository.SaleRepo;
 
@@ -13,6 +14,9 @@ public class SaleServiceImpl implements SaleService {
 	
 	@Autowired
 	private SaleRepo saleRepo;
+	
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	public Sale saveSale(Sale sale) {
@@ -20,6 +24,14 @@ public class SaleServiceImpl implements SaleService {
 //		System.out.println(sale);
 		
 //		Save the Sale: No need to perform any conversions from Vo to Dto here. This is taken care of behind the scenes.
+		Product product = sale.getProduct();
+		  
+	    product.getProductStock();
+//		Logic to save a sale
+//		First of all update Product table by subtracting the number of units sold
+		Product updatedProduct = productService.updateProductStockUnits(Integer.parseInt(sale.getNoOfUnits()),sale.getProduct().getProductId());
+		
+//		Now Save the Sale
 		Sale sale1 = saleRepo.save(sale);	
 		
 //		Test to verify that the saved sale is being returned to us
@@ -39,6 +51,9 @@ public class SaleServiceImpl implements SaleService {
 	@Override
 	public Sale deleteSale(Integer sid) {
 //		Logic to delete a Sale
+//		Get Sale object
+		Sale sale = saleRepo.findById(sid).get();
+//		Update Product table
 		
 		return null;
 	}

@@ -8,4 +8,5 @@ import tech.csm.entity.Product;
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Integer> {
 
+
 }

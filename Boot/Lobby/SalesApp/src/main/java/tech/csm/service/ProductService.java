@@ -10,4 +10,6 @@ public interface ProductService {
 
 	Product getProduct(Integer productId);
 
+	Product updateProductStockUnits(Integer noOfUnits, Integer productId);
+
 }
