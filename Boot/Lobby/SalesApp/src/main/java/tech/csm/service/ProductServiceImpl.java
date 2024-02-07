@@ -27,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product updateProductStockUnits(Integer noOfUnits, Integer productId) {
+//		Get the product you need to update
 		Product product = getProduct(productId);
 		
 		Integer updatedStockUnits = Math.max(0, product.getProductStock()-noOfUnits);

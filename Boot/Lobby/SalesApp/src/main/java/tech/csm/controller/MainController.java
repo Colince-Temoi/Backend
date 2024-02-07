@@ -77,10 +77,31 @@ public class MainController {
 		
 	}
 	@GetMapping("/delSale")
-	public void name(@RequestParam("sid") Integer sid) {
+	public String delSale(@RequestParam("sid") Integer sid) {
 //		Invoke Service method to delete a Sale
 		Sale sale = saleService.deleteSale(sid);
+		return "redirect:./getSalesForm";
 	}
-
+	
+	@GetMapping("/getSaleToUpdateById")
+	public String getSaleToUpdateById(@RequestParam("sid") Integer sid, Model model) {
+//		Invoke Service method to get the Sale data you need to update
+		Sale saleToUpdate = saleService.getSaletoUpdate(sid);
+		
+//		Send this Sale back to the form
+		model.addAttribute("saleToUpdate", saleToUpdate);
+		
+//		Send back all the necessary data that need to be on the form so that things don't break up. Nothing but we are using all the code we have in /getSalesForm end-point
+		List<Customer> customerList = customerService.getAllCustomers();
+		List<Product> productList = productService.getAllProducts();
+		List<Sale> salesList = saleService.getAllSales();
+		
+		model.addAttribute("customerList", customerList);
+		model.addAttribute("productList", productList);
+		model.addAttribute("salesList", salesList);
+		
+		return "salesform";
+	}
+	
 	
 }

@@ -17,21 +17,27 @@
 			</head>
 
 			<body>
+				<!-- Testing to see if saleToUpdate is coming on clicking update button -->
+				<!-- ${saleToUpdate} -->
+
+
 				<div class="container mt-5">
 					<div class="h2 text-center text-danger">Customer Sales Form</div>
 					<div class="card">
 						<div class="card-header bg-light h3 text-primary">Sales Form</div>
-
 						<div class="card-body">
 							<div class="container">
 								<form action="./saveSale" method="post" enctype="multipart/form-data">
+									<input type="hidden" name="salesId" value="${saleToUpdate.salesId}">
 									<div class="row">
 										<div class="col-4">
 											<label for="customerId" class="font-weight-bold">Customer</label>
 											<select name="customer" id="customerId" class="form-control">
 												<option value="0">-select-</option>
 												<c:forEach items="${customerList}" var="customer">
-													<option value="${customer.customerId}">${customer.name}</option>
+													<option value="${customer.customerId}" <c:if
+														test="${customer.name == saleToUpdate.customer.name}">
+														selected='selected'</c:if>>${customer.name}</option>
 												</c:forEach>
 											</select>
 										</div>
@@ -41,7 +47,9 @@
 												onchange="getQuantityByProductId(this.value)">
 												<option value="0">-select-</option>
 												<c:forEach items="${productList}" var="product">
-													<option value="${product.productId}">${product.name}</option>
+													<option value="${product.productId}" <c:if
+														test="${product.name == saleToUpdate.product.name}">
+														selected='selected'</c:if>>${product.name}</option>
 												</c:forEach>
 											</select>
 										</div>
@@ -49,19 +57,22 @@
 										<div class="col-2">
 											<label for="qtyId" class="font-weight-bold">Available Quantity</label>
 											<input type="text" readonly="readonly" class="form-control"
-												name="productStock" id="qtyId" />
+												name="productStock" id="qtyId"
+												value="${saleToUpdate.product.productStock}" />
 										</div>
 
-										<div class="col-2">
+										<div class=" col-2">
 											<label for="noOfUnitsId" class="font-weight-bold">Number of Units</label>
-											<input type="text" class="form-control" name="noOfUnits" id="noOfUnitsId" />
+											<input type="text" class="form-control" name="noOfUnits" id="noOfUnitsId"
+												value="${saleToUpdate.noOfUnits}" />
 										</div>
 									</div>
 
-									<div class="mt-2 text-center">
-
-										<input type="submit" class="btn btn-success"> <input type="reset"
-											class="btn btn-warning">
+									<div class=" text-center mt-3">
+										<!-- <div class="btn-group"> -->
+										<input type="submit" value="${saleToUpdate eq null ?'Submit':'update'}"
+											class="btn btn-success"> <input type="reset" class="btn btn-warning">
+										<!-- </div> -->
 									</div>
 
 								</form>
@@ -93,9 +104,14 @@
 										<td>${sale.customer.name}</td>
 										<td>${sale.salesId}</td>
 										<td>${sale.product.name}</td>
-										<td>${sale.salesDate}</td>
+										<td>
+											<fmt:formatDate pattern="dd-MM-yyyy" value="${sale.salesDate}" />
+										</td>
 										<td>${sale.noOfUnits}</td>
-										<td><a href="./delSale?sid=${sale.salesId}" class="btn btn-danger">Delete</a>
+										<td><a href="./delSale?sid=${sale.salesId}"
+												class="btn btn-danger">Delete</a>&nbsp;&nbsp;<a
+												href="./getSaleToUpdateById?sid=${sale.salesId}"
+												class="btn btn-warning ">Update</a>
 										</td>
 									</tr>
 								</c:forEach>

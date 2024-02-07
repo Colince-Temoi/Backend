@@ -12,4 +12,6 @@ public interface SaleService {
 
 	Sale deleteSale(Integer sid);
 
+	Sale getSaletoUpdate(Integer sid);
+
 }

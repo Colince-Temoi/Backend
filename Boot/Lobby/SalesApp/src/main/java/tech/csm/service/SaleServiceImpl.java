@@ -31,7 +31,7 @@ public class SaleServiceImpl implements SaleService {
 //		First of all update Product table by subtracting the number of units sold
 		Product updatedProduct = productService.updateProductStockUnits(Integer.parseInt(sale.getNoOfUnits()),sale.getProduct().getProductId());
 		
-//		Now Save the Sale
+//		Now Save/Update the Sale
 		Sale sale1 = saleRepo.save(sale);	
 		
 //		Test to verify that the saved sale is being returned to us
@@ -51,11 +51,24 @@ public class SaleServiceImpl implements SaleService {
 	@Override
 	public Sale deleteSale(Integer sid) {
 //		Logic to delete a Sale
-//		Get Sale object
+//		Find the Sale to delete
 		Sale sale = saleRepo.findById(sid).get();
-//		Update Product table
+//		Get product details for stock update
+		Product product = sale.getProduct();
+		Integer soldUnits = Integer.parseInt(sale.getNoOfUnits());
 		
-		return null;
+//		Update Product Stock
+		productService.updateProductStockUnits(-soldUnits, product.getProductId());
+		
+//		Delete the Sale
+		saleRepo.delete(sale);
+		
+		return sale;
+	}
+
+	@Override
+	public Sale getSaletoUpdate(Integer sid) {	
+		return saleRepo.findById(sid).get();
 	}
 
 }
