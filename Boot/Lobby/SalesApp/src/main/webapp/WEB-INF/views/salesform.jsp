@@ -27,7 +27,9 @@
 						<div class="card-header bg-light h3 text-primary">Sales Form</div>
 						<div class="card-body">
 							<div class="container">
-								<form action="./saveSale" method="post" enctype="multipart/form-data">
+								<!-- If  onsubmit == false form is not valid and hence will not be submitted!-->
+								<form action="./saveSale" method="post" enctype="multipart/form-data"
+									onsubmit="return validateForm()">
 									<input type="hidden" name="salesId" value="${saleToUpdate.salesId}">
 									<div class="row">
 										<div class="col-4">
@@ -126,6 +128,44 @@
 
 				<!-- Scripting Area -->
 				<script type="text/javascript">
+
+					function validateForm() {
+						//  Get the default values associated with each input field
+						var c_name = $('#customerId').val(); // 0
+						var p_name = $('#productId').val(); // 0
+						var inputtedUnits = Number($('#noOfUnitsId').val()); // 0 or ""
+
+						// console.log(inputtedUnits);
+
+						var status = true;
+
+						// Validation logic
+						if (c_name == 0) {
+							alert("Please enter name!");
+							status = false;
+						}
+						if (p_name == 0) {
+							alert("Please Choose a Product!");
+							status = false;
+						}
+						if (inputtedUnits == "") {
+							alert("Please Enter the number of Units you want to sell!");
+							status = false;
+						} else {
+							//  check that the inputted untits are not > max required
+							var requiredAvailableStock = Number($('#qtyId').val());
+
+							if (inputtedUnits > requiredAvailableStock) {
+								alert("You cant sell more than is required! Try Selling less or same as the required!")
+								status = false;
+							}
+						}
+						// status = true;
+						// console.log(inputtedUnits);
+						return status;
+					}
+
+
 					function getQuantityByProductId(productId) {
 						// console.log("Js is working..." + productId);
 						$.ajax({
