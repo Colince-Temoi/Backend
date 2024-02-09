@@ -11,6 +11,7 @@
 				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
 					integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
 					crossorigin="anonymous">
+
 				<script src="https://code.jquery.com/jquery-2.2.4.min.js"
 					integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 
@@ -20,8 +21,13 @@
 				<!-- Testing to see if saleToUpdate is coming on clicking update button -->
 				<!-- ${saleToUpdate} -->
 
-
 				<div class="container mt-5">
+
+					<c:if test="${message ne null}">
+						<div class="alert alert-success" id="alertId">
+							${message}
+						</div>
+					</c:if>
 					<div class="h2 text-center text-danger">Customer Sales Form</div>
 					<div class="card">
 						<div class="card-header bg-light h3 text-primary">Sales Form</div>
@@ -128,6 +134,10 @@
 
 				<!-- Scripting Area -->
 				<script type="text/javascript">
+
+
+					$("#alertId").show();
+					setTimeout(function () { $("#alertId").hide(); }, 1000);
 
 					function validateForm() {
 						//  Get the default values associated with each input field

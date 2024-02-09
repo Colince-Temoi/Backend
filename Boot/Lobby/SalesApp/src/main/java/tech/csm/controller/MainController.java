@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletResponse;
 import tech.csm.entity.Customer;
@@ -49,8 +50,8 @@ public class MainController {
 	}
 	
 	@PostMapping("/saveSale")
-	public String saveSale(@ModelAttribute Sale sale) {
-
+	public String saveSale(@ModelAttribute Sale sale, RedirectAttributes rd) {
+		
 //		Set date-Reason: This is not coming from the form.
 		 sale.setSalesDate(new Date());
 		 
@@ -58,7 +59,8 @@ public class MainController {
 //			System.out.println(sale);
 		
 //		Now pass this data to service layer
-		Sale sale1 = saleService.saveSale(sale);
+		String msg = saleService.saveSale(sale);
+		rd.addFlashAttribute("message", msg);
 		
 		
 //		Test to verify that the saved sale is being returned to us
@@ -77,9 +79,10 @@ public class MainController {
 		
 	}
 	@GetMapping("/delSale")
-	public String delSale(@RequestParam("sid") Integer sid) {
+	public String delSale(@RequestParam("sid") Integer sid, RedirectAttributes rd) {
 //		Invoke Service method to delete a Sale
-		Sale sale = saleService.deleteSale(sid);
+		String msg = saleService.deleteSale(sid);
+		rd.addFlashAttribute("message", msg);
 		return "redirect:./getSalesForm";
 	}
 	

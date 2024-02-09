@@ -6,11 +6,11 @@ import tech.csm.entity.Sale;
 
 public interface SaleService {
 
-	Sale saveSale(Sale sale);
+	String saveSale(Sale sale);
 
 	List<Sale> getAllSales();
 
-	Sale deleteSale(Integer sid);
+	String deleteSale(Integer sid);
 
 	Sale getSaletoUpdate(Integer sid);
 
