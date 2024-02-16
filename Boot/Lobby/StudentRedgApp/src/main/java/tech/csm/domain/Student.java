@@ -6,6 +6,7 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,7 +15,16 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
+@ToString
+@Entity
+@Table(name = "t_student_master")
 public class Student implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -25,7 +35,7 @@ public class Student implements Serializable {
 	private Integer rollNo;
 
 	@Column(name = "name")
-	private String name;
+	private String studentName;
 
 	@Column(name = "email")
 	private String email;

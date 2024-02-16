@@ -57,19 +57,24 @@
 										</div>
 										<div class="col-4">
 											<label for="yearOfAdmissionId" class="font-weight-bold">Year
-												of Admission</label> <select name="yearOfAdmission"
+												of Admission</label> <select name="yearOfAddmission"
 												id="yearOfAdmissionId" class="form-control">
 												<option value="0">-select-</option>
 												<!-- Like this we are using scriptlets to populate the years to the dropdown. This is not recommended as it is a horrible thing to do! It will make the page slow. No one uses it. So should you! -->
-												<c:forEach var="year" begin="2010"
+												<!-- <c:forEach var="year" begin="2010"
 													end="<%=java.time.Year.now().getValue()%>">
 													<option value="${year}">${year}</option>
+												</c:forEach> -->
+
+												<c:forEach items="${dateList}" var="date">
+													<option value="${date}">${date}</option>
 												</c:forEach>
+
 											</select>
 										</div>
 										<div class="col-4">
 											<label for="branchId" class="font-weight-bold">Branch</label> <select
-												name="branchId" id="branchId" class="form-control">
+												name="branch" id="branchId" class="form-control">
 												<option value="0">-select-</option>
 												<c:forEach items="${branchList}" var="branch">
 													<option value="${branch.branchId}">${branch.branchName}</option>
@@ -86,7 +91,7 @@
 										</div>
 										<div class="col-4">
 											<label for="stateId" class="font-weight-bold">State</label> <select
-												name="stateId" id="stateId" class="form-control">
+												name="state" id="stateId" class="form-control">
 												<option value="0">-select-</option>
 												<c:forEach items="${stateList}" var="state">
 													<option value="${state.stateId}">${state.stateName}</option>
