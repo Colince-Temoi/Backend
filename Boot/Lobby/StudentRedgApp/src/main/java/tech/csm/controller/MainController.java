@@ -106,10 +106,10 @@ public class MainController {
 	@PostMapping("/saveAdmissionDetails")
 	public String saveAdmissionDetails(@ModelAttribute Student student, BindingResult result) {
 		// Validate the form data
-	    if (result.hasErrors()) {
-	        return "registration";
-	    }
-		System.out.println(student);
+		if (result.hasErrors()) {
+			return "registration";
+		}
+//		System.out.println(student);
 
 		// Persist the student data to the database
 		String msg = studentService.saveStudent(student);
@@ -117,19 +117,5 @@ public class MainController {
 		// Return a success message
 		return msg;
 	}
-
-//	@PostMapping("/saveAdmissionDetails")
-//	public String saveAdmissionDetails(@ModelAttribute Student student) {
-//	    // Validate the student data
-//	    // ...
-//
-//		System.out.println(student);
-//		
-//	    // Persist the student data to the database
-//	    String msg = studentService.saveStudent(student);
-//
-//	    // Return a success message
-//	    return msg;
-//	}
 
 }

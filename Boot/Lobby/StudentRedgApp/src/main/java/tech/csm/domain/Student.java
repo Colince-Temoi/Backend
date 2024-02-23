@@ -52,14 +52,32 @@ public class Student implements Serializable {
 	@Column(name = "yroa")
 	private Integer yearOfAddmission;
 
+//	@ManyToOne(): Defines a many-to-one relationship: many students can belong to one branch.
 	@ManyToOne()
+//	@JoinColumn(name = "branch_id"): Specifies that the branch_id column in the student table acts as a foreign key to the Branch table.
 	@JoinColumn(name = "branch_id")
 	private Branch branch;
 
+//	@ManyToMany: Defines a many-to-many relationship: a student can have multiple courses, and a course can have multiple students.
 	@ManyToMany
+//	joinColumns = @JoinColumn(name = "roll_no"): The column in the join table referencing the student's rollNo.
+//	inverseJoinColumns = @JoinColumn(name = "course_id"): The column referencing the course's ID.
 	@JoinTable(name = "t_student_course", joinColumns = @JoinColumn(name = "roll_no"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+//	A List<Course> holding the courses the student is enrolled in.
 	private List<Course> courses;
 
-	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+//	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL): Defines a one-to-many relationship: one student can have multiple addresses.
+//	mappedBy = "student": Indicates that the student property in the Address entity is responsible for the relationship.
+	@OneToMany(mappedBy = "student")
+//	A List<Address> holding the student's addresses.
 	private List<Address> addresses;
 }
+
+/*We are  using CascadeType.ALL because we will also be performing CRUD operations to Address table.
+ * The other tables we already have data pre-inserted in the DB end before we even began building this application.
+ * In Summary
+
+
+This entity class defines the structure of a 'Student' within your application's data model. 
+It includes fields for basic student information as well as relationships to other entities (Branch, Course, Address) to represent real-world associations between these concepts.
+ * */

@@ -43,3 +43,5 @@ public class Address implements Serializable {
 	@JoinColumn(name = "roll_no")
 	private Student student;
 }
+
+/*Here Cascade means: When I perform any Crud operation on Address entity, cascade that to Student entity*/

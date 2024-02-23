@@ -91,7 +91,7 @@
 						<div class="row mt-3">
 							<div class="col-4">
 								<label for="laneId" class="font-weight-bold">Lane</label> <input
-									type="text" class="form-control" name="lane" id="laneId"
+									type="text" class="form-control" name="addresses[0].lane" id="laneId"
 									maxlength="50">
 							</div>
 
@@ -99,7 +99,7 @@
 
 							<div class="col-4">
 								<label for="stateId" class="font-weight-bold">State</label> <select
-									name="state" id="stateId" class="form-control">
+									name="addresses[0].state" id="stateId" class="form-control">
 									<option value="0">-select-</option>
 									<c:forEach items="${stateList}" var="state">
 										<option value="${state.stateId}">${state.stateName}</option>
@@ -108,14 +108,14 @@
 							</div>
 							<div class="col-4">
 								<label for="cityId" class="font-weight-bold">City</label> <select
-									name="cityId" id="cityId" class="form-control">
+									name="addresses[0].state.cityId" id="cityId" class="form-control">
 									<option value="0">-select-</option>
 									<!-- You may dynamically populate the city dropdown based on the selected state using JavaScript or JSTL -->
 								</select>
 							</div>
 							<div class="col-4">
 								<label for="zipId" class="font-weight-bold">Zip Code</label> <input
-									type="text" class="form-control" name="zip" id="zipId"
+									type="text" class="form-control" name="addresses[0].zip" id="zipId"
 									maxlength="10">
 							</div>
 						</div>
@@ -125,7 +125,7 @@
 						<div class="row mt-3">
 							<div class="col-4">
 								<label for="courseId" class="font-weight-bold">Course</label> <select
-									name="courseId" id="courseId" class="form-control"
+									name="courses[0].courseId" id="courseId" class="form-control"
 									onchange="displayCourseFees(this.value)">
 									<option value="0">-select-</option>
 									<c:forEach items="${courseList}" var="course">
