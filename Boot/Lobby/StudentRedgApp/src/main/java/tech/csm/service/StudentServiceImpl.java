@@ -1,5 +1,7 @@
 package tech.csm.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,12 @@ public class StudentServiceImpl implements StudentService {
 			 addressRepo.save(address);
 		 }
 		return "Student details saved successfully";
+	}
+
+	@Override
+	public List<Student> findAllStudents() {
+	    return studentRepo.findAll(); 
+
 	}
 
 }

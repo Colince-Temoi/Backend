@@ -149,34 +149,51 @@
 			</div>
 		</div>
 		<div class="mt-2">
-			<div class="h3">All Sales Dtls</div>
+			<div class="h3">All Students Dtls</div>
 
 			<table class="table table-bordered table-striped mt-2">
 				<thead>
 					<tr>
 						<th>Sl.#</th>
-						<th>Farmer name</th>
-						<th>Adhaar No</th>
-						<th>Father Name</th>
-						<th>Address</th>
-						<th>Farmer category</th>
-						<th>Crop Type</th>
+						<th>Email ID</th>
+						<th>Date of Birth</th>
+						<th>CGPA</th>
+						<th>Year of Admsn</th>
+						<th>Adress[Lane,City,State]</th>
+						<th>Course Name</th>
+						<th>Course Fee</th>
 					</tr>
 
 				</thead>
 
 				<tbody>
-					<c:forEach items="${farmerList}" var="farmer" varStatus="counter">
-						<tr>
-							<td>${counter.count}</td>
-							<td>${farmer.farmerName}</td>
-							<td>${farmer.adharNo}</td>
-							<td>${farmer.fatherName}</td>
-							<td>${farmer.address}</td>
-							<td>${farmer.farmerCategory}</td>
-							<td>${farmer.crop.cropName}</td>
-						</tr>
-					</c:forEach>
+					<c:forEach items="${studentList}" var="student" varStatus="counter">
+            <tr>
+                <td>${counter.count}</td>
+                <td>${student.email}</td>
+                <td><fmt:formatDate pattern="yyyy-MM-dd" value="${student.dob}" /></td> 
+                <td>${student.cgpa}</td>
+                <td>${student.yearOfAddmission}</td>
+
+                <td>
+                    <c:forEach items="${student.addresses}" var="address"> 
+                        ${address.lane},${address.state.stateName}<br/> 
+                    </c:forEach>
+                </td> 
+
+                <td>
+                    <c:forEach items="${student.courses}" var="course"> 
+                        ${course.courseName}<br/>  
+                    </c:forEach>
+                </td> 
+
+                <td>
+                    <c:forEach items="${student.courses}" var="course"> 
+                        ${course.fees}<br/>
+                    </c:forEach>
+                </td> 
+            </tr>
+        </c:forEach>
 
 				</tbody>
 

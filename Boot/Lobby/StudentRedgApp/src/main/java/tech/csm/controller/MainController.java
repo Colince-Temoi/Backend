@@ -68,12 +68,20 @@ public class MainController {
 
 //		Fetch Courses
 		List<Course> courseList = courseService.FindAllCourses();
+		
+		 // Fetch the list of students
+	    List<Student> studentList = studentService.findAllStudents(); 
+	    
+	    System.out.println(studentList);
+
 
 //		Adding objects to Model-Jsp page
 		model.addAttribute("dateList", dateList);
 		model.addAttribute("branchList", branchList);
 		model.addAttribute("stateList", stateList);
 		model.addAttribute("courseList", courseList);
+	    model.addAttribute("studentList", studentList);
+
 
 		return "registration";
 	}
@@ -109,13 +117,13 @@ public class MainController {
 		if (result.hasErrors()) {
 			return "registration";
 		}
-//		System.out.println(student);
+		System.out.println(student);
 
 		// Persist the student data to the database
 		String msg = studentService.saveStudent(student);
 
 		// Return a success message
-		return msg;
+		return "redirect:./getRedgForm";
 	}
 
 }
