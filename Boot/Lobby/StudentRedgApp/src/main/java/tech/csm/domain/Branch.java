@@ -33,3 +33,6 @@ public class Branch implements Serializable {
 	private List<Student> students;
 
 }
+/*CascadeType.ALL means when I perform any Crud operations to Branch entity, then those will cascade to Student entity
+ * 
+ */
