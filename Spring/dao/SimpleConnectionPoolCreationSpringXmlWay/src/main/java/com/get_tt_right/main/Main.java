@@ -1,26 +1,26 @@
 package com.get_tt_right.main;
 
-import java.sql.SQLException;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.get_tt_right.dao.StudentDaoImpl;
 import com.get_tt_right.model.StudentModel;
+import com.get_tt_right.service.StudentServiceImpl;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		ConfigurableApplicationContext cap = new ClassPathXmlApplicationContext("applicationcontext.xml");
 
-		StudentDaoImpl studentDaoImpl = (StudentDaoImpl) cap.getBean("studentDaoImpl");
+		StudentServiceImpl studentServiceImpl = (StudentServiceImpl) cap.getBean("studentServiceImpl");
 		StudentModel studentModel = (StudentModel) cap.getBean("studentdaomodel");
 
-		try {
-			Integer res = studentDaoImpl.save(studentModel);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		studentServiceImpl.save(studentModel);
+//		studentDaoImpl.update(studentModel);
+//		studentDaoImpl.delete(studentModel);
+//		studentDaoImpl.findByPk(studentModel.getSId());
+//		studentDaoImpl.findByEmail(studentModel.getEmail());
+//		studentDaoImpl.findAllStudents();
 	}
 }

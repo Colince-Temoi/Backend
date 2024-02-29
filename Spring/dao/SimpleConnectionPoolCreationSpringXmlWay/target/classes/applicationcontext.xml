@@ -19,6 +19,7 @@
 			value="classpath:/drivers.properties" />
 	</bean>
 
+
 	<!-- Configuring Apache BDS -->
 	<bean id="bds" class="org.apache.commons.dbcp2.BasicDataSource"
 		p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.url}"
@@ -31,10 +32,14 @@
 	<bean id="studentDaoImpl"
 		class="com.get_tt_right.dao.StudentDaoImpl" p:ds-ref="bds" />
 
+	<!-- Configuring StudentServiceImpl -->
+	<bean id="studentServiceImpl"
+		class="com.get_tt_right.service.StudentServiceImpl" p:studentDao-ref="studentDaoImpl" />
+
 	<!-- Configuring StudentModel -->
 	<bean id="studentdaomodel"
-		class="com.get_tt_right.model.StudentModel" p:sId="1" p:name="Colince"
-		p:email="col@mail.com" p:address="Nrb123">
+		class="com.get_tt_right.model.StudentModel" p:sId="8" p:name="Rose"
+		p:email="rose@mail.com" p:address="218">
 	</bean>
 
 
