@@ -27,25 +27,56 @@
     <script type="text/javascript">
       function sendJsonData() {
         // console.log("Js is working...");
-
-        let employee = {
-          emp_id: 1234,
-          emp_name: "John Doe",
-          sal: 50000,
-          hire_date: "2022-01-15",
-          department: {
-            dep_id: 456,
-            dept_name: "Engineering",
+        const employeeList = [
+          {
+            emp_id: 1,
+            emp_name: "John Doe",
+            sal: 50000,
+            hire_date: "2022-01-15",
+            department: {
+              dep_id: 101,
+              dept_name: "HR",
+            },
           },
-        };
+          {
+            emp_id: 2,
+            emp_name: "Jane Smith",
+            sal: 60000,
+            hire_date: "2021-11-20",
+            department: {
+              dep_id: 102,
+              dept_name: "Finance",
+            },
+          },
+          {
+            emp_id: 3,
+            emp_name: "David Johnson",
+            sal: 55000,
+            hire_date: "2023-03-10",
+            department: {
+              dep_id: 103,
+              dept_name: "Marketing",
+            },
+          },
+          {
+            emp_id: 4,
+            emp_name: "Emily Brown",
+            sal: 52000,
+            hire_date: "2020-09-05",
+            department: {
+              dep_id: 104,
+              dept_name: "IT",
+            },
+          },
+        ];
 
-        console.log(typeof employee, employee);
+        console.log(typeof employeeList, employeeList);
 
         $.ajax({
           type: "POST",
           url: "saveData",
           data: {
-            jsonData: JSON.stringify(employee),
+            jsonData: JSON.stringify(employeeList),
           },
           success: function (resp) {
             alert(resp);
