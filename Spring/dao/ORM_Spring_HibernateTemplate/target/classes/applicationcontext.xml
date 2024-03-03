@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<!-- The below bean classes am configuring them manually so that Spring 
+		container will create objects for us automatically -->
+
+	<bean
+		class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="locations"
+			value="classpath:/drivers.properties" />
+	</bean>
+
+
+	<!-- Configuring C3P0 : Connection properties and Pool properties -->
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close" p:driverClass="${jdbc.driverClassName}"
+		p:jdbcUrl="${jdbc.url}" p:user="${jdbc.username}"
+		p:password="${jdbc.password}" p:minPoolSize="${jdbc.minPoolSize}"
+		p:maxPoolSize="${jdbc.maxPoolSize}"
+		p:acquireIncrement="${jdbc.acquireIncrement}"
+		p:maxStatements="${jdbc.maxStatements}"
+		p:idleConnectionTestPeriod="${jdbc.idleConnectionTestPeriod}"
+		p:loginTimeout="${jdbc.loginTimeout}" />
+
+
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+
+		p:dataSource-ref="dataSource">
+
+		<property name="annotatedClasses">
+			<list>
+				<value>com.get_tt_right.model.StudentModel</value>
+			</list>
+		</property>
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- Configuring StudentDaoImpl -->
+	<bean id="studentDaoImpl"
+		class="com.get_tt_right.dao.StudentDaoImpl"
+		p:sessionFactory-ref="sessionFactory" />
+
+
+	<bean id="studentServiceImpl"
+		class="com.get_tt_right.service.StudentServiceImpl"
+		p:studentDao-ref="studentDaoImpl" />
+
+	<!-- Configuring StudentModel -->
+	<!-- <bean id="studentdaomodel"
+		class="com.get_tt_right.model.StudentModel" p:sId="8" p:name="Rose"
+		p:email="rose@mail.com" p:address="218">
+	</bean> -->
+
+
+</beans>
