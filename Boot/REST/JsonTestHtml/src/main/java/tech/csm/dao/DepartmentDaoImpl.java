@@ -43,8 +43,6 @@ public class DepartmentDaoImpl implements Departmentdao {
 		res = simpleJdbcCall.execute(msps);
 
 		List<Department> deptList = (List<Department>) res.get("deptres");
-
-		deptList.forEach(x -> System.out.println(x));
 		return deptList;
 
 	}

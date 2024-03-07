@@ -14,7 +14,7 @@ import lombok.ToString;
 public class Department implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	@JsonProperty("dep_id")
+	@JsonProperty("dept_id")
 	private Integer departmentId;
 
 	@JsonProperty("dept_name")
