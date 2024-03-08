@@ -131,10 +131,8 @@
         $.ajax({
           type: "POST",
           url: "/JsonHtml/emp/saveEmp",
-          // contentType: "application/json",
-          data: {
-            jsonData: JSON.stringify(formData),
-          },
+          contentType: "application/json",
+          data: JSON.stringify(formData),
           success: function (response) {
             alert("Employee saved successfully");
           },

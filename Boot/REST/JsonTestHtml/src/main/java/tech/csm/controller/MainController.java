@@ -45,7 +45,7 @@ public class MainController {
 	}
 
 	@PostMapping("/saveEmp")
-	public String saveEmployee(@RequestParam String jsonData, Model model) {
+	public String saveEmployee(@RequestBody Employee jsonData, Model model) {
 		
 		System.out.println(jsonData);
 		
