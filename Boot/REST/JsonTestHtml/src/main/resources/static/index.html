@@ -128,6 +128,11 @@
             // Assuming you have an input field with id 'departmentName'
           },
         };
+        /*
+        Snippet A:
+=> contentType: "application/json": This explicitly tells the server that the data being sent in the request body is JSON formatted. It's like labeling a package with its contents. 
+=> data: JSON.stringify(formData): Here, you're taking your formData (which might be a JavaScript object) and converting it into a JSON string. This stringified data aligns with the contentType.
+*/
         $.ajax({
           type: "POST",
           url: "/JsonHtml/emp/saveEmp",
@@ -141,6 +146,33 @@
             console.log(JSON.stringify(formData));
           },
         });
+
+        /*         Snippet B:
+=>  No contentType specified: Without a specified contentType, the browser defaults to "application/x-www-form-urlencoded", which is like sending form data as key-value pairs. This is akin to filling out a form and sending the data.
+ => data: { jsonData: JSON.stringify(formData) } - This is a bit misleading, because even though you've stringified the formData, wrapping it in an object like this and sending it without the correct contentType results in the stringified data being treated as a plain string value for a parameter named 'jsonData'
+*/
+        /*     $.ajax({
+          type: "POST",
+          url: "/JsonHtml/emp/saveEmp",
+          data: {
+            jsonData: JSON.stringify(formData),
+          },
+          success: function (response) {
+            alert("Employee saved successfully");
+          },
+          error: function (xhr, status, error) {
+            alert("Error saving employee: " + JSON.stringify(formData));
+            console.log(JSON.stringify(formData));
+          },
+        });
+
+        */
+
+        /*
+Key Differences and Why They Matter:
+
+=> Data Format: Snippet A deals with pure JSON, while Snippet B sends data in the default form format with a single parameter named jsonData containing a string. 
+*/
       });
     });
   </script>
