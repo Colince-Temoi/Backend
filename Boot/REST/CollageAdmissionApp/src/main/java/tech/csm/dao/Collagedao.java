@@ -8,4 +8,6 @@ public interface Collagedao {
 
 	List<Collage> findAllCollages();
 
+	Collage getCollageById(Integer collageId);
+
 }

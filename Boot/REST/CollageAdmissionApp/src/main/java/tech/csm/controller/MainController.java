@@ -1,23 +1,21 @@
 package tech.csm.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import tech.csm.domain.AdmissionDtls;
 import tech.csm.domain.Collage;
-import tech.csm.domain.Employee;
+import tech.csm.service.AdmissionDtlsSevice;
 import tech.csm.service.CollageService;
-import tech.csm.service.EmployeeSevice;
 
 @Controller
 @RequestMapping(path = "/student")
@@ -27,7 +25,7 @@ public class MainController {
 	private CollageService collageService;
 
 	@Autowired
-	private EmployeeSevice employeeService;
+	private AdmissionDtlsSevice admissionDtlsService;
 
 	@GetMapping
 	public String getRedgForm() {
@@ -40,6 +38,7 @@ public class MainController {
 	public List<Collage> getCollages() {
 
 		List<Collage> collageList = collageService.findAllCollages();
+//		System.out.println(collageList);
 
 		return collageList;
 	}
@@ -49,12 +48,31 @@ public class MainController {
 	 * Spring's message converters will attempt to automatically deserialize the JSON into an Employee object for you.
 	 * */
 	
-	@PostMapping("/saveEmp")
-	public String saveEmployee(@RequestBody Employee employee, Model model) {
+	@PostMapping("/saveApplication")
+	@ResponseBody
+	public String saveEmployee(@RequestBody AdmissionDtls admissionDtls, Model model) {
 		
-		String msg = employeeService.saveEmployee(employee);
+		String msg = admissionDtlsService.saveAdmissionDtls(admissionDtls);
 		System.out.println(msg);
-		return "redirect:/emp";
+		return msg;
+	}
+	
+	@PostMapping("/cancelAdmission")
+	@ResponseBody
+	public String cancelAdmission(@RequestParam("admissionId") String admissionId, Model model) {
+		System.out.println(admissionId);
+		
+		String msg = admissionDtlsService.cancelAdmission(Integer.parseInt(admissionId));
+		return msg;
+	}
+	
+//	Get All Admission Details
+	@GetMapping("/getAllAdmnDtls")
+	@ResponseBody
+	public List<AdmissionDtls> getAllAdmissionDtls() {
+		List<AdmissionDtls> admnDtlsList= admissionDtlsService.getAllAdmissionDetatils();
+		return admnDtlsList;
+		
 	}
 	
 	
