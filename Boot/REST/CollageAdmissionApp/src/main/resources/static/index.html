@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+</head>
+
+<body>
+  <div class="container mt-5">
+    <div class="h2 text-center text-danger">Online +2 Science Admission Form</div>
+    <div class="card">
+      <div class="card-header bg-light h3 text-primary">Applicants Details</div>
+      <div class="card-body">
+        <div class="container">
+          <form action="./student/saveApplication" method="post" id="empForm">
+            <div class="row">
+              <div class="col-4">
+                <label for="enameId" class="font-weight-bold">Applicant Name</label>
+                <input type="text" class="form-control" name="empName" id="enameId" value="" />
+              </div>
+              <div class="col-4">
+                <label for="collageId" class="font-weight-bold">Collage Name</label>
+                <select name="collage" id="collageId" class="form-control"></select>
+              </div>
+              <div class="col-2">
+                <label for="esalId" class="font-weight-bold">Salary</label>
+                <input type="text" class="form-control" name="sal" id="esalId" value="" />
+              </div>
+              <div class="col-2">
+                <label for="ehdateId" class="font-weight-bold">Hire Date</label>
+                <input type="date" class="form-control" name="hireDate" id="ehdateId" value="" pattern="yyyy-MM-dd"
+                  value="" />
+              </div>
+
+            </div>
+            <div class="mt-2 text-center">
+              <input type="submit" value="submit" id="sid" class="btn btn-success" />
+              <input type="reset" class="btn btn-warning" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<!--LINK JQUERY-->
+<script type="text/javascript" src="Js/jQuery.js"></script>
+<!--PERSONAL SCRIPT JavaScript-->
+<script type="text/javascript">
+  $(document).ready(function () {
+    // Function to fetch and populate departments
+    function loadCollages() {
+      $.ajax({
+        type: "GET",
+        url: "/CollageAdmn/student/getFormData", // Your Spring Boot endpoint
+        dataType: "json",
+        success: function (collages) {
+          console.log(collages);
+          $("#departmentId").empty(); // Clear old options
+          $("#departmentId").append(
+            '<option value=""> -Select Department- </option>'
+          ); // Default option
+          $.each(departments, function (index, department) {
+            $("#departmentId").append(
+              '<option value="' +
+              department.dept_id +
+              '">' +
+              department.dept_name +
+              "</option>"
+            );
+          });
+        },
+        error: function (error) {
+          console.error("Error fetching departments:", error);
+          // Handle error (e.g., display an error message)
+        },
+      });
+    }
+
+    // Call the function when the page loads
+    loadDepartments();
+  });
+
+  $(document).ready(function () {
+    $("#sid").click(function (e) {
+      e.preventDefault();
+      console.log($("#sid").attr("value")); // Assuming you want to log the value of the button with ID 'sid'
+      console.log($("#esalId").val());
+
+      var formData = {
+        emp_name: $("#enameId").val(),
+        sal: $("#esalId").val(),
+        hire_date: $("#ehdateId").val(),
+        department: {
+          dept_id: $("#departmentId").val(), // Assuming you have an input field with id 'departmentId'
+          // Assuming you have an input field with id 'departmentName'
+        },
+      };
+      /*
+      Snippet A:
+=> contentType: "application/json": This explicitly tells the server that the data being sent in the request body is JSON formatted. It's like labeling a package with its contents. 
+=> data: JSON.stringify(formData): Here, you're taking your formData (which might be a JavaScript object) and converting it into a JSON string. This stringified data aligns with the contentType.
+*/
+      $.ajax({
+        type: "POST",
+        url: "/JsonHtml/emp/saveEmp",
+        contentType: "application/json",
+        data: JSON.stringify(formData),
+        success: function (response) {
+          alert("Employee saved successfully");
+        },
+        error: function (xhr, status, error) {
+          alert("Error saving employee: " + JSON.stringify(formData));
+          console.log(JSON.stringify(formData));
+        },
+      });
+
+      /*         Snippet B:
+=>  No contentType specified: Without a specified contentType, the browser defaults to "application/x-www-form-urlencoded", which is like sending form data as key-value pairs. This is akin to filling out a form and sending the data.
+=> data: { jsonData: JSON.stringify(formData) } - This is a bit misleading, because even though you've stringified the formData, wrapping it in an object like this and sending it without the correct contentType results in the stringified data being treated as a plain string value for a parameter named 'jsonData'
+*/
+      /*     $.ajax({
+        type: "POST",
+        url: "/JsonHtml/emp/saveEmp",
+        data: {
+          jsonData: JSON.stringify(formData),
+        },
+        success: function (response) {
+          alert("Employee saved successfully");
+        },
+        error: function (xhr, status, error) {
+          alert("Error saving employee: " + JSON.stringify(formData));
+          console.log(JSON.stringify(formData));
+        },
+      });
+
+      */
+
+      /*
+Key Differences and Why They Matter:
+
+=> Data Format: Snippet A deals with pure JSON, while Snippet B sends data in the default form format with a single parameter named jsonData containing a string. 
+*/
+    });
+  });
+</script>
+
+</html>
