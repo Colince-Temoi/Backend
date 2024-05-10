@@ -18,7 +18,9 @@ import tech.csm.productcrud.domain.Product;
  *    5. remove == delete operation.
 
  * Restricted to storing and retrieving data. Do not write any business logic here.
- * This has technology layer kind of things. i.e., Jdbc, Hibernate, JPA, Spring data Jpa
+ * This has technology layer kind of things. i.e., Jdbc, Hibernate, JPA, Spring data Jpa, Spring Jdbc,...
+ * 
+ * When you want to change the data store, minimum modifications you will do.
  * */
 public class ProductDaoImpl implements ProductDao {
 
