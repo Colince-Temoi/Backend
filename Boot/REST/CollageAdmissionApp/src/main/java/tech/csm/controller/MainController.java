@@ -1,6 +1,7 @@
 package tech.csm.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,38 +43,47 @@ public class MainController {
 
 		return collageList;
 	}
-	
+
 	/*
-	 * @RequestBody Employee jsonData  expects the raw request body to contain valid JSON representing an Employee object.  
-	 * Spring's message converters will attempt to automatically deserialize the JSON into an Employee object for you.
-	 * */
-	
+	 * @RequestBody Employee jsonData expects the raw request body to contain valid
+	 * JSON representing an Employee object. Spring's message converters will
+	 * attempt to automatically deserialize the JSON into an Employee object for
+	 * you.
+	 */
+
 	@PostMapping("/saveApplication")
+
 	@ResponseBody
 	public String saveEmployee(@RequestBody AdmissionDtls admissionDtls, Model model) {
-		
+
 		String msg = admissionDtlsService.saveAdmissionDtls(admissionDtls);
 		System.out.println(msg);
 		return msg;
 	}
-	
+
 	@PostMapping("/cancelAdmission")
 	@ResponseBody
 	public String cancelAdmission(@RequestParam("admissionId") String admissionId, Model model) {
 		System.out.println(admissionId);
-		
+
 		String msg = admissionDtlsService.cancelAdmission(Integer.parseInt(admissionId));
 		return msg;
 	}
-	
+
 //	Get All Admission Details
 	@GetMapping("/getAllAdmnDtls")
 	@ResponseBody
 	public List<AdmissionDtls> getAllAdmissionDtls() {
-		List<AdmissionDtls> admnDtlsList= admissionDtlsService.getAllAdmissionDetatils();
-		return admnDtlsList;
-		
+//		List<AdmissionDtls> admnDtlsList = admissionDtlsService.getAllAdmissionDetatils();
+		List<Map<String, Object>> admissionDtlsMap = admissionDtlsService.fetchAllAdmissionDetails();
+	
+		System.out.println();
+		for (Map<String, Object> map : admissionDtlsMap) {
+			System.out.println(map);
+		}
+//		return admnDtlsList;
+		return null;
+
 	}
-	
-	
+
 }

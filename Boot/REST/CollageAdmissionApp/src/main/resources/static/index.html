@@ -9,7 +9,8 @@
 
   <body>
     <div class="container mt-5">
-
+      <div id="success-message" style="display: none; position: fixed; top: 10px; right: 10px; background-color: lightgreen; padding: 10px; border-radius: 5px;">
+      </div>
       <div class="alert alert-success" id="alertId" style="display: none;">
       </div>
 
@@ -53,13 +54,13 @@
                   <div>
                     <input
                       type="radio"
-                      name="stype"
+                      name="fourthOptional"
                       id="stypeid"
                       value="Math"
                     />&nbsp; Math
                     <input
                       type="radio"
-                      name="stype"
+                      name="fourthOptional"
                       id="stypeid"
                       value="Biology"
                     />&nbsp;Biology
@@ -116,7 +117,7 @@
           url: "/CollageAdmn/student/getFormData", // Your Spring Boot endpoint
           dataType: "json",
           success: function (collages) {
-            console.log(collages);
+            // console.log(collages);
             $("#collageId").empty(); // Clear old options
             $("#collageId").append(
               '<option value=""> -Select Collage- </option>'
@@ -137,13 +138,37 @@
           },
         });
 
+// Function to save Admissiondetails
+  $("#sid").click(function (event) {
+  event.preventDefault(); // Prevent default form submission
+
+  // Collect form data
+  var admissionData = {
+    applicany_name: $("#enameId").val(),
+    collage: {
+      collage_id : $("#collageId").val()
+    },
+    fourth_optional: $("input[name='fourthOptional']:checked").val()
+  };
+
+  console.log(admissionData);
+
+  // Validate form data (add your specific validation rules here)
+  if (!admissionData.applicany_name || !admissionData.collage.collage_id || !admissionData.fourth_optional) {
+    alert("Please fill out all required fields.");
+    return;
+  }
+
+});
+
+
       // Function to save Admissiondetails
         $("#sid").click(function (e) {
         e.preventDefault();
 
         var formData = {
           applicany_name: $("#enameId").val(),
-          fourth_optional: $("input[name='stype']:checked").val(),
+          fourth_optional: $("input[name='fourthOptional']:checked").val(),
           collage: {
             collage_id: $("#collageId").val(),
           },
@@ -170,7 +195,7 @@
     contentType: "application/json", 
     success: function (response) {
       
-      console.log("Admission Details:", response);
+      // console.log("Admission Details:", response);
 
       // Example: Display data in a table
       buildAdmissionTable(response);
@@ -217,7 +242,7 @@ function buildAdmissionTable(admissionDetails) {
     // Get the admission ID from the button's data attribute
     var admissionId = $(this).data('admission-id');
 
-    console.log(admissionId);
+    // console.log(admissionId);
 
     // AJAX call to cancel admission
     $.ajax({
@@ -254,6 +279,7 @@ function showMessage(msg) {
     
     }, 2000);
 }
+
 
     });
   </script>
