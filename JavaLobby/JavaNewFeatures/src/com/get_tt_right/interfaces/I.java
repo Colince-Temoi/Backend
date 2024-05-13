@@ -13,6 +13,10 @@ public interface I {
 	public default void DM2() {
 		System.out.println("Default method 2");
 	}
+//	Default methods can be overloaded
+	public default void DM2(int x) {
+		System.out.println("Default method 2: "+x);
+	}
 	
 //	Allows more than 1 Static methods
 	public static void SM1() {
