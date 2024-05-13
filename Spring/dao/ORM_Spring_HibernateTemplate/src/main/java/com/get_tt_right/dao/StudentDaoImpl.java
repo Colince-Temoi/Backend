@@ -2,6 +2,7 @@ package com.get_tt_right.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 
 import com.get_tt_right.model.StudentModel;
 
@@ -17,8 +18,12 @@ import lombok.Setter;
 public class StudentDaoImpl implements StudentDao {
 
 	private SessionFactory sessionFactory;
+//	private HibernateTemplate ht;
 
 	public Integer save(StudentModel student) {
+//		Integer i = (Integer) ht.save(student);
+//		
+//		return i;
 
 		Integer studentId = null;
 

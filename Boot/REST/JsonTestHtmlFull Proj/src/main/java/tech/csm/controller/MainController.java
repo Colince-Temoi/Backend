@@ -57,5 +57,14 @@ public class MainController {
 		return "redirect:/emp";
 	}
 	
+	@GetMapping("/getAllEmployees")
+	@ResponseBody
+	public List<Employee> getAllEmployees() {
+
+		List<Employee> empList = employeeService.findAllEmployees();
+
+		return empList;
+	}
+	
 	
 }

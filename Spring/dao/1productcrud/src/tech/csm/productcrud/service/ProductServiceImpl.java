@@ -10,6 +10,7 @@ import tech.csm.productcrud.dao.ProductDao;
 import tech.csm.productcrud.dao.ProductDaoImpl;
 import tech.csm.productcrud.domain.Product;
 import tech.csm.productcrud.domain.ProductVo;
+
 /*Service layer
  * 1. All our business logic goes here.
  *   - 	Here we are just converting from Vo to Dto and vicevarsa.
@@ -75,10 +76,7 @@ public class ProductServiceImpl implements ProductService {
 		ProductVo pvo = new ProductVo();
 		Product product = productDao.getProductById(id);
 
-		pvo.setProductId(product.getProductId().toString());
-		pvo.setProductName(product.getProductName());
-		pvo.setUnitPrice(product.getUnitPrice().toString());
-		pvo.setManufacturingDate(new SimpleDateFormat("dd/MM/yyy").format(product.getManufacturingDate()));
+		
 
 		return pvo;
 
@@ -86,24 +84,8 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public String updateProduct(ProductVo pvo) {
-		Product product = new Product();
 
-//		Conversion from Vo to Dto
-		product.setProductId(Integer.parseInt(pvo.getProductId()));
-		
-		System.out.println(Integer.parseInt(pvo.getProductId()));
-		System.out.println(product.getProductId());
-		
-		product.setProductName(pvo.getProductName());
-		product.setUnitPrice(Double.parseDouble(pvo.getUnitPrice()));
-
-		try {
-			product.setManufacturingDate(new SimpleDateFormat("dd/MM/yyyy").parse(pvo.getManufacturingDate()));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return productDao.updateProduct(product);
+		return productDao.updateProduct(convertFromVoToDto(pvo));
 
 //		return productDao.updateProductById(product, product.getProductId());
 
@@ -138,6 +120,34 @@ public class ProductServiceImpl implements ProductService {
 	public List<Product> sortByManufacturingDateDesc() {
 		return productDao.sortByManufacturingDateDesc();
 
+	}
+
+	public Product convertFromVoToDto(ProductVo pvo) {
+		Product product = new Product();
+
+//		Conversion from Vo to Dto
+		product.setProductId(Integer.parseInt(pvo.getProductId()));
+
+		System.out.println(Integer.parseInt(pvo.getProductId()));
+		System.out.println(product.getProductId());
+
+		product.setProductName(pvo.getProductName());
+		product.setUnitPrice(Double.parseDouble(pvo.getUnitPrice()));
+
+		try {
+			product.setManufacturingDate(new SimpleDateFormat("dd/MM/yyyy").parse(pvo.getManufacturingDate()));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return product;
+
+	}
+	
+	public ProductVo converstionFromDtoToVo() {
+		
+		return null;
+		
 	}
 
 }

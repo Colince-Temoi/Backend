@@ -30,12 +30,15 @@ public class ProductController {
 	// Secondary dependancy
 	private static ProductService productService = new ProductServiceImpl();
 	private static ProductVo pvo = new ProductVo();
-
+	private static Scanner scan = new Scanner(System.in);
 	
+
 	// This is acting as our UI layer
-	/*UI layer only knows Vo type
+	/*
+	 * UI layer only knows Vo type
+	 * When we introduce UI technologies, very minimal changes you will also have to perform. In place of this main method we will add UI layer.
 	 * 
-	 * */
+	 */
 	public static void main(String[] args) {
 
 		Scanner sc = new Scanner(System.in);
@@ -45,23 +48,15 @@ public class ProductController {
 		do {
 			System.out.println("\n-----------Menu-------------" + "\n1.Add Product." + "\n2.Show All Products."
 					+ "\n3.Search Product by Id." + "\n4.Update Product by Id." + "\n5.Delete a product by id"
-					+ "\n6.Sort By price ASC."+ "\n7.Sort By price DSC." + "\n8.Sort by Manufacturing Date Dcs." + "\n9.Exit\n"
-					+ "\n Enter you choice: \n");
+					+ "\n6.Sort By price ASC." + "\n7.Sort By price DSC." + "\n8.Sort by Manufacturing Date Dcs."
+					+ "\n9.Exit\n" + "\n Enter you choice: \n");
 
 			choice = sc.nextInt();
 
 			switch (choice) {
 			case 1:
-				System.out.println("Enter Product Id");
-				pvo.setProductId(sc.next());
-				System.out.println("Enter Product name");
-				pvo.setProductName(sc.next());
-				System.out.println("Enter Product unit price");
-				pvo.setUnitPrice(sc.next());
-				System.out.println("Enter Product Manufacturing date[dd/mm/yyyy]");
-				pvo.setManufacturingDate(sc.next());
 
-				String msg = productService.addProduct(pvo);
+				String msg = productService.addProduct(addProduct());
 
 				System.out.println("\n" + msg);
 
@@ -92,7 +87,7 @@ public class ProductController {
 				System.out.println(productService.getProductById(id).toString());
 
 				pvo.setProductId(id.toString());
-				
+
 				System.out.println("\nEnter new Product name");
 				pvo.setProductName(sc.next());
 
@@ -121,7 +116,8 @@ public class ProductController {
 //				System.out.println(productService.getProductById(id).toString());
 
 //				Product list after deletion of a product
-				System.out.println("\n--------All products after deletion of product with the id "+id+" ---------\n");
+				System.out
+						.println("\n--------All products after deletion of product with the id " + id + " ---------\n");
 				for (ProductVo productList : productService.getAllProducts()) {
 					System.out.println(productList.toString());
 				}
@@ -145,7 +141,7 @@ public class ProductController {
 
 				break;
 			}
-			
+
 			case 8: {
 				System.out.println("----------Sorted by manufacturing date in DSC order----------");
 				for (Product x : productService.sortByManufacturingDateDesc()) {
@@ -154,7 +150,7 @@ public class ProductController {
 
 				break;
 			}
-			case 9: 
+			case 9:
 //				Like this we can exit the program execution
 				System.out.println("\nExiting the application. Goodbye!");
 				break;
@@ -165,4 +161,20 @@ public class ProductController {
 			}
 		} while (choice != 9);// Loop until the user chooses to exit
 	}
+
+//	Behavior to receive input
+	public static ProductVo addProduct() {
+		System.out.println("Enter Product Id");
+		pvo.setProductId(scan.next());
+		System.out.println("Enter Product name");
+		pvo.setProductName(scan.next());
+		System.out.println("Enter Product unit price");
+		pvo.setUnitPrice(scan.next());
+		System.out.println("Enter Product Manufacturing date[dd/mm/yyyy]");
+		pvo.setManufacturingDate(scan.next());
+		return pvo;
+	}
+	
+	
+
 }

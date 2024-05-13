@@ -307,5 +307,4 @@
 		</script>
 	</div>
 </body>
-$('#feesId').html(resp);
 </html>

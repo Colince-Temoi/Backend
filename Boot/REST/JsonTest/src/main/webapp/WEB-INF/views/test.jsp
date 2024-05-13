@@ -24,7 +24,46 @@
     </div>
 
     <!-- Scripting Area -->
-    <script type="text/javascript">
+    
+    <script>
+        function sendJsonData() {
+            const employee ={
+                    emp_id: 1,
+                    emp_name: "John Doe",
+                    sal: 50000,
+                    hire_date: "2022-01-15",
+                    department: {
+                      dep_id: 101,
+                      dept_name: "HR",
+                    },
+                  };
+
+            $.ajax({
+                type: "POST",
+                url: "/JsonTestApp/employee",
+                /* contentType: "application/json", */
+                /* data: JSON.stringify(employee), */
+                data: {
+                    jsonData: JSON.stringify(employee),
+                  },
+                success: function (response) {
+                    console.log(response);
+                    alert("Employee data sent successfully!");
+                },
+                error: function (error) {
+                    console.error(error);
+                    alert("An error occurred while sending data.");
+                }
+            });
+        }
+
+        $('#submitBtn').click(function () {
+            sendJsonData();
+        });
+    </script>
+    
+    
+<!--     <script type="text/javascript">
       function sendJsonData() {
         // console.log("Js is working...");
         const employeeList = [
@@ -74,7 +113,7 @@
 
         $.ajax({
           type: "POST",
-          url: "saveData",
+          url: "/JsonTestApp/saveData",
           data: {
             jsonData: JSON.stringify(employeeList),
           },
@@ -84,6 +123,6 @@
           },
         });
       }
-    </script>
+    </script> -->
   </body>
 </html>

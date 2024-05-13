@@ -38,15 +38,35 @@ public class CollageDaoImpl implements Collagedao {
 		simpleJdbcCall = new SimpleJdbcCall(dataSource).withProcedureName("p_collage_screen")
 				.returningResultSet("collegesres", new BeanPropertyRowMapper<>(Collage.class));
 
-		MapSqlParameterSource msps = new MapSqlParameterSource().addValue("p_status", "selectAllCollages");
+		MapSqlParameterSource msps = new MapSqlParameterSource().addValue("p_status", "selectAllCollages")
+				.addValue("p_collageId", null, Types.INTEGER);
 
 		res = simpleJdbcCall.execute(msps);
 
 		List<Collage> collageList = (List<Collage>) res.get("collegesres");
 		
-		System.out.println(collageList);
 		return collageList;
 
 	}
+
+	@Override
+	public Collage getCollageById(Integer collageId) {
+	    simpleJdbcCall = new SimpleJdbcCall(dataSource)
+	            .withProcedureName("p_collage_screen")
+	            .returningResultSet("collage", new BeanPropertyRowMapper<>(Collage.class));
+
+	    MapSqlParameterSource msps = new MapSqlParameterSource()
+	            .addValue("p_collageId", collageId, Types.INTEGER)
+	            .addValue("p_status", "selectCollageById", Types.VARCHAR);
+
+	    Map<String, Object> res = simpleJdbcCall.execute(msps);
+
+	    List<Collage> collageList = (List<Collage>) res.get("collage");
+
+	    return collageList.isEmpty() ? null : collageList.get(0);
+	}
+
+
+
 
 }

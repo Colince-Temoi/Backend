@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +33,12 @@ public class ThirdServlet extends HttpServlet {
 		String url = context.getInitParameter("url");
 
 		String name = getInitParameter("name");
-
+		
+//		Accessing all Cookies of this application: At the moment I have just created one named; ck1
+		Cookie[] cookie =request.getCookies();
+		pw.println("Cookie name: "+cookie[0].getName()+"<br>");
+		pw.println("Cookie Value: "+cookie[0].getValue()+"<br>");
+		
 		pw.println("Output from Third<br>");
 		pw.println("------------------------<br>");
 		pw.println("Accessing Context data from third: " + url);

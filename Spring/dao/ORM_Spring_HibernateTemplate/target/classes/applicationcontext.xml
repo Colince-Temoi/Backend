@@ -53,6 +53,8 @@
 		</property>
 	</bean>
 
+	<!-- <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate" 
+		p:sessionFactory-ref="sessionFactory" /> -->
 
 	<!-- Configuring StudentDaoImpl -->
 	<bean id="studentDaoImpl"
@@ -65,10 +67,8 @@
 		p:studentDao-ref="studentDaoImpl" />
 
 	<!-- Configuring StudentModel -->
-	<!-- <bean id="studentdaomodel"
-		class="com.get_tt_right.model.StudentModel" p:sId="8" p:name="Rose"
-		p:email="rose@mail.com" p:address="218">
-	</bean> -->
+	<!-- <bean id="studentdaomodel" class="com.get_tt_right.model.StudentModel" 
+		p:sId="8" p:name="Rose" p:email="rose@mail.com" p:address="218"> </bean> -->
 
 
 </beans>

@@ -56,8 +56,12 @@ public class EmployeeController {
 
 			switch (choice) {
 			case 1:
+				List<DepartmentVo> departmentVos = departmentService.getAllDepartments();
+//				departmentVos.forEach(x->System.out.println(x));
+				DepartmentVo departmentVo = departmentService.getDepartmentById("10");
+//				System.out.println(departmentVo);
 				String message = employeeService.addEmployee(addEmployee());
-				System.out.println(message);
+				System.out.println(message);	
 				break;
 
 			case 2: {
@@ -76,7 +80,7 @@ public class EmployeeController {
 				if (!allEmployees.isEmpty()) {
 					System.out.println("All Employees: \n");
 					for (EmployeeVo evo : allEmployees) {
-						System.out.println(evo.toString() + "\n");
+//						System.out.println(evo.toString() + "\n");
 					}
 				} else {
 					System.out.println("No employees found.");
@@ -89,11 +93,11 @@ public class EmployeeController {
 
 				// Check if the employee with the given ID exists and is not soft-deleted
 				EmployeeVo existingEmployee = employeeService.getEmployeeById(updateEmployeeId);
+//				System.out.println(existingEmployee);
 				if (existingEmployee != null && !"YES".equals(existingEmployee.getIsDeleted())) {
 					// Employee with the given ID is not soft-deleted
 					EmployeeVo updatedEmployee = addEmployee(); // You can reuse the addEmployee() method for updates
-					updatedEmployee.setEmpId(updateEmployeeId.toString()); // Set the employee ID to update the correct
-																			// record
+					updatedEmployee.setEmpId(updateEmployeeId.toString()); // Set the employee ID to update the correct record
 					String updateMessage = employeeService.updateEmployee(updatedEmployee);
 					System.out.println(updateMessage);
 				} else {
@@ -167,36 +171,79 @@ public class EmployeeController {
 			 */
 		} while (choice != 9 || exitConfirmation != 'y');// Loop until the user chooses to exit
 	}
+	
+	
+	// Helper method for user input
+	public static EmployeeVo  addEmployee() {
+        Scanner scanner = new Scanner(System.in);
+        EmployeeVo employeeVo = new EmployeeVo();
 
-//	Behavior to receive input
-	public static EmployeeVo addEmployee() {
+        System.out.println("Enter employee name:");
+        employeeVo.setName(scanner.nextLine()); 
 
-		System.out.println("\n-------Insert Records into the t_emp table-----\n");
-		System.out.println("Enter Employee name");
-		employeeVo.setName(scan.next());
-		System.out.println("Enter Employee Hire date [dd/mm/yyyy]");
-		employeeVo.setHire_date(scan.next());
-		System.out.println("Enter Employee Salary");
-		employeeVo.setSalary(scan.next());
+        System.out.println("Enter employee hire date (YYYY-MM-DD):");
+        employeeVo.setHire_date(scanner.nextLine());
 
-		employeeVo.setIsDeleted("NO");
-		System.out.println("Available departements");
+        System.out.println("Enter employee salary:");
+        employeeVo.setSalary(scanner.nextLine());
 
-//		Displaying all Departments information to the user to pick one while inputing a new employees details.
-		List<DepartmentVo> departmentVos = departmentService.getAllDepartments();
-		if (departmentVos != null) {
-			System.out.println(departmentVos.toString());
-		} else {
-			System.out.println("There are no departments to display at the momemnt!");
-		}
+        employeeVo.setIsDeleted("NO"); // Hardcode as per instructions
 
-//	We need to get the Specific department based on the input we have recieved from the user.
-		System.out.println("Enter Employee department id.");
-		DepartmentVo departmentVo = departmentService.getDepartmentById(scan.next());
-//		System.out.println(departmentVo.toString());
-		employeeVo.setDepartment(departmentVo);
+        // Display departments and get user selection
+        List<DepartmentVo> departments = departmentService.getAllDepartments();
+        System.out.println("Available Departments:");
+        for (int i = 0; i < departments.size(); i++) {
+            System.out.println((i + 1) + ". " + departments.get(i).toString());
+        }
 
-		return employeeVo;
-	}
+        System.out.println("Select department number:");
+        int departmentIndex = scanner.nextInt() - 1; // Adjust for zero-based indexing
+        scanner.nextLine(); // Consume newline from previous input
+
+        // Ensure valid department selection
+        if (departmentIndex < 0 || departmentIndex >= departments.size()) {
+            System.out.println("Invalid department selection.");
+            return null; // Or provide a way to retry
+        }
+
+        DepartmentVo selectedDepartment = departments.get(departmentIndex);
+        employeeVo.setDepartment(selectedDepartment);
+        
+//        System.out.println(employeeVo);
+
+        return employeeVo;
+    }
+	
+
+////	Behavior to receive input
+//	public static EmployeeVo addEmployee() {
+//
+//		System.out.println("\n-------Insert Records into the t_emp table-----\n");
+//		System.out.println("Enter Employee name");
+//		employeeVo.setName(scan.next());
+//		System.out.println("Enter Employee Hire date [dd/mm/yyyy]");
+//		employeeVo.setHire_date(scan.next());
+//		System.out.println("Enter Employee Salary");
+//		employeeVo.setSalary(scan.next());
+//
+//		employeeVo.setIsDeleted("NO");
+//		System.out.println("Available departements");
+//
+////		Displaying all Departments information to the user to pick one while inputing a new employees details.
+//		List<DepartmentVo> departmentVos = departmentService.getAllDepartments();
+//		if (departmentVos != null) {
+//			System.out.println(departmentVos.toString());
+//		} else {
+//			System.out.println("There are no departments to display at the momemnt!");
+//		}
+//
+////	We need to get the Specific department based on the input we have recieved from the user.
+//		System.out.println("Enter Employee department id.");
+//		DepartmentVo departmentVo = departmentService.getDepartmentById(scan.next());
+////		System.out.println(departmentVo.toString());
+//		employeeVo.setDepartment(departmentVo);
+//
+//		return employeeVo;
+//	}
 
 }

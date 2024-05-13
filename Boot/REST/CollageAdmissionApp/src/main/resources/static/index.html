@@ -1,151 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <link rel="stylesheet" href="css/bootstrap.css" />
-</head>
-
-<body>
-  <div class="container mt-5">
-    <div class="h2 text-center text-danger">Online +2 Science Admission Form</div>
-    <div class="card">
-      <div class="card-header bg-light h3 text-primary">Applicants Details</div>
-      <div class="card-body">
-        <div class="container">
-          <form action="./student/saveApplication" method="post" id="empForm">
-            <div class="row">
-              <div class="col-4">
-                <label for="enameId" class="font-weight-bold">Applicant Name</label>
-                <input type="text" class="form-control" name="empName" id="enameId" value="" />
-              </div>
-              <div class="col-4">
-                <label for="collageId" class="font-weight-bold">Collage Name</label>
-                <select name="collage" id="collageId" class="form-control"></select>
-              </div>
-              <div class="col-2">
-                <label for="esalId" class="font-weight-bold">Salary</label>
-                <input type="text" class="form-control" name="sal" id="esalId" value="" />
-              </div>
-              <div class="col-2">
-                <label for="ehdateId" class="font-weight-bold">Hire Date</label>
-                <input type="date" class="form-control" name="hireDate" id="ehdateId" value="" pattern="yyyy-MM-dd"
-                  value="" />
-              </div>
-
-            </div>
-            <div class="mt-2 text-center">
-              <input type="submit" value="submit" id="sid" class="btn btn-success" />
-              <input type="reset" class="btn btn-warning" />
-            </div>
-          </form>
-        </div>
+  <body>
+    <div class="container mt-5">
+      <div id="success-message" style="display: none; position: fixed; top: 10px; right: 10px; background-color: lightgreen; padding: 10px; border-radius: 5px;">
       </div>
+      <div class="alert alert-success" id="alertId" style="display: none;">
+      </div>
+
+      <div class="h2 text-center text-danger">
+        Online +2 Science Admission Form
+      </div>
+      <div class="card">
+        <div class="card-header bg-light h3 text-primary">
+          Applicants Details
+        </div>
+        <div class="card-body">
+          <div class="container">
+            <form action="./student/saveApplication" method="post" id="empForm">
+              <div class="row">
+                <div class="col-4">
+                  <label for="enameId" class="font-weight-bold"
+                    >Applicant Name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="empName"
+                    id="enameId"
+                    value=""
+                  />
+                </div>
+                <div class="col-4">
+                  <label for="collageId" class="font-weight-bold"
+                    >Collage Name</label
+                  >
+                  <select
+                    name="collage"
+                    id="collageId"
+                    class="form-control"
+                  ></select>
+                </div>
+
+                <div class="col-4 form-group">
+                  <label for="stypeid">Fourth Optional</label>
+                  <!-- For radio button make sure they go inside  div -->
+                  <div>
+                    <input
+                      type="radio"
+                      name="fourthOptional"
+                      id="stypeid"
+                      value="Math"
+                    />&nbsp; Math
+                    <input
+                      type="radio"
+                      name="fourthOptional"
+                      id="stypeid"
+                      value="Biology"
+                    />&nbsp;Biology
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 text-center">
+                <input
+                  type="submit"
+                  value="submit"
+                  id="sid"
+                  class="btn btn-success"
+                />
+                <input type="reset" class="btn btn-warning" />
+              </div>
+            </form>
+          </div>
+        </div>
+					</div>
+          <div class="h3">Registration Details</div>
+
+          <table class="table table-bordered table-striped mt-2" id="admissionDetailsTable">
+            <thead>
+              <tr>
+                <th>Sl.#</th>
+                <th>Student Name</th>
+                <th>Collage Name</th>
+                <th>Fourth Option</th>
+                <th>Enrollement Date</th>
+                <th>Course Fee</th>
+                <th>Action</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+          </table>
+      </div>
+
     </div>
-  </div>
-</body>
-<!--LINK JQUERY-->
-<script type="text/javascript" src="Js/jQuery.js"></script>
-<!--PERSONAL SCRIPT JavaScript-->
-<script type="text/javascript">
-  $(document).ready(function () {
-    // Function to fetch and populate departments
-    function loadCollages() {
-      $.ajax({
-        type: "GET",
-        url: "/CollageAdmn/student/getFormData", // Your Spring Boot endpoint
-        dataType: "json",
-        success: function (collages) {
-          console.log(collages);
-          $("#departmentId").empty(); // Clear old options
-          $("#departmentId").append(
-            '<option value=""> -Select Department- </option>'
-          ); // Default option
-          $.each(departments, function (index, department) {
-            $("#departmentId").append(
-              '<option value="' +
-              department.dept_id +
-              '">' +
-              department.dept_name +
-              "</option>"
-            );
-          });
-        },
-        error: function (error) {
-          console.error("Error fetching departments:", error);
-          // Handle error (e.g., display an error message)
-        },
-      });
-    }
+  </body>
+  <!--LINK JQUERY-->
+  <script type="text/javascript" src="Js/jQuery.js"></script>
+  <!--PERSONAL SCRIPT JavaScript-->
+  <script type="text/javascript">
 
-    // Call the function when the page loads
-    loadDepartments();
+    $(document).ready(function () {
+      // Function to fetch and populate Collages
+        $.ajax({
+          type: "GET",
+          url: "/CollageAdmn/student/getFormData", // Your Spring Boot endpoint
+          dataType: "json",
+          success: function (collages) {
+            // console.log(collages);
+            $("#collageId").empty(); // Clear old options
+            $("#collageId").append(
+              '<option value=""> -Select Collage- </option>'
+            ); // Default option
+            $.each(collages, function (index, collages) {
+              $("#collageId").append(
+                '<option value="' +
+                  collages.collage_id +
+                  '">' +
+                  collages.collage_name +
+                  "</option>"
+              );
+            });
+          },
+          error: function (error) {
+            console.error("Error fetching departments:", error);
+            // Handle error (e.g., display an error message)
+          },
+        });
+
+// Function to save Admissiondetails
+  $("#sid").click(function (event) {
+  event.preventDefault(); // Prevent default form submission
+
+  // Collect form data
+  var admissionData = {
+    applicany_name: $("#enameId").val(),
+    collage: {
+      collage_id : $("#collageId").val()
+    },
+    fourth_optional: $("input[name='fourthOptional']:checked").val()
+  };
+
+  console.log(admissionData);
+
+  // Validate form data (add your specific validation rules here)
+  if (!admissionData.applicany_name || !admissionData.collage.collage_id || !admissionData.fourth_optional) {
+    alert("Please fill out all required fields.");
+    return;
+  }
+
+});
+
+
+      // Function to save Admissiondetails
+        $("#sid").click(function (e) {
+        e.preventDefault();
+
+        var formData = {
+          applicany_name: $("#enameId").val(),
+          fourth_optional: $("input[name='fourthOptional']:checked").val(),
+          collage: {
+            collage_id: $("#collageId").val(),
+          },
+        };
+
+        $.ajax({
+          type: "POST",
+          url: "/CollageAdmn/student/saveApplication",
+          contentType: "application/json",
+          data: JSON.stringify(formData),
+          success: function (response) {
+            window.location.href="/CollageAdmn/student?msg="+response;
+          },
+          error: function (xhr, status, error) {
+            alert("Error saving employee: " + JSON.stringify(formData));
+            console.log(JSON.stringify(formData));
+          },
+        });
+      });
+      
+  $.ajax({
+    type: "GET", 
+    url: "/CollageAdmn/student/getAllAdmnDtls",
+    contentType: "application/json", 
+    success: function (response) {
+      
+      // console.log("Admission Details:", response);
+
+      // Example: Display data in a table
+      buildAdmissionTable(response);
+    },
+    error: function (xhr, status, error) {
+      alert("Error fetching admission details: " + error);
+      console.error(error);
+    },
   });
 
-  $(document).ready(function () {
-    $("#sid").click(function (e) {
-      e.preventDefault();
-      console.log($("#sid").attr("value")); // Assuming you want to log the value of the button with ID 'sid'
-      console.log($("#esalId").val());
+//function to display the data 
+function buildAdmissionTable(admissionDetails) {
+  const table = $("#admissionDetailsTable tbody"); // Assuming you have a table with this ID
+  table.empty(); // Clear existing rows
 
-      var formData = {
-        emp_name: $("#enameId").val(),
-        sal: $("#esalId").val(),
-        hire_date: $("#ehdateId").val(),
-        department: {
-          dept_id: $("#departmentId").val(), // Assuming you have an input field with id 'departmentId'
-          // Assuming you have an input field with id 'departmentName'
-        },
-      };
-      /*
-      Snippet A:
-=> contentType: "application/json": This explicitly tells the server that the data being sent in the request body is JSON formatted. It's like labeling a package with its contents. 
-=> data: JSON.stringify(formData): Here, you're taking your formData (which might be a JavaScript object) and converting it into a JSON string. This stringified data aligns with the contentType.
-*/
-      $.ajax({
-        type: "POST",
-        url: "/JsonHtml/emp/saveEmp",
-        contentType: "application/json",
-        data: JSON.stringify(formData),
-        success: function (response) {
-          alert("Employee saved successfully");
-        },
-        error: function (xhr, status, error) {
-          alert("Error saving employee: " + JSON.stringify(formData));
-          console.log(JSON.stringify(formData));
-        },
-      });
-
-      /*         Snippet B:
-=>  No contentType specified: Without a specified contentType, the browser defaults to "application/x-www-form-urlencoded", which is like sending form data as key-value pairs. This is akin to filling out a form and sending the data.
-=> data: { jsonData: JSON.stringify(formData) } - This is a bit misleading, because even though you've stringified the formData, wrapping it in an object like this and sending it without the correct contentType results in the stringified data being treated as a plain string value for a parameter named 'jsonData'
-*/
-      /*     $.ajax({
-        type: "POST",
-        url: "/JsonHtml/emp/saveEmp",
-        data: {
-          jsonData: JSON.stringify(formData),
-        },
-        success: function (response) {
-          alert("Employee saved successfully");
-        },
-        error: function (xhr, status, error) {
-          alert("Error saving employee: " + JSON.stringify(formData));
-          console.log(JSON.stringify(formData));
-        },
-      });
-
-      */
-
-      /*
-Key Differences and Why They Matter:
-
-=> Data Format: Snippet A deals with pure JSON, while Snippet B sends data in the default form format with a single parameter named jsonData containing a string. 
-*/
+  if (admissionDetails.length > 0) {
+    admissionDetails.forEach((detail,index) => {
+      table.append(`
+        <tr>
+          <td>${index+1}</td>
+          <td>${detail.applicany_name}</td>
+          <td>${detail.collage.collage_name}</td>
+          <td>${detail.fourth_optional}</td>
+          <td>${detail.enrollment_date}</td>
+          <td>${detail.collage.course_fee}</td>
+          <td><input
+                    type="button"
+                    value="Cancel Admission"
+                    id="cid"
+                    data-admission-id="${detail.enrollment_id}"
+                    class="cancel btn btn-danger"
+                  /></td>
+        </tr>
+      `);
     });
-  });
-</script>
+  } else {
+    table.append("<tr><td colspan='3'>No admission details found.</td></tr>");
+  }
+}
 
+
+  $(document).on("click",".cancel",function(){
+
+    // Get the admission ID from the button's data attribute
+    var admissionId = $(this).data('admission-id');
+
+    // console.log(admissionId);
+
+    // AJAX call to cancel admission
+    $.ajax({
+        url: '/CollageAdmn/student/cancelAdmission',
+        method: 'POST',
+        data: { 
+          admissionId: admissionId
+         },
+        success: function(response) {
+            // Handle success response
+            window.location.href="/CollageAdmn/student?msg="+response;
+        },
+        error: function(xhr, status, error) {
+            // Handle error response
+            alert('Error occurred while cancelling admission');
+            console.error(xhr.responseText);
+        }
+    });
+});
+
+  var msgParam = new URLSearchParams(window.location.search);
+  var msg = msgParam.get('msg');
+  if (msg) {
+    showMessage(msg);
+  }
+
+
+function showMessage(msg) {
+  $("#alertId").text(msg);
+  $("#alertId").show();
+  setTimeout(function () {
+
+      $("#alertId").hide(); 
+    
+    }, 2000);
+}
+
+
+    });
+  </script>
 </html>

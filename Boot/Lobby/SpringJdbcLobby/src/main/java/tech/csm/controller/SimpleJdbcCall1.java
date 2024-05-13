@@ -44,6 +44,7 @@ public class SimpleJdbcCall1 {
 
 	@GetMapping("/SimpleJdbcCall")
 	public String getRedgForm() {
+		
 
 		SimpleJdbcCall sjc = new SimpleJdbcCall(jdbcTemplate.getDataSource()).withProcedureName("p_employee_screen")
 				.declareParameters(new SqlParameter("p_status", Types.VARCHAR),
@@ -94,22 +95,22 @@ public class SimpleJdbcCall1 {
 //		}
 
 ////		Create Map<String,Object> store to hold our returned resultset which will be returned by execute() method.
-//		Map<String, Object> res = new HashMap<String, Object>();
-//
-//		SimpleJdbcCall sjc = new SimpleJdbcCall(jdbcTemplate.getDataSource()).withProcedureName("p_employee_screen")
-//				.returningResultSet("empres", new BeanPropertyRowMapper<>(Employee2.class));
-//
-//		MapSqlParameterSource msps = new MapSqlParameterSource()
-//				.addValue("p_status", "selectAllEmployees", Types.VARCHAR).addValue("firstName", null, Types.VARCHAR)
-//				.addValue("employeeId", null, Types.INTEGER).addValue("jobId", null, Types.VARCHAR)
-//				.addValue("email", null, Types.VARCHAR).addValue("hireDate", null, Types.DATE)
-//				.addValue("salary", null, Types.DOUBLE);
-//
-//		res = sjc.execute(msps);
-//		
-//		List<Employee2> empList = (List<Employee2>) res.get("empres");
-//		
-//		empList.forEach(x->System.out.println(x));
+		Map<String, Object> res = new HashMap<String, Object>();
+
+		SimpleJdbcCall sjc1 = new SimpleJdbcCall(jdbcTemplate.getDataSource()).withProcedureName("p_employee_screen")
+				.returningResultSet("empres", new BeanPropertyRowMapper<>(Employee2.class));
+
+		MapSqlParameterSource msps = new MapSqlParameterSource()
+				.addValue("p_status", "selectAllEmployees", Types.VARCHAR).addValue("firstName", null, Types.VARCHAR)
+				.addValue("employeeId", null, Types.INTEGER).addValue("jobId", null, Types.VARCHAR)
+				.addValue("email", null, Types.VARCHAR).addValue("hireDate", null, Types.DATE)
+				.addValue("salary", null, Types.DOUBLE);
+
+		res = sjc1.execute(msps);
+		
+		List<Employee2> empList = (List<Employee2>) res.get("empres");
+		
+		empList.forEach(x->System.out.println(x));
 
 		return "test3";
 	}

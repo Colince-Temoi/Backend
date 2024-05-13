@@ -149,6 +149,9 @@ public class PosController {
 				
 //				Invoke service layer method to perform some conversions to dto for this vo data
 				String msg = billerService.createBill(billerVo,transactionVos);
+				
+				transactionVos.forEach(x->System.out.println(x));
+				System.out.println(billerVo);
 
 				break;
 			case 2:
