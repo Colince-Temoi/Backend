@@ -9,7 +9,7 @@ import com.get_tt_right.interfaces.I;
  *    + Marker/Taggling interface - does not contain any method
  *      => useful for making our object able to perform special operations like;  Serialization, Cloning, RandomAccess...etc
  *    + Non-Functional interface - contains more than one abstract method.
-      + Functional Interface
+      + Functional Interface / Single abstract method interface
  * - Allows:
  *     + Exactly one abstract method
  *     + More than one default method
@@ -20,6 +20,7 @@ import com.get_tt_right.interfaces.I;
  *     => develop lambda expressions
  *     => develop method references
  *- To declare an interface as a functional interface use: @FunctionalInterface
+ *- 
  *- Invoking the members of a functional interface:
  *  + Static method(s)
  *    - Directly using interface name
@@ -73,12 +74,20 @@ public class FunctionalInterface{
 			@Override
 			public void M1() {
 				System.out.println("M1 implementation!");		
-			}			
+			}
+			
+			@Override
+			public String toString() {
+				return "toString rule custom implementation";
+			}
 		};
 //		Invoking default methods inside Functional interface
 //		Compiler will focus on the LHS. Is DM1 present inside I? Yes! No CE's
 //		JVM will focus on the RHS. is DM1 present inside our anonymous inner class implementation? Yes! execute that
 		i.DM1();
 		i.DM2();
+		String x =i.toString();
+		System.out.println(x);
+		
 	}
 }

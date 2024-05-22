@@ -29,7 +29,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		A a = new A();
-//		Invoking default methods of inteface I
+//		Invoking default methods of interface I
 		a.m1();
 		
 //		OR
@@ -47,9 +47,7 @@ public class Main {
 		i.m2();
 		
 //		Alternative B : Executing logic of interface without the need of an implementation class
-		I.m3();
-		
-		
+		I.m3();	
 
 	}
 
