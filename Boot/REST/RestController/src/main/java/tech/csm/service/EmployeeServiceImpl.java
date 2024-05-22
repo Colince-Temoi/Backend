@@ -21,7 +21,7 @@ public class EmployeeServiceImpl implements EmployeeSevice {
 
 	@Override
 	public List<Employee> getAllEmployees() {
-		System.out.println("Excecuting!!");
+//		System.out.println("Excecuting!!");
 		return employeeDao.getAllEmployees();
 	}
 	

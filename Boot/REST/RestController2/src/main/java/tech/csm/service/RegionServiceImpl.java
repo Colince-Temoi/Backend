@@ -3,8 +3,6 @@ package tech.csm.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import tech.csm.aspects.EmailService;
-import tech.csm.aspects.JmsService;
 import tech.csm.dao.RegionDao;
 import tech.csm.domain.Region;
 
@@ -13,12 +11,6 @@ public class RegionServiceImpl implements RegionService {
 
 	 @Autowired
 	    private RegionDao regionDao;
-	 
-	 @Autowired
-	    private EmailService emailService;
-
-	 @Autowired
-	    private JmsService jmsService;
 
 	    @Override
 	    public Region getRegionById(Integer regionId) {
@@ -27,12 +19,21 @@ public class RegionServiceImpl implements RegionService {
 
 	    @Override
 	    public Integer saveAddress(Region region) {
-	    	System.out.println("Exceuting Method");
+	    	System.out.println("Exceuting  save address Method");
 	    	Integer regionId = regionDao.saveAddress(region);
-	    	// Simulate email and JMS operations
-	        emailService.sendEmail("example@example.com", "New Region Saved", "Region " + region.getRegionName() + " has been saved.");
-	        jmsService.sendMessage("regionQueue", "Region " + region.getRegionName() + " has been saved.");
 	        return regionId;
+	    }
+	    
+	    @Override
+	    public Integer updateAddress(Region region) {
+	    	System.out.println("Exceuting  update address Method");
+	        return regionDao.updateAddress(region);
+	    }
+	    
+	    @Override
+	    public Integer deleteAddress(Integer regionId) {
+	    	System.out.println("Exceuting  delete address Method");
+	        return regionDao.deleteAddress(regionId);
 	    }
 
 }

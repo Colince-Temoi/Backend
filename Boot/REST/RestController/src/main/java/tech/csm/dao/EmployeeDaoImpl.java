@@ -32,7 +32,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
 	@Override
 	public List<Employee> getAllEmployees() {
-		System.out.println("Some data");
+//		System.out.println("Some data");
 		System.out.println(employees);
 		return this.employees;
 	}

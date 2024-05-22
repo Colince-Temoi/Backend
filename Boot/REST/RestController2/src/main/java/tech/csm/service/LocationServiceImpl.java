@@ -15,12 +15,13 @@ public class LocationServiceImpl implements LocationsService {
 
     @Override
     public List<Location> getAllLocations() {
+    	System.out.println("Inside get all locations service method");
         return locationsDao.getAllLocations();
     }
     
     @Override
     public Location getLocationById(Integer id) {
-        System.out.println("Get location by ID service called");
+    	System.out.println("Inside get location by id service method");
         return locationsDao.getLocationById(id);
     }
 

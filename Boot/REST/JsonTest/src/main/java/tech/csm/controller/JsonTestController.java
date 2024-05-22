@@ -1,14 +1,36 @@
 package tech.csm.controller;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import tech.csm.domain.Employee;
+import tech.csm.domain.Product;
+
+//@RestController
+@Controller
+@RequestMapping("/")
+public class JsonTestController {
+
+	// Define 'getForm' method to return the 'test3' form view.
+    @GetMapping(value = "/test3")
+    public String getForm() {
+        return "test";
+    }
+    
+    // Endpoint to handle the incoming JSON data from the client.
+    @PostMapping(value = "/product")
+    public ResponseEntity<String> handleProductData(@RequestBody List<Product> products) {
+        System.out.println("Received products: " + products);
+        return ResponseEntity.ok("Data received successfully!");
+    }
+}
+
+
 
 //package tech.csm.controller;
 //
@@ -58,22 +80,3 @@ import tech.csm.domain.Employee;
 //	        }
 //	    }
 //}
-
-@Controller
-@RequestMapping
-public class JsonTestController {
-
-    private static final String VIEW_NAME = "test";
-    
-    @GetMapping("/form")
-    public String getForm() {
-        return VIEW_NAME;
-    }
-    
-    @PostMapping("/employee")
-    public void saveEmployee(@RequestParam String jsonData) {
-        // Handle employee data here, you can save it to the database or any other operations.
-        System.out.println("Received Employee Data: " + jsonData);
-//        return ResponseEntity.ok("Employee data received successfully!");
-    }
-}

@@ -1,4 +1,60 @@
 <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>InteropTest - Test 3</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Test 3: Sending JSON Data to Server</h1>
+    <button id="sendDataBtn">Send JSON Data</button>
+
+    <script>
+      // Step 4: Define a JavaScript array of product object literals
+      var products = [
+        {
+          id: 1,
+          title: "Smart Watch",
+          price: 199.99,
+          category: "electronics",
+          description: "A high-tech smartwatch with fitness tracking.",
+        },
+        {
+          id: 2,
+          title: "Gold Necklace",
+          price: 120.0,
+          category: "jewelery",
+          description: "An elegant gold necklace with a dainty pendant.",
+        },
+        // Add more products here...
+      ];
+
+      function sendJsonData() {
+        // Step 5: Make an AJAX call to send the product data to the server
+        $.ajax({
+          url: "/JsonTestApp/product",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(products),
+          success: function (response) {
+            // Display a message when the data is sent successfully
+            console.log(response);
+            alert("Data sent successfully!");
+          },
+          error: function (jqXHR, textStatus, errorMessage) {
+            // Handle error, if any
+            console.error("Error sending data:", errorMessage);
+          },
+        });
+      }
+
+      $(document).ready(function () {
+        $("#sendDataBtn").click(sendJsonData);
+      });
+    </script>
+  </body>
+</html>
+
+<!-- <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -23,49 +79,53 @@
       </form>
     </div>
 
-    <!-- Scripting Area -->
-    
-    <script>
-        function sendJsonData() {
-            const employee ={
-                    emp_id: 1,
-                    emp_name: "John Doe",
-                    sal: 50000,
-                    hire_date: "2022-01-15",
-                    department: {
-                      dep_id: 101,
-                      dept_name: "HR",
-                    },
-                  };
-
-            $.ajax({
-                type: "POST",
-                url: "/JsonTestApp/employee",
-                /* contentType: "application/json", */
-                /* data: JSON.stringify(employee), */
-                data: {
-                    jsonData: JSON.stringify(employee),
-                  },
-                success: function (response) {
-                    console.log(response);
-                    alert("Employee data sent successfully!");
-                },
-                error: function (error) {
-                    console.error(error);
-                    alert("An error occurred while sending data.");
-                }
-            });
-        }
-
-        $('#submitBtn').click(function () {
-            sendJsonData();
-        });
-    </script>
-    
-    
-<!--     <script type="text/javascript">
+    <script type="text/javascript">
       function sendJsonData() {
         // console.log("Js is working...");
+
+        const productList = [
+          {
+            id: 1,
+            title: "Smart Watch",
+            price: 199.99,
+            category: "electronics",
+            description:
+              "A high-tech smartwatch with fitness tracking, heart rate monitor, and smart notifications.",
+          },
+          {
+            id: 2,
+            title: "Gold Necklace",
+            price: 120.0,
+            category: "jewelery",
+            description:
+              "A elegant gold necklace with a dainty pendant, perfect for everyday wear.",
+          },
+          {
+            id: 3,
+            title: "Comfortable T-Shirt",
+            price: 24.99,
+            category: "clothing",
+            description:
+              "Soft and comfortable cotton t-shirt in a trendy solid color.",
+          },
+          {
+            id: 4,
+            title: "Bluetooth Speaker",
+            price: 79.99,
+            category: "electronics",
+            description:
+              "Portable Bluetooth speaker with great sound quality and long battery life.",
+          },
+          {
+            id: 5,
+            title: "Pair of Earrings",
+            price: 69.99,
+            category: "jewelery",
+            description:
+              "A stylish pair of gold hoop earrings for a touch of glamour.",
+          },
+        ];
+
         const employeeList = [
           {
             emp_id: 1,
@@ -110,6 +170,7 @@
         ];
 
         console.log(typeof employeeList, employeeList);
+        console.log(typeof productList, productList);
 
         $.ajax({
           type: "POST",
@@ -123,6 +184,6 @@
           },
         });
       }
-    </script> -->
+    </script>
   </body>
-</html>
+</html> -->

@@ -1,14 +1,17 @@
 package tech.csm.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,11 +36,40 @@ public class MyRestController {
 	
 	@GetMapping
 	public List<Employee> getAllEmps() {
-		System.out.println("executing!!");
+//		System.out.println("executing!!");
 
 		return employeeSevice.getAllEmployees();
 		
 	}
+	
+	@GetMapping(path = "{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+//	@GetMapping("/{id}") // Works as well
+    public Employee getEmployeeById(@PathVariable (name="id") int empId) {	
+        return employeeSevice.getEmployeeById(empId);
+    }
+	
+//	Receiving/consuming a single Stringified Employee object from the client who is a producer in this case.
+	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public String saveEmployee(@RequestBody Employee em) {
+		System.out.println(em);
+		return "Emp saved successfully!";
+	}
+	
+//	Receiving/consuming an array of Stringified Employee objects from the client who is a producer in this case.
+	@PostMapping( value = "/batch", consumes = {MediaType.APPLICATION_JSON_VALUE})
+//	public String saveEmployees(@RequestBody Employee[] ems) { //working also
+		public String saveEmployees(@RequestBody List<Employee>  ems) {
+//		System.out.println(Arrays.toString(ems)); // working also
+		System.out.println(ems);
+		return "Employees saved successfully!";
+		
+	}
+	
+	
+	
+	
+	
+	
 	
 /*  Alternative 1 to get an Employee by id
  * path = "{id}" || /{id} represents the incoming id
@@ -56,11 +88,11 @@ public class MyRestController {
 	 * @PathVariable datatype id - to bind the id value so that we can use it in our method body.
 	 * Note: name = "id" in @PathVariable annotation explicitly specifies the name of the path variable to bind to the method parameter, ensuring clarity
 	 * */
-		@GetMapping(path = "{id}")
+//		@GetMapping(path = "{id}")
 //		@GetMapping("/{id}") // Works as well
-	    public Employee getEmployeeById(@PathVariable (name="id") int empId) {	
-	        return employeeSevice.getEmployeeById(empId);
-	    }
+//	    public Employee getEmployeeById(@PathVariable (name="id") int empId) {	
+//	        return employeeSevice.getEmployeeById(empId);
+//	    }
 		
 		
 		/*  Alternative 3 to get an Employee by id
@@ -98,10 +130,10 @@ public class MyRestController {
 //		
 //	}
 	
-	@PostMapping
-	public String saveEmployee() {
-		return "Emp saved successfully!";
-	}
+//	@PostMapping
+//	public String saveEmployee() {
+//		return "Emp saved successfully!";
+//	}
 	
 	@PutMapping
 	public String updateEmp() {

@@ -22,7 +22,7 @@ public class LocationDaoImpl implements LocationsDao {
 	
 	@Override
     public Location getLocationById(int id) {
-        System.out.println("Get location by id DAO called");
+//        System.out.println("Get location by id DAO called");
         String sql = "SELECT * FROM locations1 WHERE LOCATION_ID = ?";
         return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Location.class), id);
     }

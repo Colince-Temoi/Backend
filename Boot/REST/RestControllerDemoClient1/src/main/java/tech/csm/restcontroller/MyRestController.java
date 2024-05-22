@@ -2,10 +2,14 @@ package tech.csm.restcontroller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +54,13 @@ public class MyRestController {
 //	    
 //	}
 	
+	@GetMapping("/locations")
+	public ResponseEntity<List<Location>> getLocations() {
+	    String url = "http://localhost:8181/restDemo/api/locations";
+	    ResponseEntity<Map<String, List<Location>>> resp = restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, List<Location>>>() {});
+	    return ResponseEntity.ok(resp.getBody().get("locations"));
+	}
+	
 //	@GetMapping()
 //	public ResponseEntity<Location> getAllLocations() throws URISyntaxException {
 //		System.out.println("Get is working!..."+restTemplate);
@@ -87,6 +98,12 @@ public class MyRestController {
 		
 		return resp;	    
 	}
+	
+//    @GetMapping("/location/{id}")
+//    public String getLocation(@PathVariable("id") int id) {
+//        String url = "http://localhost:8181/restDemo/api/locations/{id}";
+//        return restTemplate.getForObject(url, String.class, id);
+//    }
 	
 	@PostMapping
 	public ResponseEntity<Region> saveAddress(@RequestBody Region re) throws URISyntaxException {
