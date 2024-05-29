@@ -20,7 +20,7 @@ public class HelloController extends ParameterizableViewController{
 		String  name = request.getParameter("name");
 		Map<String, String> m = new HashMap<>();
 //		Your required ouput you can store under map object
-		m.put("msg", "Hello..."+name +" using SimpleUrlHandlerMapping and ...AbstractController");
+		m.put("msg", "Hello..."+name +" using SimpleUrlHandlerMapping and ...ParameterizableViewController");
 		
 		return new ModelAndView(getViewName(), m);
 	}
