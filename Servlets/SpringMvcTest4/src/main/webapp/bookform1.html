@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Form</title>
+</head>
+<body>
+    <h2>Say Hello Form</h2>
+    <!-- The form action here should be same as the URL pattern configured in the web.xml file -->
+    <form action="hello.htm" method="post">
+    <!-- By using the name attribute value(s) we can be able to obtain data from these fields in the controller class(s) from the request object.-->
+        Name: <input type="text" name="name" /><br/>
+        <input type="submit" value="Say Hello" />
+    </form>
+</body>
+</html>
