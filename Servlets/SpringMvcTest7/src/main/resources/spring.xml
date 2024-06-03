@@ -10,23 +10,25 @@
     <!-- Enable Spring MVC annotation-driven support -->
     <mvc:annotation-driven />
 
-    <!-- Define the Controller bean 
-    - No need to configure the bean: BeanNameUrlHandlerMapping.
-    - Like this to use traditional URL-based handler mapping with Spring's BeanNameUrlHandlerMapping, you need to define the controller bean with name attribute having correct URL mapping
-    -->
-    <bean  name="/hello.htm" class="tech.csm.controller.HelloController" />
-
-    <!-- Configure view resolver for HTML -->
-<!--     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF" />
-        <property name="suffix" value=".html" />
-    </bean> -->
+ <!-- SimpleUrlHandlerMapping configuration
+  - mapping property datatype is of type Properties.
+  - We already know several alternatives to pass properties.
+  - Below we are just using props
+  -->
+<!--     <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping" >
+        <property name="mappings">
+           <props>
+           Here you can map any number of requests to particular controllers
+              <prop key="/hello.htm">hc</prop>
+           </props>
+        </property>
+    
+    </bean>
+    <bean id="hc" class="tech.csm.controller.HelloController" /> -->
     
      <!-- Configure view resolver for JSP -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <!-- By using prefix we are setting the location -->
         <property name="prefix" value="/WEB-INF/jsp/" />
-        <!-- By using suffix we are setting the page extension -->
         <property name="suffix" value=".jsp" />
     </bean>
 

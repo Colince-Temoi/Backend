@@ -1,9 +1,17 @@
 package tech.csm.dao;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +19,13 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.CallableStatementCallback;
+import org.springframework.jdbc.core.CallableStatementCreator;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -31,6 +45,46 @@ public class AdmissionDtlsDaoImpl implements AdmissionDtlsDao {
 	private DataSource dataSource;
 
 	private SimpleJdbcCall simpleJdbcCall;
+	
+	 @Autowired
+	    private JdbcTemplate jdbcTemplate;
+	 
+	 public List<Map<String, Object>> fetchAllAdmissionDetails() {
+	        SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(dataSource)
+	                .withProcedureName("p_AdmissionDtl_screen")
+	                .declareParameters(
+	                        new SqlParameter("p_status", Types.VARCHAR),
+	                        new SqlParameter("p_AplicantName", Types.VARCHAR),
+	                        new SqlParameter("p_EnrollmentId", Types.INTEGER),
+	                        new SqlParameter("p_FourthOptional", Types.VARCHAR),
+	                        new SqlParameter("p_EnrollmentDate", Types.DATE),
+	                        new SqlParameter("p_CollageId", Types.INTEGER),
+	                        new SqlOutParameter("o_msg", Types.VARCHAR)
+	                ).returningResultSet("admissionDtls", new RowMapper<Map<String, Object>>() {
+	                	@Override
+	                    public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+	                        Map<String, Object> result = new HashMap<>();
+	                        result.put("enrollmentId", rs.getInt("enrollment_id"));
+	                        result.put("applicanyName", rs.getString("applicany_name"));
+	                        result.put("fourthOptional", rs.getString("fourth_optional"));
+	                        result.put("enrollmentDate", rs.getDate("enrollment_date"));
+	                        result.put("collageId", rs.getInt("collage_id"));
+	                        return result;
+	                    }
+	                });
+
+	        MapSqlParameterSource paramMap = new MapSqlParameterSource();
+	        paramMap.addValue("p_status", "selectAllAdmissionDetails");
+	        paramMap.addValue("p_AplicantName", null);
+	        paramMap.addValue("p_EnrollmentId", 0);
+	        paramMap.addValue("p_FourthOptional", null);
+	        paramMap.addValue("p_EnrollmentDate", null);
+	        paramMap.addValue("p_CollageId", 0);
+
+	        Map<String, Object> resultMap = simpleJdbcCall.execute(paramMap);
+	        List<Map<String, Object>> admissionDtls = (List<Map<String, Object>>) resultMap.get("admissionDtls");
+	        return admissionDtls;
+	    }
 
 //	@PostConstruct // Initializes 'simpleJdbcCall' after dependency injection
 //    public void init() {
@@ -117,48 +171,48 @@ public class AdmissionDtlsDaoImpl implements AdmissionDtlsDao {
 //	}
 	
 	
-	@Override
-    public List<Map<String, Object>> fetchAllAdmissionDetails() {
-        // Initialize the SimpleJdbcCall object (do this only once, perhaps in a @PostConstruct method)
-        simpleJdbcCall = new SimpleJdbcCall(dataSource)
-                .withProcedureName("p_AdmissionDtl_screen")
-                .declareParameters(
-                        new SqlParameter("p_status", Types.VARCHAR),
-                        new SqlParameter("p_AplicantName", Types.VARCHAR),  
-                        new SqlParameter("p_EnrollmentId", Types.INTEGER),  
-                        new SqlParameter("p_FourthOptional", Types.VARCHAR),  
-                        new SqlParameter("p_EnrollmentDate", Types.DATE),
-                        new SqlParameter("p_CollageId", Types.INTEGER), 
-                        new SqlOutParameter("o_msg", Types.VARCHAR) // Out parameter
-                ).returningResultSet("admnDtlResres", new RowMapper<Map<String, Object>>() {
-                    @Override
-                    public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        Map<String, Object> result = new HashMap<>();
-                        result.put("enrollmentId", rs.getInt("enrollment_id"));
-                        result.put("applicanyName", rs.getString("applicany_name"));
-                        result.put("fourthOptional", rs.getString("fourth_optional"));
-                        result.put("enrollmentDate", rs.getDate("enrollment_date"));
-                        result.put("collageId", rs.getInt("collage_id"));
-                        return result;
-                    }
-                });
-
-        // Prepare input parameters
-        MapSqlParameterSource in = new MapSqlParameterSource()
-        		  .addValue("p_status", "selectAllAdmissionDetails")
-                  .addValue("p_AplicantName", null, Types.VARCHAR)  // Even if not used in the query, it's required
-                  .addValue("p_EnrollmentId", null, Types.INTEGER)  
-                  .addValue("p_FourthOptional", null, Types.VARCHAR)  
-                  .addValue("p_EnrollmentDate", null, Types.DATE) 
-                  .addValue("p_CollageId", null, Types.INTEGER);
-
-        // Execute the Stored Procedure
-        Map<String, Object> out = simpleJdbcCall.execute(in);
-
-        // Assuming your results are in the output parameter(s), 
-        // you'd extract them here and return as a List of Maps
-        return (List<Map<String, Object>>) out.get("admnDtlResres"); // Example, adjust based on your SP
-    }
+//	@Override
+//    public List<Map<String, Object>> fetchAllAdmissionDetails() {
+//        // Initialize the SimpleJdbcCall object (do this only once, perhaps in a @PostConstruct method)
+//        simpleJdbcCall = new SimpleJdbcCall(dataSource)
+//                .withProcedureName("p_AdmissionDtl_screen")
+//                .declareParameters(
+//                        new SqlParameter("p_status", Types.VARCHAR),
+//                        new SqlParameter("p_AplicantName", Types.VARCHAR),  
+//                        new SqlParameter("p_EnrollmentId", Types.INTEGER),  
+//                        new SqlParameter("p_FourthOptional", Types.VARCHAR),  
+//                        new SqlParameter("p_EnrollmentDate", Types.DATE),
+//                        new SqlParameter("p_CollageId", Types.INTEGER), 
+//                        new SqlOutParameter("o_msg", Types.VARCHAR) // Out parameter
+//                ).returningResultSet("admnDtlResres", new RowMapper<Map<String, Object>>() {
+//                    @Override
+//                    public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+//                        Map<String, Object> result = new HashMap<>();
+//                        result.put("enrollmentId", rs.getInt("enrollment_id"));
+//                        result.put("applicanyName", rs.getString("applicany_name"));
+//                        result.put("fourthOptional", rs.getString("fourth_optional"));
+//                        result.put("enrollmentDate", rs.getDate("enrollment_date"));
+//                        result.put("collageId", rs.getInt("collage_id"));
+//                        return result;
+//                    }
+//                });
+//
+//        // Prepare input parameters
+//        MapSqlParameterSource in = new MapSqlParameterSource()
+//        		  .addValue("p_status", "selectAllAdmissionDetails")
+//                  .addValue("p_AplicantName", null, Types.VARCHAR)  // Even if not used in the query, it's required
+//                  .addValue("p_EnrollmentId", null, Types.INTEGER)  
+//                  .addValue("p_FourthOptional", null, Types.VARCHAR)  
+//                  .addValue("p_EnrollmentDate", null, Types.DATE) 
+//                  .addValue("p_CollageId", null, Types.INTEGER);
+//
+//        // Execute the Stored Procedure
+//        Map<String, Object> out = simpleJdbcCall.execute(in);
+//
+//        // Assuming your results are in the output parameter(s), 
+//        // you'd extract them here and return as a List of Maps
+//        return (List<Map<String, Object>>) out.get("admnDtlResres"); // Example, adjust based on your SP
+//    }
 	
 
 	@Override
@@ -215,5 +269,11 @@ public class AdmissionDtlsDaoImpl implements AdmissionDtlsDao {
 
         return msg;
     }
+
+	@Override
+	public List<AdmissionDtls> getAllAdmissionDtls() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

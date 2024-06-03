@@ -40,16 +40,16 @@ public class AdmissionDtlsServiceImpl implements AdmissionDtlsSevice {
 		return admissionDtlsDao.saveAdmissionDtls(admissionDtls);
 	}
 
-//	@Override
-//	public List<AdmissionDtls> getAllAdmissionDetatils() {
-//		List<AdmissionDtls> admnDtlList = admissionDtlsDao.getAllAdmissionDtls();
-//		
-//		for (AdmissionDtls x : admnDtlList) {
-//			Collage collage = getCollageById(x.getCollage().getCollageId());
-//			x.setCollage(collage);
-//		}
-//		return admnDtlList;
-//	}
+	@Override
+	public List<AdmissionDtls> getAllAdmissionDetatils() {
+		List<AdmissionDtls> admnDtlList = admissionDtlsDao.getAllAdmissionDtls();
+		
+		for (AdmissionDtls x : admnDtlList) {
+			Collage collage = getCollageById(x.getCollage().getCollageId());
+			x.setCollage(collage);
+		}
+		return admnDtlList;
+	}
 
 	private Collage getCollageById(Integer collageId) {
 

@@ -76,13 +76,14 @@ public class MainController {
 	public List<AdmissionDtls> getAllAdmissionDtls() {
 //		List<AdmissionDtls> admnDtlsList = admissionDtlsService.getAllAdmissionDetatils();
 		List<Map<String, Object>> admissionDtlsMap = admissionDtlsService.fetchAllAdmissionDetails();
-	
+//	
 		System.out.println();
 		for (Map<String, Object> map : admissionDtlsMap) {
 			System.out.println(map);
 		}
-//		return admnDtlsList;
 		return null;
+//		admnDtlsList.forEach(x->System.out.println(x));
+//		return admnDtlsList;
 
 	}
 

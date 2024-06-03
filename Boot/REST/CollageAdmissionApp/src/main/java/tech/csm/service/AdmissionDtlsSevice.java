@@ -9,7 +9,7 @@ public interface AdmissionDtlsSevice {
 
 	String saveAdmissionDtls(AdmissionDtls admissionDtls);
 
-//	List<AdmissionDtls> getAllAdmissionDetatils();
+	List<AdmissionDtls> getAllAdmissionDetatils();
 	List<Map<String, Object>> fetchAllAdmissionDetails();
 
 	String cancelAdmission(int id);

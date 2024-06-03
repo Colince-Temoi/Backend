@@ -8,6 +8,7 @@ public class MainController {
 
 	@GetMapping("/getRedgForm")
 	public String getRedgForm() {
+		System.out.println("working!");
 		return "redgForm";
 	}
 }
