@@ -1,8 +1,0 @@
-INDEX VERSION 1.4+C:\Users\Colince.temoi\Desktop\Working Dir\Spring DAO\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-2567512645.index
-4151442586.index
-2075423427.index
-3150356183.index
-3975189385.index
-2183142565.index
-1647651401.index
