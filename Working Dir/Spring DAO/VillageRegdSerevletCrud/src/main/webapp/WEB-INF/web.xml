@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+     <servlet>
+    	<servlet-name>fc</servlet-name>
+    	<servlet-class>tech.csm.controller.MainController</servlet-class>
+    	<load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>fc</servlet-name>
+    	<url-pattern>/</url-pattern>
+    </servlet-mapping>
+    
+    
+    
+    <servlet>
+    	<servlet-name>gf</servlet-name>
+    	<servlet-class>tech.csm.controller.GetRegdForm</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>gf</servlet-name>
+    	<url-pattern>/getRegdForm</url-pattern>
+    </servlet-mapping>
+    
+    
+    <servlet>
+    	<servlet-name>gf2</servlet-name>
+    	<servlet-class>tech.csm.controller.GetRegdForm2</servlet-class>    	
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>gf2</servlet-name>
+    	<url-pattern>/getRegdForm2</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+    	<servlet-name>gpb</servlet-name>
+    	<servlet-class>tech.csm.controller.GetPachayatByBlockId</servlet-class>    	
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>gpb</servlet-name>
+    	<url-pattern>/getPachayatByBlockId</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+    	<servlet-name>sv</servlet-name>
+    	<servlet-class>tech.csm.controller.SaveVlg</servlet-class>    	
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>sv</servlet-name>
+    	<url-pattern>/saveVlg</url-pattern>
+    </servlet-mapping>
+    <servlet>
+    	<servlet-name>df</servlet-name>
+    	<servlet-class>tech.csm.controller.DownloadFilController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>df</servlet-name>
+    	<url-pattern>/downloadFile</url-pattern>
+    </servlet-mapping>
+    
+     <servlet>
+    	<servlet-name>fb</servlet-name>
+    	<servlet-class>tech.csm.controller.FilterBlock</servlet-class>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>fb</servlet-name>
+    	<url-pattern>/blockFilter</url-pattern>
+    </servlet-mapping>
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+            <scripting-invalid>true</scripting-invalid>
+            <default-content-type>text/html;charset=UTF-8</default-content-type>
+            <error-on-undeclared-namespace>true</error-on-undeclared-namespace>
+        </jsp-property-group>
+    </jsp-config>
+</web-app>

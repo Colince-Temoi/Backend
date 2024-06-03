@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete element from project &apos;BookServletCrud&apos;&#x0D;&#x0A;- Original project: &apos;BookServletCrud&apos;&#x0D;&#x0A;- Original element: &apos;BookServletCrud/src/main/java/tech.csm&apos;&#x0D;&#x0A;- Delete subpackages" description="Delete element" element1="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;tech.csm.controller" element2="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;tech.csm" element3="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;tech" elements="3" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1704977201516" subPackages="true" version="1.0"/>
+</session>
