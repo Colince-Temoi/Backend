@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:component-scan base-package="tech.csm.controller" />
+
+<!--Used to perform forward operations in the case of simple hyperlink requests to any form
+  - You can use for doing simple page forwards.
+  - Like this we are just using UrlFilenameViewController. No need to create your own Implementation of handleInternal method by creating a controller class and extending this UrlFilenameViewController.
+  - They have provided for you the implementation, your is just to use it as below.
+  - Inside the implementation they have provided for you, based on your request action i.e., hello.ds or hai.ds Check these two inside bookform1.html as we have configured them as hyperlinks.
+     +. The action name will be read i.e., hello or hai
+     +. This action name will be taken as the page name and will be returned by the Controller implementation they internally implemented for you as part of the MAV object
+     +. Based on this name, Dispatcher servlet will then contact the view resolver and return to you the respective page i.e., hello.jsp or hai.jsp
+ -->
+
+<bean name="/hello.ds" class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/>
+<bean name="/hai.ds" class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/>
+
+
+     <!-- Configure view resolver for JSP -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <!-- By using prefix we are setting the location -->
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <!-- By using suffix we are setting the page extension -->
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+</beans>

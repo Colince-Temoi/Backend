@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1"
+    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+
+<!--     <welcome-file-list>
+        <welcome-file>bookform.html</welcome-file>
+    </welcome-file-list> -->
+<welcome-file-list>
+    <welcome-file>bookform1.html</welcome-file>
+</welcome-file-list>
+
+
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+            <scripting-invalid>true</scripting-invalid>
+            <default-content-type>text/html;charset=UTF-8</default-content-type>
+            <error-on-undeclared-namespace>true</error-on-undeclared-namespace>
+        </jsp-property-group>
+    </jsp-config>
+
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        
+        <!-- For default configurations, no need to utilize init-param kind of things like below
+        - But the condition is the xml file should have a name like: <servlet-name>-servlet.xml i.e., dispatcher-servlet.xml
+        - The other condition is this dispatcher-servlet.xml file should be directly located in the WEB-INF directory -Web root location- together with the web.xml file
+        - I have just decided to use init-param kind of configurations and that why I can have  the dispatcher-servlet.xml file as any other name as per my wish and in whatever folder in the webweb root location as per my wish also.
+         -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring/dispatcher-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+       <!--  The same extention you need to utilize in your form actions. The extention can be anything. i.e., .colince, .spring, anything -->
+        <url-pattern>*.htm</url-pattern>
+    </servlet-mapping>
+
+</web-app>
