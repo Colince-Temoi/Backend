@@ -1,36 +1,35 @@
 package tech.csm.controller;
-import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import tech.csm.domain.Product;
+import tech.csm.domain.Employee;
 
-//@RestController
+import java.util.List;
+
 @Controller
-@RequestMapping("/")
-public class JsonTestController {
+public class InteropTestController {
 
-	// Define 'getForm' method to return the 'test3' form view.
-    @GetMapping(value = "/test3")
+    // This method will return a form view
+    @GetMapping("/getForm")
     public String getForm() {
-        return "test";
+        return "form";
     }
-    
-    // Endpoint to handle the incoming JSON data from the client.
-    @PostMapping(value = "/product")
-    public ResponseEntity<String> handleProductData(@RequestBody List<Product> products) {
-        System.out.println("Received products: " + products);
-        return ResponseEntity.ok("Data received successfully!");
+
+    // This method will receive the JSON data and return a list of employees
+    @PostMapping("/receiveJson")
+    @ResponseBody
+    public List<Employee> receiveJson(@RequestBody List<Employee> employees) {
+        System.out.println("Received JSON data: " + employees);
+        
+        // You can process the list of employees here if needed
+        
+        return employees;
     }
 }
-
-
 
 //package tech.csm.controller;
 //

@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Department implements Serializable {
+public class Department1 implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@JsonProperty("dep_id")

@@ -8,14 +8,14 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import tech.csm.entity.State;
+import tech.csm.entity.State1;
 import tech.csm.util.DBUtil;
 
-public class StateDaoImpl implements StateDao {
+public class StateDaoImpl1 implements StateDao1 {
 
 	private static Connection con;
 
-	public StateDaoImpl() {
+	public StateDaoImpl1() {
 		try {
 			con = DBUtil.getConnection();
 		} catch (SQLException e) {
@@ -25,9 +25,9 @@ public class StateDaoImpl implements StateDao {
 	}
 
 	@Override
-	public List<State> getAllStates() {
+	public List<State1> getAllStates() {
 //		Create a List object to hold States data
-		List<State> stateList = new ArrayList<>();
+		List<State1> stateList = new ArrayList<>();
 		try {
 			// do not write semicolon in-front of the } when invoking the stored procedure
 			// i.e.,"{call pos_schema.p_productscreen(?, ?,?,?,?,?);}" as you may encounter
@@ -55,7 +55,7 @@ public class StateDaoImpl implements StateDao {
 				do {
 //					System.out.println("|| " + rs.getInt(1) + " || " + rs.getString(2) + " || ");
 //					Create State object to hold State date
-					State state = new State();
+					State1 state = new State1();
 					
 //					Set the things
 					state.setStateId(rs.getInt(1));
@@ -74,9 +74,9 @@ public class StateDaoImpl implements StateDao {
 	}
 
 	@Override
-	public State getStateById(Integer id) {
+	public State1 getStateById(Integer id) {
 //		Create a List object to hold States data
-		State state = null;
+		State1 state = null;
 		try {
 			// do not write semicolon in-front of the } when invoking the stored procedure
 			// i.e.,"{call pos_schema.p_productscreen(?, ?,?,?,?,?);}" as you may encounter
@@ -104,7 +104,7 @@ public class StateDaoImpl implements StateDao {
 				do {
 //					System.out.println("|| " + rs.getInt(1) + " || " + rs.getString(2) + " || ");
 //					Create State object to hold State date
-					state = new State();
+					state = new State1();
 					
 //					Set the things
 					state.setStateId(rs.getInt(1));

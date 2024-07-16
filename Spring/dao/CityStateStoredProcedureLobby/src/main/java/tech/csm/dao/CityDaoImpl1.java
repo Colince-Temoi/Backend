@@ -8,14 +8,14 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import tech.csm.entity.City;
-import tech.csm.entity.State;
+import tech.csm.entity.City1;
+import tech.csm.entity.State1;
 import tech.csm.util.DBUtil;
 
-public class CityDaoImpl implements CityDao {
+public class CityDaoImpl1 implements CityDao1 {
 	private static Connection con;
 
-	public CityDaoImpl() {
+	public CityDaoImpl1() {
 		try {
 			con = DBUtil.getConnection();
 		} catch (SQLException e) {
@@ -25,7 +25,7 @@ public class CityDaoImpl implements CityDao {
 	}
 	
 	@Override
-	public String createCity(City city) {
+	public String createCity(City1 city) {
 		
 		String msg = null;
 
@@ -60,9 +60,9 @@ public class CityDaoImpl implements CityDao {
 	}
 
 	@Override
-	public List<City> getAllCities() {
+	public List<City1> getAllCities() {
 //		Create a List object to hold States data
-		List<City> cityList = new ArrayList<>();
+		List<City1> cityList = new ArrayList<>();
 		try {
 			// do not write semicolon in-front of the } when invoking the stored procedure
 			// i.e.,"{call pos_schema.p_productscreen(?, ?,?,?,?,?);}" as you may encounter
@@ -90,13 +90,13 @@ public class CityDaoImpl implements CityDao {
 				do {
 //					System.out.println("|| " + rs.getInt(1) + " || " + rs.getString(2) + " || ");
 //					Create State object to hold State date
-					City city = new City();
+					City1 city = new City1();
 					
 //					Set the things
 					city.setCityId(rs.getInt(1));
 					city.setCityName(rs.getString(2));
 					
-					State state = new State();
+					State1 state = new State1();
 					state.setStateId(rs.getInt(3));
 					state.setStateName(rs.getString(4));
 					

@@ -5,8 +5,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter @Setter @ToString
-public class StateVo {
-
-	private String stateId;
-	private String stateName;
+public class CityVo1 {
+	
+	private String cityId;
+	private String cityName;
+	private StateVo1 stateVo;
 }
