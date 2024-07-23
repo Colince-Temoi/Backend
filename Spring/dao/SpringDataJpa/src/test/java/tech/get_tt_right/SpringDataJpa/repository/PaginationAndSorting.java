@@ -74,8 +74,8 @@ public class PaginationAndSorting {
         String sortByDesc = "description";
         String sortDir = "desc";
 
-        Sort sortName = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Sort sortDesc = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortByDesc).ascending() : Sort.by(sortByDesc).descending();
+        Sort sortName = Sort.by(sortBy).descending();
+        Sort sortDesc = Sort.by(sortByDesc).descending();
 
         /* sorting on multiple columns or group by sort. */
         Sort groupSort = sortName.and(sortDesc);
