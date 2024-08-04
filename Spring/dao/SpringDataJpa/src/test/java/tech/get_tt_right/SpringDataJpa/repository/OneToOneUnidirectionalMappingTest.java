@@ -48,7 +48,7 @@ public class OneToOneUnidirectionalMappingTest {
         order.getBillingAddress().setZipCode("411087");
         orderRepository.save(order);
     }
-//    Delete Order method test case    
+//    Delete Order method test case
     @Test
     void deleteOrderMethod(){
         orderRepository.deleteById(1L);

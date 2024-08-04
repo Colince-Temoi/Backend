@@ -59,7 +59,7 @@ import java.time.LocalDateTime;
 
 @Table(
         name = "products",
-        schema = "ecommerce",
+        schema = "ecommerce1",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "sku_unique",
