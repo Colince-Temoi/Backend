@@ -31,8 +31,7 @@ public class Order {
     private Address billingAddress;
 
     // default fetch type for one to many is LAZY
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "order")
     private Set<OrderItem> orderItems = new HashSet<>();
 
     public BigDecimal getTotalAmount(){
