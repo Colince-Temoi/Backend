@@ -20,8 +20,10 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody Customer customer) {
         try {
-//                String hashPwd = passwordEncoder.encode(customer.getPwd());
-//                customer.setPwd(hashPwd);
+            /* Just before saving the user details to the database, we are encoding the password using the BCryptPasswordEncoder.
+            * */
+                String hashPwd = passwordEncoder.encode(customer.getPwd());
+                customer.setPwd(hashPwd);
                 Customer savedCustomer = customerRepository.save(customer);
 
                 if(savedCustomer.getId()>0) {
