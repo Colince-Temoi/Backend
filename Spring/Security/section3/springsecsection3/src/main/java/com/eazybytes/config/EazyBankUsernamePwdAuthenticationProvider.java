@@ -69,7 +69,7 @@ public class EazyBankUsernamePwdAuthenticationProvider implements Authentication
 
     /* Conveying to Spring Security that we are supporting Username Password style of Authentication .
     * You can copy this from DaoAuthenticationProvider.
-    * */ 
+    * */
     @Override
     public boolean supports(Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
