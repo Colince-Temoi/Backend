@@ -25,6 +25,13 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        /* What we have done is we have disabled the CSRF protection because previously when we tried to access the /register
+        endpoint Spring Security was stopping us with a 403 error (Forbidden!) by thinking it is a CSRF attack!
+        * But this is not the recommended approach inside production; we should never disable CSRF protection.
+        * Instead, we should ideally implement a proper CSRF solution for our web application
+        * To test the default CSRF protection, we can comment out the below line and try to access the /register endpoint or any other modify endpoints! both will give us a 403 error
+        * This is whether you are using a UI application or Postman to test the endpoints.
+        */
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
@@ -37,18 +44,14 @@ public class ProjectSecurityConfig {
                         return config;
                     }
                 }))
-                .csrf(AbstractHttpConfigurer::disable).
-                authorizeHttpRequests((requests) -> requests
+//                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards","/user" ).authenticated()
                 .requestMatchers("/notices", "/contact", "/error","/register").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
-/* We are communicating to Spring Security that it has to leverage the BCryptPasswordEncoder for password encoding and also validating the password.
-* The very first place we can leverage the password encoder is during the registration process.
-* Do this inside the controller we have for the registration process.
-* */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
