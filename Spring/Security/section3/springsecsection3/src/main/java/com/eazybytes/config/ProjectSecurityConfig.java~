@@ -47,13 +47,8 @@ http.securityContext((context) -> context
     * Since I'm trying to expose a header to the UI application, I need to let the browser know that I'm going to send so and so headers to the UI application and threrefore accept the headers that.
     * Otherwise, the browser will not accept that header and without tnat header, the UI application will not be able to read the JWT token and
     cannot send the JWT token back to the server post initial login. That's why we need to make a small configuration in the CORS configuration here.
-    * So, just after setAllowedHeaders(), add a new method called setExposedHeaders() and pass the header name as "Authorization".
-    * This method allows a List of Strings as input (Header names) that am going to send as part of the response to the UI application. So, I'm passing a List of Strings with just one element - "Authorization".
-    * Its inside this header, Authorization, that I'm going to send the JWT token value.
- *
- * Since in this scenario we are trying to expose a header from backend application to a different UI application which is hosted in another origin, we needed to make sure we are mentioning this.
- * But why did we not do the same for the CSRF token? The question is valid. Since that is a Framework provided header, the framework is going to take care of that internally.
- * But here Authorization is a custom header that we are trying to expose to the UI application. That's why we need to mention that explicitly.
+    *
+
  */
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -66,8 +61,8 @@ http.securityContext((context) -> context
                         config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
-                        config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("Authorization"));
+                        config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setMaxAge(3600L);
                         return config;
                     }

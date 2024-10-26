@@ -29,7 +29,7 @@ public class LoginController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody Customer customer) {
         Customer savedCustomer = null;
-         ResponseEntity response = null;
+            ResponseEntity response = null;
         try {
             String hashPwd = passwordEncoder.encode(customer.getPwd());
             customer.setPwd(hashPwd);
