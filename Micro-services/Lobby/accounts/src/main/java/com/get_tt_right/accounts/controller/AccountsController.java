@@ -32,11 +32,6 @@ public class AccountsController {
                 .body(new ResponseDto(AccountsConstants.STATUS_201, AccountsConstants.MESSAGE_201));
     }
 
-    /* For scenarios where the input data is a primitive type, I mean input data coming as a query parameter, or path variable, or request header, we can make use of the @Pattern annotation to validate the input data.
-     * In this example, we are validating the mobile number that is coming as a query parameter.
-     * It's very similar to what you mentioned in the CustomerDto class. Just copy that specific validation annotation and paste it here.
-     * Do this just after the @RequestParam annotation and before the parameter.
-     * */
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam
                                                                @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")

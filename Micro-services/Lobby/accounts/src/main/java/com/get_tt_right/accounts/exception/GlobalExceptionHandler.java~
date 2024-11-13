@@ -62,7 +62,7 @@ public class GlobalExceptionHandler  extends ResponseEntityExceptionHandler {
         );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
     }
-
+    
     @ExceptionHandler(CustomerAlreadyExistsException.class) // This annotation is used to define the exception that this method is going to handle. Like this, we are telling to Spring Boot that whenever an exception with the type CustomerAlreadyExistsException is thrown to any of my controllers, handle it with this method.
     public ResponseEntity<ErrorResponseDto> handleCustomerAlreadyExistsException(CustomerAlreadyExistsException exception,
                                                                                  WebRequest webRequest){
