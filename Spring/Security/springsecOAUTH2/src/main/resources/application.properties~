@@ -6,10 +6,15 @@ spring.security.user.name=${SECURITY_USERNAME:eazybytes}
 spring.security.user.password=${SECURITY_PASSWORD:12345}
 # I've also enabled the Trace level logging for Spring Security related packages.
 logging.level.org.springframework.security=${SPRING_SECURITY_LOG_LEVEL:TRACE}
+# I've set the logging pattern for the console as below to display the log messages in a colored format.
 logging.pattern.console = ${LOGPATTERN_CONSOLE:%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n}
+# When I use this 'github' just after the 'spring.security.oauth2.client.registration.' prefix, my spring security will try to assume that I'm trying to use the GutHub auth server and with that it is going to leverage all the configurations around GitHub by looking into the CommonOAuth2Provider class.
+# In this class, we have all the related configuration for GitHub. You can check that and by using those configurations, behind the scenes Spring Security framework is going to create a ClientRegistration object and the same it is going to register with the InMemoryClientRegistrationRepository object. Just like we did manually before. ha-ha-ha!
+# Just make sure to mention the correct client-id and client-secret for the GitHub auth server. Here we are trying to hardcode the values for the client-id and client-secret. But in the real world, we should not hardcode these values. We should always try to externalize these values. We can use the environment variables to externalize these values.
+# If needed, we can provide these values using environment variables by creating environment variables with the names as GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET. If the environment variables are not set, then we can provide the default values just after the colon(:).
+spring.security.oauth2.client.registration.github.client-id=${GITHUB_CLIENT_ID:Ov23liG3ejbX258jnNeG}
+spring.security.oauth2.client.registration.github.client-secret=${GITHUB_CLIENT_SECRET:3987ab3eee8f9ec2265bfc87ea97d48e6ba27874}
 
-#spring.security.oauth2.client.registration.github.client-id=${GITHUB_CLIENT_ID:Ov23liCBLLUjii41pS7k}
-#spring.security.oauth2.client.registration.github.client-secret=${GITHUB_CLIENT_SECRET:9da8734b56aad52d91b268fe6834a8df12447d95}
-#
-#spring.security.oauth2.client.registration.facebook.client-id=${GITHUB_CLIENT_ID:974042741122392}
-#spring.security.oauth2.client.registration.facebook.client-secret=${GITHUB_CLIENT_SECRET:36d48c25c1767d58b3101551513d7e1e}
+# The same thing we will again do with facebook or any other auth server.
+spring.security.oauth2.client.registration.facebook.client-id=${GITHUB_CLIENT_ID:575236091665053}
+spring.security.oauth2.client.registration.facebook.client-secret=${GITHUB_CLIENT_SECRET:e042469d193346e90bf9de1410c13a0a}
