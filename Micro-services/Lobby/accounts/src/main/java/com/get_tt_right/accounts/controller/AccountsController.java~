@@ -111,7 +111,7 @@ public class AccountsController {
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
     }
 
-    /** This operation is going to have one more extra ApiResponse annotation to accommodate the failed expectation scenario. If you check in this controller you will see an if condition which is checking if the account is updated or not. If it is updated, it will return a 200 OK response. If it is not updated, it will return a 417 Expectation Failed response.
+    /** This operation is going to have one more extra ApiResponse annotation to accommodate the business exception that can be thrown from the service layer.
      * The same also applies to the deleteAccountDetails REST API.
      * Now if you go to the swagger UI, you will see that the information is updated. You should now see a beautiful summary + description of this REST APIs.
      * */
@@ -146,7 +146,7 @@ public class AccountsController {
                     .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
         }else{
             return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_UPDATE));
         }
     }
@@ -184,7 +184,7 @@ public class AccountsController {
                     .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
         }else{
             return ResponseEntity
-                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_DELETE));
         }
     }

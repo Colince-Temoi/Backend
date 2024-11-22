@@ -66,6 +66,19 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+<!--Behind the scenes it is going to scan all your REST APIs and prepare the documentation based upon the OpenAPI specification
+It is also going to provide you a swagger UI using which anyone can understand your REST APIs, the details of your REST APIs, and the validations that you have enforced and everything.
+This dependency is going to work if only you are using springboot version 3.x.x
+For some reason if you are building your application with an older version of Springboot (2.x.x || 1.x.x), then you have to use a different version of openapi specification which is 1.8.0. You can get this information from the official documentation of springdoc-openapi
+If you run your application and open the path /swagger-ui.html, you will see the swagger UI. Magic! ha-ha!
+This is a beautiful documentation about the REST APIs that you have built.
+-->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
