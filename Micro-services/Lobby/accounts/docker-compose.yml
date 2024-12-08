@@ -1,0 +1,60 @@
+# Since we want to define about all our microservices details, the very first syntax we need mention here is services followed by colon.
+# Under services, we can define any number of microservices details we want to run.
+# Make sure when pressing enter, you have to make sure a tab space is there before the next line otherwise it will not work.configs:
+# In IntelliJ IDEA, it's simple. As soon as you press enter a tab space is automatically added as there is a YAML plugin installed by default.
+# As can be seen there is a hierarchy of services and under services-Parent, we have to define all our microservices.
+# When we start all these services, they will be running each in its isolated network. To make sure the Inter-communication between these services is possible, we have to define a network and tag all these services to that network. Otherwise, they will not be able to communicate with each other.
+# The first microservice we are going to define is accounts.
+# Under this service, we have to define the image name that this service is going to use,
+# The container name that we are going to give to this service. This is useful whenever a new container is created, it will have this name instead of a random name that Docker server would have assigned. This will help us to easily identify  to which microservice the container belongs.
+# With the help of ports, we can specify the ports mapping. The first port is the port of the host machine and the second port is the port of the container. We can define multiple ports mapping as well. But right now I don't have any requirement to define multiple ports mapping.
+# That's why inside yaml file, whenever we are trying to provide multiple elements we should follow this hyphen syntax.
+# The hyphen indicates that that is a single element inside an array.
+
+services:
+    accounts:
+        image: "colince819/accounts:v1"
+        container_name: accounts-ms
+        ports:
+            - "8080:8080"
+# Deployment instructions for accounts microservice
+        deploy:
+          resources:
+            limits:
+              memory: 512M
+        networks:
+          - eazybank
+# Now whenever my Container is being created, I want to make sure it has a maximum memory allocation of 512MB. Beyond that, I don't want to allocate any memory because inside my machine I only have 16GB RAM.
+# And since we are creating multiple containers for multiple microservices, we have to make sure that we are not allocating more memory than what is available in our machine. I mean we should limit the memory allocation for each container.
+# For the same I need to mention a key called deploy followed by colon. Inside deploy, I have to mention resources followed by colon. Inside resources, I have to mention limits followed by colon. Inside limits, I have to mention memory followed by colon. And then I have to mention the memory size that I want to allocate.
+    loans:
+        image: "colince819/loans:v1"
+        container_name: loans-ms
+        ports:
+            - "8090:8090"
+        deploy:
+          resources:
+            limits:
+              memory: 512M
+        networks:
+          - eazybank
+
+    cards:
+        image: "colince819/cards:v1"
+        container_name: cards-ms
+        ports:
+            - "9000:9000"
+        deploy:
+          resources:
+            limits:
+              memory: 512M
+# We can define any number of networks we want to create. Here I have defined only one network called eazybank.
+# In this way we are able to tag a network to a microservice. So that all the microservices that are tagged to this network will be able to communicate with each other.
+        networks:
+          - eazybank
+
+# Creating a network called eazybank by invoking a root element called networks followed by colon. Inside networks, I have to mention the network name followed by colon. And then I have to mention the driver followed by colon. The driver is nothing but the type of network that we want to create. Here I have mentioned bridge. Bridge is the default network that Docker provides. We can also create a custom network as well. But right now I don't have any requirement to create a custom network. That's why I have mentioned bridge.
+# So, in this way, we can define a network and tag all the microservices to that network. So that all the microservices will be able to communicate with each other.
+networks:
+    eazybank:
+        driver: bridge
