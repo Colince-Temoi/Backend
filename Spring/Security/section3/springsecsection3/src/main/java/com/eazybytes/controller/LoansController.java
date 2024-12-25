@@ -21,9 +21,7 @@ public class LoansController {
     private final LoanRepository loanRepository;
     private final CustomerRepository customerRepository;
 
-    /* I am going to accept the customer id from my front end application
-     *  Based on the customer id, I am going to fetch the loan details and return it back to the front end application.
-     * */
+
     @GetMapping("/myLoans")
 //    @PostAuthorize("hasRole('USER')")
     public List<Loans> getLoanDetails(@RequestParam String email) {
