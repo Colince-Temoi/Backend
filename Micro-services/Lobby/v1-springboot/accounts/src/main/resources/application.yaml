@@ -1,0 +1,46 @@
+#spring.application.name=accounts
+server:
+  port: 8080
+spring:
+  application:
+    name: accounts
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+# Telling to the Spring boot framework to enable the h2 console so that I can log into it from my browser.
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# We started with a very simple property definition below. I defined a property with the key build.version and inside the yaml this is how we need to mention the key.
+# The value of the property is 3.0. This is a simple key-value pair.
+# Using this property key itself, I am going to read the associated value in the Java code. I will build a small REST Api which my client applications can invoke to understand what is the build version right now that my microservice is using.
+# Check the AccountsController class for the Api implementation.
+build:
+  version: "3.0"
+
+# Creating the below configurations with the prefix as accounts. Since I am going to create various properties related to the accounts microservice, I am going to group them under the accounts prefix.
+# The first property I am defining is the message property. This is a simple string property. The value of the message property is "Welcome to EazyBank accounts related local APIs".
+# The second property I am defining is the contactDetails property. This is a map property. The key of the map property is name and the value of the map property is John Doe - Developer. email is the second key of the map property and the value of the email property is john@eazybank.com
+# The third property I am defining is the onCallSupport property. This is a list property. The value of the list property is a list of phone numbers. The list of phone numbers is (555) 555-1234 and (555) 523-1345.
+# We will use these properties to send to my client applications whenever they are trying to invoke one new REST API that I am going to build. With this REST API since we are sending all this information, my client applications will know to whom they need to contact in case of any issues.
+# Like what is the developer name, what is the developer email, and what are the on-call support numbers that they can call in case of any issues. Like this you can see under the same contact prefix property I have defined multiple properties with different data types.
+# Now we have different set of properties with the same prefix name accounts.  If you follow the earlier above approach of defining properties and accessing them with the help of @Value annotation, you will have to define all these fields in your Java class along with the hardcoding of the key names.
+# Similarly, if you have another class where you want to access these properties, you will have to define all these fields in that class as well. This is not a good approach and is going to be super inconvenient.
+# To overcome this challenge, we can use the @ConfigurationProperties annotation. In order to use this approach, we need to create a POJO class with the same fields as the properties that we have defined in the yaml file. Check this out in the dto package class named AccountsContactInfoDto.
+# Actually, we will not create a Java class instead we will make it a Java Record class.
+accounts:
+  message: "Welcome to EazyBank accounts related local APIs "
+  contactDetails:
+    name: "John Doe - Developer"
+    email: "john@eazybank.com"
+  onCallSupport:
+    - (555) 555-1234
+    - (555) 523-1345
