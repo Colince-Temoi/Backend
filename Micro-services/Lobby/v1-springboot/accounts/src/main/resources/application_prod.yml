@@ -1,0 +1,18 @@
+# Make sure to mention this property to convey that this file/profile should be activated whenever we are trying to activate a profile with the value "prod".
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+build:
+  version: "1.0"
+
+# The contact details for the production environment are going to be those of the product owner.
+accounts:
+  message: "Welcome to EazyBank accounts related prod APIs "
+  contactDetails:
+    name: "Reine Aishwarya - Product Owner"
+    email: "aishwarya@eazybank.com"
+  onCallSupport:
+    - (453) 392-4829
+    - (236) 203-0384

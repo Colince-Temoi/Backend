@@ -20,7 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 // I have commented out the above 3 annotations because I don't need to mention them. Reason, I maintained my sub-packages inside the main class package.
 */
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl") // In this way we are telling the Spring Data JPA framework that please activate the Spring Data Jpa auditing feature and leverage the bean with the name  auditAwareImpl to understand the auditor.
-// AccountsContactInfoDto.class is the class name of the record class where we are trying to map all the properties from application.yaml to the Pojo class. You can check more information about this class in the AccountsContactInfoDto.java file.
+// AccountsContactInfoDto.class is the class name of the record class where we are trying to map all the properties from application.yml to the Pojo class. You can check more information about this class in the AccountsContactInfoDto.java file.
 @EnableConfigurationProperties(value = {AccountsContactInfoDto.class}) // This annotation is used to tell the spring boot framework that please activate the configuration properties feature and please read the configuration properties from the class AccountsContactInfoDto.
 @OpenAPIDefinition(
 		info = @Info(

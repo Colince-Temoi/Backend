@@ -1,0 +1,21 @@
+# The profile value for this property should be "qa" because our file name has a suffix/profile name  of "_qa" in it.
+# Whenever I am trying to activate a profile with the name qa, the file application_qa.yml should be activated and all the properties defined inside this file should be considered by my Spring boot application.
+# That's what we are trying to convey with the below configuration property. spring.config.activate.on-profile: "qa"
+spring:
+  config:
+    activate:
+      on-profile: "qa"
+
+build:
+  version: "2.0"
+
+# Whenever there is an issue inside the QA environment, my clients should reach out to the QA Lead. You can also see that the phone numbers that we have mentioned here are different from the ones that we have mentioned in the local environment/default profile.
+# Next, we should tell to the Spring boot framework when this particular profile/file has to be activated. How? We need to define one more property inside this file called spring.config.activate.on-profile as shown above.
+accounts:
+  message: "Welcome to EazyBank accounts related QA APIs "
+  contactDetails:
+    name: "Smitha Ray - QA Lead"
+    email: "smitha@eazybank.com"
+  onCallSupport:
+    - (666) 265-3765
+    - (666) 734-8371
