@@ -24,28 +24,62 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/** Updates  as on 07/01/2025
- *As of now we have made some configurations inside the application.yml file of this Accounts service. The challenge we are facing right now is, if you try to deploy this code into various environments then the very same configuration properties are the ones the service is going to use.
- * What if we have a requirement to use different configuration properties in different environments? This is a very often requirement inside real projects. For example, take DB credentials related configuration properties. They should not have the same values inside all the environments.
- * Based upon the environment, we need to use different DB credentials. How do we overcome this challenge and how will Spring boot help us in this scenario?
- * Inside Spring boot, we have a beautiful concept called profiles. Check slide for more information regarding this concept.
- * Now, lets try to implement profiles concept inside our Accounts service. Just like we have application.yaml file create 2 different files, application_qa and application_prod yaml files under the resources folder. application.yaml belongs to the default profile, application_qa.yaml belongs to the qa/testing profile and application_prod.yaml belongs to the prod profile.
- * Inside the application.yaml file, we have may properties i.e, port related configurations, build version, contact information, etc. First, you have to identify which configurations/properties are going to change from environment to environment inside your microservice. The server.port is going to be the same for all the environments. We don't have to start our application
- * in on different ports in different environments. That's why we don't need to move this property into the other profiles. We can have this as a default value which will always bee loaded by the Spring boot framework. Very similarly, since we are using h2 database and it is going to be the same for all the environments, we can always keep this configuration inside the application.yaml file. This is inclusive of
- * spring.application.name, spring.datasource.url, spring.datasource.driverClassName, spring.datasource.username, spring.datasource.password, spring.jpa.hibernate.ddl-auto, spring.h2.console.enabled, spring.jpa.show-sql, spring.jpa.database-platform, spring.jpa.hibernate.ddl-auto, spring.jpa.show-sql, ...etc. All these configurations are going to be the same for all the environments. So, we don't need to move them into the other profiles.
- * But I have a requirement tah only the build version, accounts related configurations are going to be different from environment to environment inside my microservice. So, we need to move these configurations into the other profiles. Just create/copy these similar set of properties inside the application_qa.yaml and application_prod.yaml files but we need to make sure that these properties have different values in different profiles because that is our intention/requirement otherwise there is no need of creating different profiles.
- * Before I try to copy these properties into the other profiles, I need to make some changes to the value in the default profiles. I will change the value of the build.version to 3.0 in the default profile. Which means, inside my local development, the version that we have deployed right now is 3.0. But in the QA environment, the version is going to be 2.0 and in the production environment, the version is going to be 1.0. So, I will make these changes in the other profiles.
- * This way we are mentioning different values inside different profiles. Check the respective yaml files to see the changes that I have made and what I am talking about.
- * Once we make the changes, we should be good from the perspective of the 2 yaml files i.e., application_qa.yaml and application_prod.yaml. As a next change, we should tell to the Spring boot framework that we have created 2 different profiles and these are the names of the profiles/yaml files. For the same we need to define the property called spring.config.import inside the application.yaml file. Under the import, I need to mention the list of yaml files that I have created.
- * Now we have created all the required profiles and mentioned the same inside the application.yaml file to import them. As a next step, we should activate at least one profile. If you are not activating any profile then by default the default profile is going to be activated. First with whatever changes we have lets try to test the default profile. So, I will run the application and then invoke the APIs contact-info and build-info to verify that the default profile is activated.
- * Yeey! we are getting the output values from the default profile. That's why you are able to see in the postman response that the build version is 3.0 and the contact information is also from the default profile i.e., message, ' ...local APIs'. The developer name and also the mobile numbers mentioned inside the default profile.
- * For java version endpoint, you will always see the same output because you are running your microservice in the same local system. Now, I want to activate the UAT/QA or Production profile, how do I do that? Go to the application.yaml file and configure the property spring.profiles.active. This property takes a list of profile(s) that you want to activate.Since I have the requirement to activate only the QA profile, I will mention the profile name as qa. It will be a single element in the list.
- * The same value that you mentioned in your profile yaml file i.e., application_qa.yaml when configuring the property spring.config.activate.on-profile, you need to mention the same value when configuring the property spring.profiles.active inside the application.yaml file in order to activate qa profile. Based on this, spring boot is going to activate all the properties present inside the application_qa.yaml file.
- * We know that, the default profile is going to be activated if we don't do the configurations just discussed above and now we are trying to activate a profile which is qa. Spring boot will see the same property key names and for any key name that is also mentioned inside the qa profile yaml file, it is going to override the value of that key name with the value that is present inside the qa profile yaml file otherwise it is going to take the value from the default profile.
- * Now, I will run the application and then invoke the APIs contact-info and build-info to verify that the qa profile is activated. Yeey! we are getting the output values from the qa profile. That's why you are able to see in the postman response that the build version is 2.0 and the accounts contact information is also from the qa profile i.e., message, ' ...QA APIs'. The QA Lead name and also the mobile numbers mentioned inside the qa profile. This way, we can happily activate a specific profile.
- * Suppose I want to activate the production profile inside production environment, then that means I need to come to the application.yaml file inside my code and change the value of the property spring.profiles.active to prod. This way, I can activate the production profile but I will have to re-generate my docker image and deploy it into the production environment. This doesn't make sense because we know very well that our artifact should be immutable and by doing any slightest change like we have done and re-generating a software package for each environment again and again is not a good practice and breaches the immutability concept.
- * So, how to overcome this challenge?  We have several options that we can leverage to change the property values dynamically during the start of an application through an external parameter.
- * By now, you should be clear on how to create multiple profiles and how to activate a particular profile. Next, we will discuss, the other options that we have to activate a specific profile though an external parameter.
+/** Updates  as on 12/01/2025
+ * As if now,we know how to activate a specific profile by hardcoding the profile value inside the application.properties file by using the property spring.profiles.active.
+ * With this we have a big disadvantage as everytime we need to move our code from one environment to another environment and activate the profile specific to that environment we need to change the value of the spring.profiles.active property inside the application.properties file.
+ * This means we will have to regenerate our docker image/software package everytime we move our code from one environment to another environment which is against to the 15-factor CN principles/methodology.
+ * To overcome this challenge, we need to identify if there is any way inside Spring boot where we can activate a specific profile from an external location or through an external parameter.
+ * Spring boot provides various ways to externalize our configurations and to activate them. Inside these approaches, the very first and mostly used approach is with the help of Command line arguments.
+ * Check slides for more explanation.
+ * We will see how to activate a specific profile using externalized configurations approaches like command line arguments, environment variables, and Jvm system properties.
+ * Through the IDE itself, we can achieve all this easily. We can provide Command line arguments, Environment variables, and Jvm system properties through the IDE itself.
+ * We don't have to go through a long process of, 1st generating a jar file, then running the jar file with the help of java -jar command and then passing the command line arguments, environment variables, and Jvm system properties as discussed in the slides. No need!
+ * Such kind of approach can be used by the operations as well as the platforms team where they are trying to run the application through the CI/CD tools like Jenkins, GitHub actions, etc.
+ * Since we are developers and have access to the IDE, lets try to utilize the same.
+ * We will see how to activate a specific profile using command line arguments. Since we are already using an IDE, by using this IDE its very simple, haha. How?
+ * To provide command line arguments,
+ * 1. Go to you Spring boot application main class and right click on it.
+ * 2. More Run/Debug >> Modify Run Configuration ...
+ * 3. A window will open. Under the Modify option dropdown >> Select Program Arguments. >> A text field will come up where you can provide the command line/program arguments.
+ * 4. Like we discussed in the slides, you need to provide a prefix 2 hyphens -- and then the property key and value. i.e., --spring.profiles.active=prod --build.version=1.1
+ * 5. Click on Apply and then OK.
+ * Now run the application. You will see the production profile is activated and the overridden build version is printed in the postman console as output when you invoke the respective APIs.
+ * For example, on invoking the /build-info API, you will see the overridden build version is printed in the postman console as output. Not the one present in the application_prod.yaml file.
+ * If you invoke the contact-info API, accounts contact information will be printed in the postman console as output i.e.,  i.e., message, ' ...prod APIs'. The Product Owner name and also the mobile numbers mentioned inside the prod profile.
+ * This way, we can happily activate a specific profile through externalized configurations like command line arguments.
+ *
+ * Now, lets try to use the next approach which is Jvm System Properties.
+ * To provide Jvm System Properties,
+ * 1. Go to you Spring boot application main class and right click on it.
+ * 2. More Run/Debug >> Modify Run Configuration ...
+ * 3. A window will open. Under the Modify option dropdown >> Select Add VM options. >> A text field will come up where you can provide the Jvm system properties.
+ * 4. Like we discussed in the slides, you need to provide a prefix -D and then the property key and value. i.e., -Dspring.profiles.active=qa -Dbuild.version=1.3
+ * 5. Click on Apply and then OK.
+ * Now run the application. You will see the qa profile is activated and the overridden build version is printed in the postman console as output when you invoke the respective APIs.
+ * For example, on invoking the /build-info API, you will see the overridden build version is printed in the postman console as output. Not the one present in the application_qa.yaml file.
+ * If you invoke the contact-info API, accounts contact information will be printed in the postman console as output i.e.,  i.e., message, ' ...qa APIs'. The QA Lead name and also the mobile numbers mentioned inside the qa profile.
+ * This way, we can happily activate a specific profile through externalized configurations like Jvm System Properties.
+ * Note: Make sure to delete the command line arguments that you have provided in the previous step. Because, if you don't delete them, they will be considered and the Jvm system properties will not be considered due to precedence order.
+ * Now, lets try to use the next approach which is Environment Variables.
+ * To provide Environment Variables,
+ * 1. Go to you Spring boot application main class and right click on it.
+ * 2. More Run/Debug >> Modify Run Configuration ...
+ * 3. A window will open. Under the Modify option dropdown >> Select Environment Variables. >> A text field will come up where you can provide the Environment Variables.
+ * 4. Like we discussed in the slides, you need to provide the property key and value. i.e., SPRING_PROFILES_ACTIVE=qa;BUILD_VERSION=1.8
+ * 5. Click on Apply and then OK.
+ * Now run the application. You will see the qa profile is activated and the overridden build version is printed in the postman console as output when you invoke the respective APIs.
+ * For example, on invoking the /build-info API, you will see the overridden build version is printed in the postman console as output. Not the one present in the application_qa.yaml file.
+ * If you invoke the contact-info API, accounts contact information will be printed in the postman console as output i.e.,  i.e., message, ' ...qa APIs'. The QA Lead name and also the mobile numbers mentioned inside the qa profile.
+ * This way, we can happily activate a specific profile through externalized configurations like Environment Variables.
+ * Note: Make sure to delete the Jvm System Properties that you have provided in the previous step. Because, if you don't delete them, they will be considered and the Environment Variables will not be considered due to precedence order.
+ * Now, lets try to provide the build.version property in all the 4 approaches and see which one is going to take the precedence. I.e., the profile configuration file, command line arguments, Jvm System Properties, and Environment Variables.
+ * As per our understanding, the precedence order is, command line arguments > Jvm System Properties > Environment Variables > profile configuration file.
+ * Now when you run the application, you will see the overridden build version configured in the Command line arguments is printed in the postman console as output when you invoke build-info API.
+ * If I remove the command line arguments, this time the fight will be between Jvm System Properties and Environment Variables. The one which is provided in the Jvm System Properties will be taken into consideration.
+ * If I remove both the command line arguments and the Jvm System Properties, the one which is provided in the Environment Variables will be taken into consideration.
+ * If I remove both the command line arguments, the Jvm System Properties, and the Environment Variables, the one which is provided in the profile configuration file will be taken into consideration.
+ * This way, we are able to solve most of our problems, we built different profiles inside our application, we are able to activate them through externalized configurations like command line arguments, Jvm System Properties, and Environment Variables.
+ * At the same time we can override an existing property or can provide a new property through externalized configurations and this way we can make our microservices immutable and the same docker image we can deploy to multiple environments without the need of regenerating the docker image/software package everytime we move our code from one environment to another environment.
  * */
 
 @Tag(
