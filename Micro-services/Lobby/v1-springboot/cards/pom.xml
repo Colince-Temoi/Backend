@@ -71,22 +71,7 @@
 					</to>
 				</configuration>
 			</plugin>
-<!--Springboot maven plugin to help us generate docker image with the help of paketo buildpacks
-    We made use of this approach in loans/pom.xml. We are going to use jib plugin in this case.
--->
 
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 
