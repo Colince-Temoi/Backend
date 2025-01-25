@@ -1,5 +1,6 @@
 package com.get_tt_right.loans;
 
+import com.get_tt_right.loans.dto.LoansContactInfoDto;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
@@ -14,6 +16,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaRepositories("com.eazybytes.loans.repository")
 @EntityScan("com.eazybytes.loans.model")*/
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+
+// LoansContactInfoDto.class is the class name of the record class where we are trying to map all the properties from application.yml to the Pojo class. You can check more information about this class in the LoansContactInfoDto.java file.
+@EnableConfigurationProperties(value = {LoansContactInfoDto.class}) // This annotation is used to tell the spring boot framework that please activate the configuration properties feature and please read the configuration properties from the class LoansContactInfoDto.
 @OpenAPIDefinition(
 		info = @Info(
 				title = "Loans microservice REST API Documentation",

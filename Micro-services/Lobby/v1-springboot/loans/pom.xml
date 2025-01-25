@@ -67,6 +67,7 @@
 	<build>
 		<plugins>
 
+			<!-- jib plugin to help us generate docker images -->
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
@@ -75,22 +76,6 @@
 					<to>
 						<image>colince819/${project.artifactId}:v1</image>
 					</to>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<image>
-						<name>colince819/${project.artifactId}:v1</name>
-					</image>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
