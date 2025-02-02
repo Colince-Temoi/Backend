@@ -1,14 +1,17 @@
-# Defining the application name
 spring:
   application:
     name: "configserver"
   profiles:
-    active: "native"
-    cloud:
-        config:
-            server:
-            native:
-                searchLocations: "classpath:/config"
-# For config server we are going to use the port 8071
+    #active: native
+    active: git
+  cloud:
+    config:
+      server:
+#        native:
+#          searchLocations: "file:///C://Users//pc//Documents//config"
+        git:
+          uri: "https://github.com/Colince-Temoi/configs.git"
 server:
   port: 8071
+encrypt:
+  key: "45D81EC1EF61DF9AD8D3E5BB397F9"
