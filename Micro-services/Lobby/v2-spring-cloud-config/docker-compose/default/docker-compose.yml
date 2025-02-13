@@ -1,0 +1,98 @@
+# Since we want to define about all our microservices details, the very first syntax we need mention here is services followed by colon.
+# Under services, we can define any number of microservices details we want to run.
+# Make sure when pressing enter, you have to make sure a tab space is there before the next line otherwise it will not work.
+# In IntelliJ IDEA, it's simple. As soon as you press enter a tab space is automatically added as there is a YAML plugin installed by default.
+# As can be seen there is a hierarchy of services and under services-Parent, we have to define all our microservices.
+# When we start all these services, they will be running each in its isolated network. To make sure the Inter-communication between these services is possible, we have to define a network and tag all these services to that network. Otherwise, they will not be able to communicate with each other.
+# The first microservice we are going to define is accounts.
+# Under this service, we have to define the image name that this service is going to use,
+# The container name that we are going to give to this service. This is useful whenever a new container is created, it will have this name instead of a random name that Docker server would have assigned. This will help us to easily identify  to which microservice the container belongs.
+# With the help of ports, we can specify the ports mapping. The first port is the port of the host machine and the second port is the port of the container. We can define multiple ports mapping as well. But right now I don't have any requirement to define multiple ports mapping.
+# That's why inside yaml file, whenever we are trying to provide multiple elements we should follow this hyphen syntax.
+# The hyphen indicates that that is a single element inside an array.
+
+services:
+  rabbit:
+    image: rabbitmq:4.0-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: 'common-config.yml'
+      service: network-deploy-service
+
+  cofigserver:
+    image: "colince819/configserver:v1"
+    container_name: configserver-ms
+    ports:
+      - "8071:8071"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: 'curl --fail --silent http://localhost:8071/actuator/health/readiness | grep "UP" || exit 1'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    # Deployment instructions for accounts microservice
+    extends:
+      file: 'common-config.yml'
+      service: microservice-base-config
+
+  accounts:
+    image: "colince819/accounts:v2"
+    container_name: accounts-ms
+    ports:
+      - "8080:8080"
+#    depends_on:
+#     cofigserver:
+#       condition: 'service_healthy'
+    extends:
+      file: 'common-config.yml'
+      service: microservice-configserver-config
+
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+
+  loans:
+    image: "colince819/loans:v2"
+    container_name: loans-ms
+    ports:
+      - "8090:8090"
+#    depends_on:
+#      cofigserver:
+#        condition: 'service_healthy'
+    extends:
+      file: 'common-config.yml'
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+
+
+  cards:
+    image: "colince819/cards:v2"
+    container_name: cards-ms
+    ports:
+      - "9000:9000"
+#    depends_on:
+#      cofigserver:
+#        condition: 'service_healthy'
+    extends:
+      file: 'common-config.yml'
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+
+# Creating a network called eazybank by invoking a root element called networks followed by colon. Inside networks, I have to mention the network name followed by colon. And then I have to mention the driver followed by colon. The driver is nothing but the type of network that we want to create. Here I have mentioned bridge. Bridge is the default network that Docker provides. We can also create a custom network as well. But right now I don't have any requirement to create a custom network. That's why I have mentioned bridge.
+# So, in this way, we can define a network and tag all the microservices to that network. So that all the microservices will be able to communicate with each other.
+networks:
+  eazybank:
+    driver: bridge
