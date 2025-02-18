@@ -11,7 +11,7 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 10s
       retries: 10
-      interval: 200s
+      interval: 10s
       start_period: 10s
     environment:
       MYSQL_ROOT_PASSWORD: "root"
@@ -33,7 +33,7 @@ services:
 #      cofigserver:
 #        condition: 'service_healthy'
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://cofigserver:8071/
       SPRING_DATASOURCE_USERNAME: 'root'
       SPRING_DATASOURCE_PASSWORD: 'root'
