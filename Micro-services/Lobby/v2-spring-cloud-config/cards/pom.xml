@@ -38,6 +38,11 @@
 			<artifactId>spring-cloud-starter-config</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
 		<!-- With this, we are trying to set up both Spring Cloud Starter Bus and Message Queue with RabbitMQ integration-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
