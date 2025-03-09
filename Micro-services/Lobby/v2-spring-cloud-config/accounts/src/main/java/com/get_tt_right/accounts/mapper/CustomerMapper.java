@@ -1,6 +1,7 @@
 package com.get_tt_right.accounts.mapper;
 
 
+import com.get_tt_right.accounts.dto.CustomerDetailsDto;
 import com.get_tt_right.accounts.dto.CustomerDto;
 import com.get_tt_right.accounts.entity.Customer;
 /**
@@ -26,6 +27,13 @@ public class CustomerMapper {
         customerDto.setEmail(customer.getEmail());
         customerDto.setMobileNumber(customer.getMobileNumber());
         return customerDto;
+    }
+
+    public static CustomerDetailsDto mapToCustomerDetailsDto(Customer customer, CustomerDetailsDto customerDetailsDto) {
+        customerDetailsDto.setName(customer.getName());
+        customerDetailsDto.setEmail(customer.getEmail());
+        customerDetailsDto.setMobileNumber(customer.getMobileNumber());
+        return customerDetailsDto;
     }
 
     /**
