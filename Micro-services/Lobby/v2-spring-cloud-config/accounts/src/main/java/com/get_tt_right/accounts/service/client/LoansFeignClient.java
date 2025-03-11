@@ -1,6 +1,5 @@
 package com.get_tt_right.accounts.service.client;
 
-import com.get_tt_right.accounts.dto.CardsDto;
 import com.get_tt_right.accounts.dto.LoansDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;

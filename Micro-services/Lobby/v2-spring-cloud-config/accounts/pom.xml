@@ -114,12 +114,6 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<version>13.0</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.get_tt_righ</groupId>
-			<artifactId>cards</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -144,7 +138,7 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v3</image>
+						<image>colince819/${project.artifactId}:v4</image>
 					</to>
 				</configuration>
 			</plugin>
