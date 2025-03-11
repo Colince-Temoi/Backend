@@ -53,8 +53,8 @@ services:
     depends_on:
       rabbit:
         condition: service_healthy
-#      cofigserver:
-#        condition: service_healthy
+      cofigserver:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "eurekaserver"
     healthcheck:
