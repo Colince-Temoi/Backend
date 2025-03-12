@@ -119,6 +119,23 @@ services:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
 
+  loans1:
+    image: "colince819/loans:v4"
+    container_name: loans-ms1
+    ports:
+      - "8091:8090"
+    depends_on:
+      cofigserver:
+        condition: 'service_healthy'
+      loansdb:
+        condition: 'service_healthy'
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
+    extends:
+      file: 'common-config.yml'
+      service: 'microservice-eureka-config'
+
   cards:
     image: "colince819/cards:v4"
     container_name: cards-ms
