@@ -9,7 +9,8 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
+          enabled: false
+          lowerCaseServiceId: true
 
 management:
   endpoints:
@@ -28,3 +29,10 @@ info:
     name: "gatewayserver"
     description: "Eazy Bank Gatewayserver Application"
     version: "1.0.0"
+
+# With this configuration, the logging level for the com.get_tt_right.gwserver package will be set to DEBUG. Which means, all the logs related to this package and are of level DEBUG will be printed.
+logging:
+  level:
+    com:
+      get_tt_right:
+        gwserver: DEBUG
