@@ -54,3 +54,9 @@ info:
     name: "loans"
     description: "Eazy Bank Loans SApplication"
     version: "1.0.0"
+
+logging:
+  level:
+    com:
+      get_tt_right:
+        loans: "DEBUG"

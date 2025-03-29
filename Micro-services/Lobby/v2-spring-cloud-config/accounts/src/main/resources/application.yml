@@ -54,3 +54,9 @@ info:
     name: "accounts"
     description: "Eazy Bank Accounts SApplication"
     version: "1.0.0"
+
+logging:
+  level:
+    com:
+      get_tt_right:
+        accounts: DEBUG

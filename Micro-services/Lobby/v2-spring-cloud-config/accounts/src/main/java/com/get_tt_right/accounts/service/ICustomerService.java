@@ -9,5 +9,5 @@ public interface ICustomerService {
      * @param mobileNumber the mobile number of the customer
      * @return the customer details
      */
-    CustomerDetailsDto fetchCustomerDetails(String mobileNumber); // Signature/rule definition
+    CustomerDetailsDto fetchCustomerDetails(String mobileNumber,String correlationId); // Signature/rule definition
 }
