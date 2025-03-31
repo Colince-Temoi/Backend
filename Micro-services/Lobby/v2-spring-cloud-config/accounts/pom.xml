@@ -138,7 +138,7 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v4</image>
+						<image>colince819/${project.artifactId}:v5</image>
 					</to>
 				</configuration>
 			</plugin>
