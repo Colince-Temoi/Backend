@@ -23,6 +23,11 @@ spring:
     username: 'guest'
     password: 'guest'
 
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
 eureka:
   instance:
     prefer-ip-address: true
@@ -68,3 +73,11 @@ logging:
     com:
       get_tt_right:
         accounts: DEBUG
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000

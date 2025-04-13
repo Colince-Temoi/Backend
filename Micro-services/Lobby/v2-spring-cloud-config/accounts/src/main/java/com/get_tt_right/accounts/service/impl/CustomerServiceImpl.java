@@ -1,6 +1,7 @@
 package com.get_tt_right.accounts.service.impl;
 
 import com.get_tt_right.accounts.dto.AccountsDto;
+import com.get_tt_right.accounts.dto.CardsDto;
 import com.get_tt_right.accounts.dto.CustomerDetailsDto;
 import com.get_tt_right.accounts.dto.LoansDto;
 import com.get_tt_right.accounts.entity.Accounts;
@@ -49,9 +50,14 @@ public class CustomerServiceImpl implements ICustomerService {
 
 //        With the below line, behind the scenes, my feign client will connect with the Eureka server and try to get the 'loans' service instance details including the address details. Post that It will perform some load balancing logic, and then it will connect to a particular 'loans' service instance and invoke the 'fetchLoanDetails' Rest Api method and finally will return us the response.
         ResponseEntity<LoansDto> loansDtoResponseEntity = loansFeignClient.fetchLoanDetails(correlationId,mobileNumber);
-        customerDetailsDto.setLoansDto(loansDtoResponseEntity.getBody());
+        if (null!=loansDtoResponseEntity){
+            customerDetailsDto.setLoansDto(loansDtoResponseEntity.getBody());
+        }
 
-        customerDetailsDto.setCardsDto(cardsFeignClient.fetchCardDetails(correlationId,mobileNumber).getBody());
+        ResponseEntity<CardsDto> cardsDtoResponseEntity = cardsFeignClient.fetchCardDetails(correlationId,mobileNumber);
+        if (null!=cardsDtoResponseEntity){
+            customerDetailsDto.setCardsDto(cardsDtoResponseEntity.getBody());
+        }
 
         return customerDetailsDto;
     }
