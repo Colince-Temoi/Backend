@@ -6,6 +6,7 @@ import com.get_tt_right.accounts.dto.CustomerDto;
 import com.get_tt_right.accounts.dto.ErrorResponseDto;
 import com.get_tt_right.accounts.dto.ResponseDto;
 import com.get_tt_right.accounts.service.IAccountsService;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -23,6 +26,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeoutException;
 
 /** Updates  as on 15/02/2025
  * Create MySQL DB containers for Microservices
@@ -123,6 +128,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountsController {
 
     private final IAccountsService iAccountsService;
+    private Logger logger = LoggerFactory.getLogger(AccountsController.class);
 
     @Autowired
     private Environment environment;
@@ -280,11 +286,23 @@ public class AccountsController {
             )
     }
     )
+    @Retry(name = "getBuildInfo",fallbackMethod = "getBuildInfoFallback") // Retry instance configurations
     @GetMapping("/build-info")
-    public ResponseEntity<String> getBuildInfo() {
+    public ResponseEntity<String> getBuildInfo() throws TimeoutException {
+        logger.debug("getBuildInfo() method invoked");
+//        throw new NullPointerException();
+//        throw  new TimeoutException();
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(buildVersion);
+    }
+
+    // Fallback method
+    public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+        logger.debug("getBuildInfoFallback() method invoked");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("0.9");
     }
 
     @Operation(

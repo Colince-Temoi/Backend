@@ -293,7 +293,9 @@ public class LoansController {
     )
     @GetMapping("/contact-info")
     public ResponseEntity<LoansContactInfoDto> getContactInfo() {
-        return ResponseEntity
+        logger.debug("Invoked Loans Contact-Info API");
+//        throw new RuntimeException("Intentional Exception");
+         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(loansContactInfoDto); // Reading all the properties defined inside the application.yaml by populating into the object of LoansContactInfoDto
     }

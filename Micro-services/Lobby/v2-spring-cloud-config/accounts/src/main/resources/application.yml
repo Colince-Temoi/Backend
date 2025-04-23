@@ -81,3 +81,16 @@ resilience4j.circuitbreaker:
       permittedNumberOfCallsInHalfOpenState: 2
       failureRateThreshold: 50
       waitDurationInOpenState: 10000
+
+resilience4j.retry:
+  configs:
+    default:
+      maxAttempts: 3
+#      waitDuration: 100
+      waitDuration: 500  # To help us in the demo of circuit breaker timeout
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      ignore-exceptions:
+        - java.lang.NullPointerException
+      retry-exceptions:
+        - java.util.concurrent.TimeoutException
