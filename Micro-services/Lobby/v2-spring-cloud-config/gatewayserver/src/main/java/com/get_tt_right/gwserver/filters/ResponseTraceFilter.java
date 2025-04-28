@@ -54,6 +54,11 @@ import reactor.core.publisher.Mono;
   * We should now be good!!
   * For a summary around the discussions we've been having in regard to implementing retry pattern in normal/non-reactive Spring boot applications, you can check with the slides.
  *  * In my visualization, it is populating multiple times with different values. This must be a bug on my side as this is not what I am expecting. From the GatewayServer logs, you can also note that the logger statement, "eazyBank-correlation-id generated in RequestTraceFilter" is executing multiple times with different values. Its like for every retry attempt + the initial request a separate traceId/CorrellationId is being generated. My expectation is seeing the correlationId/Trace Id being of the same value for all the retry attempts + the initial request attempt. Try finding out why?
+  *
+  *  Fix!
+  *  -------
+  *  Made sure that once a correlation ID is generated, it is stored and preserved for subsequent retry attempts within the same exchange. To do that, we used exchange.getAttributes() as a shared storage space for the lifecycle of that single HTTP exchange across retries.
+  *  For more detailed way on how we went about solving this check chat-gpt chat i.e., Resilience4J Correlation ID Issue
  *  *
  * */
 @Configuration
@@ -72,7 +77,8 @@ public class ResponseTraceFilter {
     public GlobalFilter postGlobalFilter() {
         return (exchange, chain) -> chain.filter(exchange).then(Mono.fromRunnable(() -> {
             HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
-            String correlationId = filterUtility.getCorrelationId(requestHeaders);
+//            String correlationId = filterUtility.getCorrelationId(requestHeaders);
+            String correlationId = exchange.getAttribute(FilterUtility.CORRELATION_ID);
             if(!(exchange.getResponse().getHeaders().containsKey(filterUtility.CORRELATION_ID))) {
                 logger.debug("Updated the correlation id to the outbound headers: {}", correlationId);
                 exchange.getResponse().getHeaders().add(filterUtility.CORRELATION_ID, correlationId);

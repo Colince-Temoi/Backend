@@ -49,14 +49,38 @@ public class RequestTraceFilter implements GlobalFilter {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
+//        if (isCorrelationIdPresent(requestHeaders)) {
+//            logger.debug("eazyBank-correlation-id found in RequestTraceFilter : {}",
+//                    filterUtility.getCorrelationId(requestHeaders));
+//        } else {
+//            String correlationID = generateCorrelationId();
+//            exchange = filterUtility.setCorrelationId(exchange, correlationID);
+//            logger.debug("eazyBank-correlation-id generated in RequestTraceFilter : {}", correlationID);
+//        }
+//        return chain.filter(exchange);
         HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
-        if (isCorrelationIdPresent(requestHeaders)) {
-            logger.debug("eazyBank-correlation-id found in RequestTraceFilter : {}",
-                    filterUtility.getCorrelationId(requestHeaders));
+
+//        String correlationId = filterUtility.getCorrelationId(requestHeaders);
+          String correlationId=null;
+//        logger.debug("Skee++++"+correlationId);
+
+//        if (isCorrelationIdPresent(requestHeaders)) {
+//            logger.debug("eazyBank-correlation-id found in RequestTraceFilter skeeee: {}",
+//                    filterUtility.getCorrelationId(requestHeaders));
+//        }
+        // Check if already stored in attributes (from a retry)
+        if (exchange.getAttribute(FilterUtility.CORRELATION_ID) != null) {
+            correlationId = exchange.getAttribute(FilterUtility.CORRELATION_ID);
+        }
+//
+        if (correlationId != null) {
+            logger.debug("eazyBank-correlation-id found in RequestTraceFilter : {}", correlationId);
         } else {
-            String correlationID = generateCorrelationId();
-            exchange = filterUtility.setCorrelationId(exchange, correlationID);
-            logger.debug("eazyBank-correlation-id generated in RequestTraceFilter : {}", correlationID);
+            correlationId = generateCorrelationId();
+//            exchange = filterUtility.setCorrelationId(exchange, correlationId);
+            exchange.getAttributes().put(FilterUtility.CORRELATION_ID, correlationId); // Store in attributes
+            logger.debug("eazyBank-correlation-id generated in RequestTraceFilter : {}", correlationId);
         }
         return chain.filter(exchange);
     }
@@ -66,13 +90,13 @@ public class RequestTraceFilter implements GlobalFilter {
      * @param requestHeaders The request headers associated with the exchange.
      * @return true if correlation id is present, false otherwise.
      */
-    private boolean isCorrelationIdPresent(HttpHeaders requestHeaders) {
-        if (filterUtility.getCorrelationId(requestHeaders) != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    private boolean isCorrelationIdPresent(HttpHeaders requestHeaders) {
+//        if (filterUtility.getCorrelationId(requestHeaders) != null) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * Generates a correlation/trace id that is unique and random.

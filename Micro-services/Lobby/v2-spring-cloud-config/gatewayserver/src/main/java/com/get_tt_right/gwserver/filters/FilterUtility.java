@@ -17,18 +17,18 @@ public class FilterUtility {
      * @param requestHeaders The request headers associated with the exchange.
      * @return The correlation id if it is present inside the request headers, null otherwise.
      */
-    public String getCorrelationId(HttpHeaders requestHeaders) {
-        if (requestHeaders.get(CORRELATION_ID) != null) {
-            List<String> requestHeaderList = requestHeaders.get(CORRELATION_ID);
-            return requestHeaderList.stream().findFirst().get();
-        } else {
-            return null;
-        }
-    }
+//    public String getCorrelationId(HttpHeaders requestHeaders) {
+//        if (requestHeaders.get(CORRELATION_ID) != null) {
+//            List<String> requestHeaderList = requestHeaders.get(CORRELATION_ID);
+//            return requestHeaderList.stream().findFirst().get();
+//        } else {
+//            return null;
+//        }
+//    }
 
-    public ServerWebExchange setRequestHeader(ServerWebExchange exchange, String name, String value) {
-        return exchange.mutate().request(exchange.getRequest().mutate().header(name, value).build()).build();
-    }
+//    public ServerWebExchange setRequestHeader(ServerWebExchange exchange, String name, String value) {
+//        return exchange.mutate().request(exchange.getRequest().mutate().header(name, value).build()).build();
+//    }
 
     /**
      * Sets the correlation id into the request headers associated with the given exchange.
@@ -37,8 +37,8 @@ public class FilterUtility {
      * @param correlationId The value of the correlation id that you want to set.
      * @return The same ServerWebExchange with the correlation id set inside the request headers.
      */
-    public ServerWebExchange setCorrelationId(ServerWebExchange exchange, String correlationId) {
-        return this.setRequestHeader(exchange, CORRELATION_ID, correlationId);
-    }
+//    public ServerWebExchange setCorrelationId(ServerWebExchange exchange, String correlationId) {
+//        return this.setRequestHeader(exchange, CORRELATION_ID, correlationId);
+//    }
 
 }
