@@ -7,178 +7,159 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-/** Update as of 16/04/2025
- * Retry Pattern
- * -------------
- *It is a resilience pattern.
- * With the help of this pattern, we can configure multiple retry attempts whenever a service is temporarily failing. This pattern is going to be super helpful when transient issues i.e., network disruptions occur and client requests may be successful after a retry attempt. Whenever we want to implement this pattern inside our ms's we need to be very clear on how many times we want to retry an operation. 3,5 or 10 times or even more will be actually based upon your business logic. Like this you will decide your suitable number of retries.
- *  This retry logic you can also conditionally invoke based upon many factors like error codes, exceptions or Response status.
- * While we are retrying an operation, we can follow a backoff strategy whose purpose is: Okay, without this backoff strategy if you try to perform multiple retries, then its is going to be a simple retry operation where every 1 or 2 or 3 seconds the retry operation will be effected. This clearly indicates that there is a static time difference between each retry attempt. With the backoff strategy, you can configure the time difference between each retry attempt and thus help avoid overwhelming the system. With the help of this strategy, we can gradually increase the time difference between each retry attempt. This is what we refer to as exponential backoff.
- *  Maybe the first retry you are trying to perform after 2 sec the next instead of retrying after 2 seconds, you can try to retry after 4 seconds, then 8 seconds and so on. This way, between retries, you are going to wait for more time and with this approach, there is a good chance that you may get a successful response and your transient issues i.e., network issues might have been resolved in between because you are giving enough time for such issues to resolve. That's why it is always recommended to use this backoff strategy whenever we are trying to implement this retry pattern inside the ms's.
- * Also, if needed, we can integrate this retry pattern with other resilience patterns like circuit breaker. By combining both the retry and circuit breaker patterns, we can make our circuit breaker pattern to open after a certain number of retries have failed consecutively. This informs us that there is also a possibility where we can integrate/implement multiple resilience patterns. We will discuss implementing multiple resiliency patterns later. But for now it is worth noting that if needed, we can also implement/integrate both retry and circuit breaker patterns inside our ms's.
- * Another important point to note is, whenever you are trying to implement retry pattern inside your ms's, please make sure that you are implementing this retry pattern only for the operations that are idempotent. An Idempotent operation is one which will not result in any side effects regardless of how many times you invoke them. for example fetch operation. If I try to retry a fetch operation multiple times, there is no harm that will happen behind the scenes as I am always going to get a response. But of you try to implement the same retry pattern for POST or PUT operations, then there is a good chance that you may have some side effects. Maybe you will create multiple duplicate records or maybe you are going to update the record multiple times, which will result into some data corruption or data side effects.
- *   That why, whenever you are trying to implement this retry pattern please make sure that the respective API is of type Idempotent .If the operation/endpoint is not idempotent, then this retry pattern will result into serious side effects inside your ms's.
+/** Update as of 29/04/2025
+ * Introduction to Rate Limiter Pattern
+ * ------------------------------------
+ * Ever played a balloon pop-up game at the exhibition? The reason I brought this up is that it is very relevant to the Rate Limiter pattern that we will be discussing. During this game, whenever you play it, the person who owns this balloon shop will give only limited set of resources/darts, like you will have only 3 or 5 darts/chances to shoot based upon your payment. Beyond the chances given, you are not allowed to play the game. Asked yourself why the owner of this balloon shop is following this rule? It is very simple, if s/he gave you unlimited chances, then he is going to be at loss. That's why he is going to limit your chances/usage based upon your payment.
+ * Rate Limiter Pattern -> Using this pattern inside ms's we can control and limit the rate of incoming requests to a specific API or to a ms. This pattern is majorly used to prevent abuse of the system and to protect the system resources and ensure that there is a fair usage of the services by everyone.
+ * In ms's, multiple services will be deployed, and they may interact with each other to send a response to the client applications. However, sometimes if you don't put restrictions and controls on how many requests should be consumed by a specific client or person, then there can be a good chance performance degradation or resource exhaustion may happen. And in some scenario, there is also a chance DoS (Denial of Service) attacks may happen. A DoS attack happens when a single malicious user or a hacker is sending continuous requests to your servers - maybe million of requests - with the intention to make your ms network slow or even bring down your server/services/ms's. To avoid all these kind of scenarios and make sure that everyone has a fair usage of the services, we need to implement the Rate Limiter Pattern so that we can enforce limits on the rate of incoming requests.
+ *  - If you are expecting 10k requests per second then accordingly you need to set up the infrastructure, and accordingly you can implement the rate limiter pattern as well. But allover sudden if you are getting 1 million requests per second then it is a flag that someone is trying to abuse your system or even trying to make its services slow or even worse - bring it down. To overcome such challenges and to protect your system resources, we need to implement the Rate Limiter Pattern.
  *
- * Implementing retry pattern in Gateway Server
- * ---------------------------------------------
- * We will implement retry pattern with the help of Spring Cloud gateway. As of now, in the RouteLocator bean method, we have some route configurations for various ms. For accounts ms route configurations, we have enabled the circuit breaker pattern with the help of circuitBreaker filter. This time, for the route configurations of loans ms, lets implement the retry pattern with the help of retry filter. For the same, on top of addResponseHeader filter, fluently invoke a new filter with the name retry. This retry filter is an overloaded behavior with up to 3 flavours using which you can simply mention/define the number of retries. But other than just mentioning/defining the number of retries, if you also want to specify/define/configure other configurations then you have to choose the right flavour of the overloaded retry behavior that will aid in achieving your objectives.
- *  For us we will invoke the overloaded retry filter behavior that takes/accepts a Consumer implementation of retry related configurations. For this behavior, I am going to write a lambda expression with the input variable name as 'retryConfig' using which we can invoke several setter methods based on what we are trying to configure/define i.e.,
- *   . setRetries - With the help of this setter, I want to let my Spring cloud gateway know, how many times I want to perform the retry operation in case of any transient issues. I will mention 3 as the value. Whic means, I want to retry an operation total 3 times.
- *   . On top of setRetries you can proceed to fluently invoking other setter methods i.e.,
- *     +. setMethods - With the help of this setter, I want to let my Spring cloud gateway know which http methods I want considered for the retry operation. So, I will mention GET as the value. So, I want to retry GET operations. Like we discussed before, we should be very careful with the retry operations amd need to make sure we are performing this retry operation only for idempotent operations.
- *                    A http GET operation is idempotent. This setMethods behavior can accept a list of http methods. For our case, we just want to pass HttpMethod.GET as the value. If needed we can specify any number of http methods as input to this setter whose signature is: setMethods(HttpMethods...methods). The 3 dots means that we can pass any number of http methods as input to this setter.
- *                    As of now, we are trying to enable thos retry pattern only for GET operations. Reason: There won't be any side effects behind the scenes when we are trying to perform GET operations/trying to invoke GET operations multiple times. It is always going to be idempotent. Whereas with POST, PATCH, UPDATE there are chances of side effects. DELETE also should be fine, but I don't want to implement retry pattern for DELETE operations. Reason: We never know if someone screws up the where conditions inside the SQL queries, as we may end up having some side effects. That's why for now, lets only go for GET Http methods/operations.
- *     +. setBackoff  - This setter method is also overloaded with 2 flavours. We have one that accepts multiple input parameters i.e.,  setBackooff(setBackoff(Duration firstBackoff, Duration maxBackoff, int factor, boolean basedOnPreviousValue) and one that accepts a BackoffConfig i.e., setBackoff(BackoffConfig backoffConfig).
- *                     Let's invoke the one with the signature that accepts multiple input parameters. I have something like below:
- *    setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true))
- *       - As you can see there are 4 different input parameters that we are trying to pass. If you hover on this setBackoff method, you should be able to see what are these 4 input parameters.
- *    1st input parameter - Indicates what is the first backoff that you want to follow. Using this first backoff value, my Spring Cloud Gateway will wait for 100ms whenever it is trying to initiate the very first retry operation
- *    The second input parameter, maxBackoff, Think like, you have configured the number od retries as 10. For these kind of higher number of retries configured, if we kept on applying the factor based upon the previous backoff number, at a certain point in time, the backoff time or the interval between two retry operations is going to be a very high number. That's why in order to control that behavior, we can always define this maxBackoff.
- *                 - With this maxBackoff, at any point of time, my Spring Cloud gateway will wait only for a maximum of 1000ms or 1 second between 2 retry operations.
- *    The third input parameter indicates what is the factor that we want the Spring cloud gateway to apply based upon the previous backoff value.
- *    The fourth input parameter which is a boolean - Based on it, we are trying to tell Spring Cloud gateway whether it need to apply the factor value on the previous backoff value/number or the initial backoff number. Since we are setting this value as true, my Spring Cloud gateway will always consider the previous backoff on top of which it is going to apply the factor value that we have provided.
+ *  Advantages when we implement Rate Limiter Pattern
+ *  ---------------------------------------------------
+ * . It will help your ms's from being overwhelmed by excessive or malicious requests.
+ * . It ensures the stability, performance and availability of your services while providing controlled access to the resources inside the system.
+ *   - Basically you are going to create a healthy environment where everyone can fairly use the services as long as they are within the rate limits set by you.
+ * If we configure this rate limiter pattern inside our ms's , how is it going to stop the excess requests?  For excess requests, it is simply going to return a 429 Http status code with the message "Too Many Requests". This implies that it cannot accept any more requests, and this will indicate to clients that they are going to have to wait for some time i.e., after some few seconds or minutes, before you can make another request. We can easily enforce this rate limits based upon various strategies like: Maybe we can try to limit the requests based upon the:
+ *  - Session
+ *  - IP Address
+ *  - Logged-In User
+ *  - Tenant
+ *  - server
+ *  - etc
+ * Like this there can be many strategies that you can use to limit the rate of incoming requests to your ms's. Additionally, you can use this rate limiter pattern to provide services to users based upon their payment plans or subscription plans/tiers. For instance, inside your system you may have users like, basic user, premium user, enterprise users, ...etc. So for different types of users you want to enforce different rate limits. This kind of requirement we can also implement using this pattern.
+ * That was it about a very quick introduction about the rate Limiter pattern, and I'm assuming you are able to correlate with the balloon pop-up game. You may also experience a nostalgia of the balloon pop-up game, and that's the point where I wanted to share about this pattern.
  *
- * With this, we have configured and enabled the retry pattern for loans ms for all the Rest APIs that supports Http GET method.
- * Now, in order to test these changes. I am going to make some changes inside my loans controller for the endpoint getContactInfo i.e.,
- * 1. I have introduced a logger statement. i.e., logger.debug("Invoked Loans Contact-Info API") - With this logger statement, we can easily identify how many times my Loans ms getContactInfo API is invoked.
- *  If you can clearly see, this getContactInfo REST method is annotated with @GetMapping indicating that it is a Http GET REST method. So, whenever there is a transient issue happens with this GET getContactInfo REST API, my Spring Cloud gateway is going to retry invoking it a total number of 3 times.
- *  You can put a breakpoint at this logger.debug statement as it will help us during our visual demo to verify that indeed what we are discussing is true. Actually the reason for the breakpoint is to intentionally introduce a timeout exception inside my REST API and at the same time you will be able to see visually the retry demo in action.
- *  Now restart your ms's, especiallu Loans and GatewayServer ms's respectively. But make sure before then, the config and eureka servers are up and running. Now, you can go to postman and try to invoke this gatewayserver/eazybank/loans/api/contact-info API. The execution will stop at our breakpoint. Inside postman, you can see we got a response i.e., "error": "Gateway Timeout" with "status": 504. If you check the turnaround time, you can see it took 9.90 seconds. This means that total, there are multiple retry attempts that are happening behind the scenes. Before we implemented this retry pattern, previously we were able to visualize this turnaround time at maximum of 2 seconds which is our global timeout configuration for our gateway server. But since right now we are retrying total 3 times along with the initial first request which will make the total number of requests as 4. So, the total turnaround time will be 9.90 seconds.
- *  We can also verify the same by looking at the log statements in the server console of loans ms. Okay, my logger never executed because we put a breakpoint to it. Now, clean the console and release the breakpoint to resume execution and see what happens. You may see an exception like, " java.net.SocketException Create BreakPoint: Invalid Argument" - This is because, we put this breakpoint here for a long time and due to that, the thread got killed. You will also see a log wit the message, " Invoked Loans Contact-Info API"  in the loans server console. To see the retry pattern in action one more time, this time I am going to release the breakpoint as soon as I get the response on the postman. In the loans ms console, you should see that the log statement, " Invoked Loans Contact-Info API" is executed a total 4 times. So, you can clearly see that the retry pattern is working as expected.
- *  The first one will represent the very first initial request and since the response didn't come withing the first 2 seconds - the global timeout configuration, my gateway might have received a timeout exception and that's why it is again retrying the operation total number of 3 times, the second one will represent the first retry attempt, the third one will represent the second retry attempt and the last one will represent the last retry attempt. With this, you should be crisp clear about this demo.
- *Another approach to visualize this demo is, remove the breakpoint from the logger statement and then just after this log statement you can intentionally throw a RTE  using 'throw new RuntimeException("Intentional Exception");' and this will also help you to visualize this retry demo. As soon as you mention this RTE any code below it will throw a CE because it is never going to be reachable. That's why you can try to comment that code that is not reachable. Now the CE should be gone. Once the build is completed, restart i.e., stop and then start the loans and gateway server services. This time there is no breakpoint, you can go ahead and make a request to the getContactInfo API and you should get immediate response on your postman console i.e., "errorCode": "INTERNAL_SERVER_ERROR"  with "errorMessage": "Intentional Exception". Now if you go to the loans ms console, you should be able to see that the log statement, " Invoked Loans Contact-Info API" is executed a total 4 times.
- *  This should confirm that our gateway server is also trying to retry the operation total number of 3 times even in the scenario os RTE. With this, we are giving an opportunity to our ms to recover whenever we have any transient issues like network issues or temporary outage issues. Like this, there is a good chance that your request may get successful response and your transient issues might have been resolved in between. Since we have enabled the retry pattern inside the gateway server bean definition of type RouteLocator for the routing configurations of Loans ms, this retry pattern is going to be super helpful as it is going to make our ms fault-tolerant and resilient for these kind of transient issues. Reason: behind the scenes, the gateway-server is going to make multiple retry attempts silently without any manual interventions.  Up to now you should be crisp clear about our discussions and visualizations.
- *In a nutshell, we have also mentioned whatever code changes we have made in our slides for the retry pattern. Check them out for a quick review.
+ * Introduction to Redis RateLimiter in Gateway Server
+ * ------------------------------------------------------
+ * We will try to understand how to implement Rate Limiter Pattern with the help of Spring Cloud Gateway. In the official documentation i.e., https://spring.io/ >> Projects >> Spring Cloud >> Spring Cloud Gateway >> Learn tab >> On clicking the Reference Doc. link, you will be taken to the official documentation >> Gateway Spring Cloud Gateway Reactive Server >> GatewayFilter Factories >> RequestRateLimiter GatewayFilter Factory. Here we have all the details like, What is RequestRateLimiter, How it is going to work. Actually you can see, using this Rate Limiter implementation we can determine if the current request is allowed to proceed or not. If not, a status of Http 429 - which is 'Too many requests' will be returned by default.
+ * So, whenever we are trying to implement this Rate Limiter pattern, we need a KeyResolver whose purpose is, Using this keyResolver parameter - We need to tell to the rate limiter pattern implemented at the Gateway Server the criteria by which we will be enforcing this rate limit. Do we want to enforce this rate limit based upon a user or session or Ip address or server or ...etc.? So, based upon your requirements you need to provide the details with the help of KeyResolver interface. There is also a default implementation of KeyResolver interface which is PrincipalNameKeyResolver. If you are using Spring Security to secure your ms's then with the help of this PrincipalNameKeyResolver, it is going to fetch the current logged-in Username i.e.,Principal.getName() and accordingly it is going to enforce rate limit.
+ *  - And by default, you can clearly see that it is documented if the KeyResolver does not find a key, the requests are going to be denied. If needed you can also adjust this behavior by setting the properties spring.cloud.gateway.filter.request-rate-limiter.deny-empty-key (true or false) and spring.cloud.gateway.filter.request-rate-limiter.empty-key-status-code properties.
+ * So, that is all the concept or rather the rule/specification on how the things are going to work. To make our life easy, inside the GatewayServer we have an implementation with the help of Redis Server. What is Redis (Remote Dictionary Server) Server? It is a cache-based storage system. Using this Redis we can implement this RateLimiter.
+ * On the RHS nav, you will see a hyperlink to the section "The Redis RateLimiter". So this, Redis implementation is based on work done at Stripe. The word 'Stripe' in the doc is a link to a blog from the Stripe team which if you can open, you will be even be more informed. Here, there is a good amount of information about what are the use-cases that Stripe team considered to implement the RateLimiter pattern. Under the section, ' Rate limiting can help make your API more reliable in the following scenarios:' you can see they have mentioned some scenarios i.e.,
+ *   . One of your users is responsible for a spike in traffic, and you need to stay up for everyone else. Nothing but, a single user is trying to send a lot of traffic and with that, all other users are getting impacted.
+ *   . Similarly, One of your users has a misbehaving script which is accidentally sending you a lot of requests. Or, even worse, one of your users is intentionally trying to overwhelm your servers. This is also one of the scenarios which we can avoid with the help of RateLimiter pattern.
+ *   . Another scenario is, A user is sending you a lot of lower-priority requests, and you want to make sure that it doesn’t affect your high-priority traffic. For example, users sending a high volume of requests for analytics data could affect critical transactions for other users.
+ *   . Another scenario is, Something in your system has gone wrong internally, and as a result you can’t serve all of your regular traffic and need to drop low-priority requests.
+ * These are all scenarios where rate-limiting is a good option. If you are interested, please read that blog as it is fascinating - https://stripe.com/blog/rate-limiters
+ * Now back to our Spring Cloud Gateway documentation under the section 'The Redis RateLimiter'. They are saying, the rate limiter pattern based upon the redis is inspired based upon the work done at Stripe. In order to implement this, we need to add the starter dependency i.e., spring-boot-starter-data-redis-reactive
+ *  - This is going to use the Token Bucket Algorithm. To this algorithm, we need to pass 3 different type of properties i.e., replenishRate, burstCapacity, and requestedTokens . What are they?
+ *    1. replenishRate - This property defines how many requests per second to allow. In other words this is the rate at which the token bucket is filled. For example, to this property if you assigned 100, means that for every one second behind the scenes 100 tokens will be added to your bucket. If you wait for 2 seconds and still have not consumed anything then, your bucket will have 200 requests and so on. It is also worth noting that every bucket is assigned to a user or any other criteria based on how you have defined your KeyResolver implementation.
+ *    2. burstCapacity - With the help of replenishRate we will keep adding the number of requests per second. For example if my replenish rate is 100 requests/second. After 10 seconds, if my end-user is not using anything within this 10 seconds means that the bucket is going to have 1000 requests. And if you keep filling it, at some point in time, s/he will have millions of requests in his or her bucket. So to avoid this kind of overfilling the bucket with large number of values we are going to set the burst-capacity. Using this burst-capacity property we are going to set what is the number of tokens that a bucket can hold. So, if I set 200 as the burst capacity then in 2 seconds my replenish rate is going to fill 200 tokens. From the 3rd second if my end-user will have not used any of the tokens present inside his bucket, then since the bucket is already full, then the replenish rate cannot add more token.
+ *    3. requestedTokens - Using this property we are going to define how many tokens a request costs. Usually by default, each request will cost a single token but if needed you can change this to 10 or 100 or anything and accordingly the number of tokens will be consumed in the bucket for each request.
+ *  - In the doc, we also have some example i.e.,
+ *     A steady rate is accomplished by setting the same value in replenishRate and burstCapacity - Means, if you assign the replenish rate and burst capacity as 100. This means that in every second, inside my user bucket, we are going to add 100 tokens and if s/he is not using them then they will get wasted and the tokens inside the bucket will be deleted and replaced with the new tokens every one second.
+ *        . But in case, if you want to allow temporary bursts. Maybe if you want to give some flexibility to your end user i.e., since you have not used the 100 tokens in the previous second and in the current second you can use all the 100 tokens. In such scenario, you can mention the burst capacity higher than the replenish rate. For example, if you assign the burst capacity as 200, and the replenish rate as 100, then that means in the 1st second even though the end user is not able to use all his 100 tokens, in the 2nd second he should be able to use all his 200 tokens. So, that's how we need to handle the temporary bursts. A visual example is; Assume on one hand I have assigned 100 to both the burst capacity and replenish rate and on the second hand I have assigned 100 to the replenish rate and 200 as the burst capacity. In both scenarios, if the user used 50 tokens in the 1st second. In the 2nd second, scenario A user will only have 100 tokens and Scenario B user will have 150 tokens. In scenario A since the bucket was filled, and we are ready for the second replenishment, whatever was left will be deleted for new replenishment. Hope you are getting this crisp clear.
+ *        In the doc you can also find an example i.e., If you want to allow 1 request per min, they have given an example i.e., For example, setting replenishRate=1, requestedTokens=60, and burstCapacity=60 results in a limit of 1 request/min. You can in lei-man's read this as 1 request costs 60 tokens and means in one minute you can only send one request else 429 error will shake your phallenges ceremonouisly.
+ *          Here for every second you can only add one token into the bucket. Haha. Hope you are clearly seeing the sequence on how we are finally arriving to a limit of 1 request/min. So, by the end of 60 seconds or 1 minute, the replenish rate wil have added a total of 60 tokens into the bucket. By setting the burst capacity as 60 , means that the maximum number of tokens that we can add to the bucket is 60. At any point of time the bucket will have only a maximum of 60 tokens. By mentioning requestedTokens as 60 means whenever a user makes a single request 60 tokens will be consumed  with this we are making him to be able to send only one request/minute. If you needed him be able to make 2 requests/minute then accordingly you can adjust the value of requestedTokens to 30. 6 requests per minute the adjust the value of the requestedTokens to 10, and so on and so forth. So, accordingly, based upon your requirements you can play with these properties. In the same doc, you can see a sample yml configuration on how you can activate the Rate Limiter and configure the 3 properties that we have been discussing i.e.,
+ *  spring:
+ *   cloud:
+ *     gateway:
+ *       routes:
+ *       - id: requestratelimiter_route
+ *         uri: https://example.org
+ *         filters:
+ *         - name: RequestRateLimiter
+ *           args:
+ *             redis-rate-limiter.replenishRate: 1
+ *             redis-rate-limiter.burstCapacity: 60
+ *             redis-rate-limiter.requestedTokens: 60
+ *  Here  they have given the example with the help of yml configurations, but next, we will see how to achieve this with the help of Java based configurations i.e., the Java DSL way.
+ *  If you can scroll down in the doc, they also gave an example on how to create/configure a KeyResolver bean. i.e.,
+ *  @Bean
+ * KeyResolver userKeyResolver() {
+ *     return exchange -> Mono.just(exchange.getRequest().getQueryParams().getFirst("user"));
+ * }
+ * You can see that from the bean, they are trying to return the user details. Inside the request there are some query params and inside the query params, there is a query param with the name/key 'user'. So they are trying to get the associated value to this query param. So, this is how they are trying to provide some KeyResolver implementation, but it is up to us based upon our business requirements, we can write any implementation logic for this KeyResolver which is a basic criteria/requirement to enforce all the properties about Rate Limiter that we just discussed earlier.
+ * If you scroll up in the doc again under the section, 'The Redis RateLimiter', we have some interesting information around burstCapacity like: ' Setting this value to zero blocks all requests.' - Means if you mention/assign the burstCapacity value as zero, means it is going to block all the requests. So please make sure you are not mentioning the value as zero. Otherwise, your end-users will not be able to send any requests towards your ms's.
+ * Up to now, you should have crisp clarity about this quick introduction around Redis RateLimiter in Gateway Server. Next we will be visually implementing and verifying this inside our GatewayServer.
  *
- * Something to ponder about!? => In my visual demo, I noticed that after removing the breakpoint and resuming execution after sometime i.e., more than 30' minutes. Even though we already received the response in our client application i.e., postman as "error": "Gateway Timeout", with "message": "Response took longer than timeout: PT2S", after the retries + initial request (4 tries). On resuming the execution, the logic that was paused from execution for the 4 tries will still be executed irrespective of the fact that the negative response is already received. But somewhere in this discussion, my instructor after sometime mentioned something to do with a java.net.SocketException that arose as a result of the execution stopping at the breakpoint for so long and hence resulting into the thread responsible for that paused execution to be killed. But this is not the case. I am not sure why in my case even after the long pause i.e., 30+ minutes the thread is not killed and this is happening. I am also not sure if this is a bug or not.
- *                                Come to think about it! In the meantime, make sure that for retry pattern, you are trying to implement it only for the operations that are idempotent. Otherwise, this retry pattern will result into serious side effects inside your ms's.
- *
- * Implementing Retry Pattern in individual ms's for example: Accounts ms
- * -----------------------------------------------------------------------
- * We will see how to implement retry pattern inside individual ms's like Accounts ms. As of now, we implemented retry pattern with the help of gateway server in the bean RouteLocator under the route configurations of Loans ms. Sometimes we may want to implement retry pattern inside individual ms's like Accounts ms as well. To implement the retry pattern inside the accounts controller of Accounts ms, we have to do the following things:
- * 1. Choose the API on which you want to implement the retry pattern. i.e., /build-info API whose purpose in our case is to always return the current build version right now this environment is using. This API also supports GET mapping and thus this is a good REST API method to implement the retry pattern/operation.
- *    To implement the retry operation on our REST method, we need to use the @Retry annotation.
- *    @Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
- *    The name input parameter - Represents what is the name you want to give for this retry configuration.
- *    The fallbackMethod input parameter - Represents what the fallback method will be for this retry pattern. In our case, I will mention the same method name with suffix _Fallback i.e., getBuildInfoFallback.
- * 2. Create the fallback method inside the same controller class with the method name as getBuildInfoFallback. While creating a fallback method, we need to follow certain rules:
- *   +. The fallback method signature should match with the signature of the original REST method where we have used the @Retry annotation.
- *      - Actually just copy the entire method and the edit the method name.
- *      - Remove the @Retry annotation from the method.
- *      - This method has to accept the same number of parameters like we have in the original REST method. Since the original REST method does not have any arguments, so the fallback method should also not have any arguments.
- *      - Remove its body so that it is empty. Ins
- *  +. This fallback method should accept a method input parameter of type Throwable.
- *    - Since your original REST method is empty, this fallback method should only have one input parameter of type Throwable. If your original REST method had for example 2 input parameters, then this fallback method should have 2 input parameters from the original REST method + a third input parameter of type Throwable.
- * In the body of our fallback method, I am going to return a static/hardcoded value as a fallback mechanism i.e., 0.9 - This is just some random version number that I want to return. So, whatever logic I have written inside this fallback method will be executed only if the original REST method fails after multiple retries.
- *  - For example, if I configure 3 retry attempts, even after 3 retry attempts, if the original REST method fails, nothing but is not able to return a successful response, then this fallback method will be executed in such scenarios. So, this is one of the advantages we have if you try to implement the retry pattern inside individual ms's. Whereas with gatewayserver, there is no option for us to implement the fallback mechanism. As of now that's the limitation with implementing the retry pattern with the help of gatewayserver.
- *    So far, we have defined the retry configurations inside the @Retry annotation i.e., name of the retry pattern and the fallback mechanism/method. We have also written the fallback method implementation.
- * Now, as a next step, we need to define/configure the properties related to the retry pattern inside the application.yml file.I.e., How many times we want to retry, what is the interval between retries/exponential backoff. Just under the circuit breaker related configurations I have pasted the below properties:
- * resilience4j.retry:  -
- *   configs:
- *     default:
- *       maxAttempts: 3
- *       waitDuration: 100 // When the response is failing and this duration elapses, then the first retry will happen.
- *       enableExponentialBackoff: true  // Enabling the exponential backoff
- *       exponentialBackoffMultiplier: 2   // This is the backoff factor/multiplier
- *       ignoreExceptions:
- *         - java.lang.NullPointerException
- *       retryExceptions:
- *         - java.util.concurrent.TimeoutException
- *
- * The above means that whatever configurations I am trying to define under tha default key are applicable for all retry configurations/implementations that I have done inside my Accounts service.
- * You may be asking yourself like, from where am I getting all these properties. Like we have been seeing before - the official documentation is the answer. If you visit the resilience4j website i.e., https://resilience4j.readme.io/ >> Get Started >> Getting Started(The one for Spring Boot 2&3). You will actually see very many Getting Started for various tools and technologies i.e., Spring Reactor, RxJava 2&3 ...etc. But for us, we are interested in the one for Spring boot as we are building our services using Spring boot.
- *  - Now on the RHS nav, you will see a table of content, therefore click on Configuration hyperlink. Here you will see a good amount of details provided on how to configure various patterns inside your ms's i.e., circuitbreaker, retry, bulkhead, ratelimiter, timelimiter, ...etc.  For example for retry, the same I am trying to refer inside my Accounts ms as well.
- *  resilience4j.retry:
- *     instances:
- *         backendA:
- *             maxAttempts: 3
- *             waitDuration: 10s
- *             enableExponentialBackoff: true
- *             exponentialBackoffMultiplier: 2
- *             retryExceptions:
- *                 - org.springframework.web.client.HttpServerErrorException
- *                 - java.io.IOException
- *             ignoreExceptions:
- *                 - io.github.robwin.exception.BusinessException
- *         backendB:
- *             maxAttempts: 3
- *             waitDuration: 10s
- *             retryExceptions:
- *                 - org.springframework.web.client.HttpServerErrorException
- *                 - java.io.IOException
- *             ignoreExceptions:
- *                 - io.github.robwin.exception.BusinessException
- *
- *  You can see here, instead of 'default' key, they are trying to define different retry configurations for different retry pattern implementations under the 'instances' key. In this case, "backendA' and 'backendB" represents the retry pattern names. And for each pattern name, we have various configurations that have been specified that will be followed. This way, we can also define different retry configurations for different retry pattern names.
- *  The same approach as you can see from the doc can also be applicable for other resilience 4J patterns. As of now, inside our Accounts Controller, we have created only one retry pattern instance with the name 'getBuildInfo'. You need to use the same name inside your yml configuration file or whatever way you are defining your configuration i.e., Java DSL, ...etc. whenever you want to apply retry configurations which are specific to a given retry instance configuration i.e., @Retry(name = "getBuildInfo",fallbackMethod = "getBuildInfoFallback")
- *  Now after mentioning these configurations inside our yml file. As a next step, we need to create some logger statements so that we can have a visual clarity for us to understand how many times our REST method is getting invoked. So make sure you have created a variable/primary attribute of type Logger that accepts the class name as input. Using this 'logger' placeholder I am going to create logger statements inside my getBuildInfo REST method. The logger statement is going to be, logger.debug("getBuildInfo() method invoked"); Very similarly I am going to create a logger statement inside the getBuildInfoFallback method.
- *   With these logger statements we should be able to easily identify how many times a particular method is invoked. As a next step, to see the demo of this retry pattern in action, inside the getBuildInfo REST method, just after our logger statement, intentionally throw a RTE with the help of throw new NPE. With this, always this REST method invocation is going to fail. Comment everything below this defined RTE because it is going to be unreachable whatever the situation. Now once the build is completed stop your Accounts and GatewayServer services respectively and then start them in the same order - In debug mode of course. The reason as to why I am manually restarting these services instead of relying on devtools is: Whenever my applications get restarted they are going to register with the Eureka Server with new instance details. And since I want my gatewayserver to always have te latest information from the Eureka server, that's why I am trying to restart my Accounts and GatewayServer applications manually.
- *   Once both the applications started successfully, inside our postman client we have a request i.e., gatewayserver/eazybank/accounts/api/build-info.  As soon as I make this request I am getting the output as 0.9.
- *
- *  Something to ponder about -> If the request took more than the configured timeout to produce a response. It is very constant that the fallback to the retry will execute - as can be verified from our logger statement inside the getBuildBuildInfoFallback method, but you are not guaranteed to get the response from this fallback method of the retry pattern. In such cases, the FallbackController method i.e., contactSupport inside the gatewayserver will get executed, and you will get its response.
- *
- *  Now, by looking at the Accounts ms console, we can confirm if the retry happened or not. If you search for the string 'getBuildInfo() method invoked', you can see 3 of such logger statements and at last you can see a logget statement related to getBuildInfoFallback i.e.,"getBuildInfoFallback() method invoked". Hope you have seen a difference. haha. Actually, there is a difference between the retry pattern we implemented inside the gateway and that which we have implemented inside our individual ms i.e., accounts ms. Inside the gateway server retry pattern implementation, the try attempts happened a total 4 # of times - The initial request + the configured 3 retry attempts = 4 tries. This we verified from the logs. In our individual ms retry pattern implementation, the initial request is considered among the 3 configured retry attempts hence the total tries to invoking the getBuildInfo REST method will only be 3 as can be verified from the logs. That's why it is important to note that the very initial request is considered as part of the retry attempts whenever you are trying to implement retry pattern inside individual ms's. Don't ever forget this difference, with this clarity accordingly you can implement the retry pattern inside your projects.
- *  Now you should have clarity about the retry pattern implementation inside individual ms including the edge it has over implementing at the gatewayserver.
- *
- *  Demo of circuit breaker timeout
- *  --------------------------------------
- *  For the same, inside the Accounts ms application.yml file, as of now, we have been working with a wait duration of 100ms. Now, I changed this value to 500ms. Post that, once the changes are saved and the build is completed make sure to stop and then restart accounts and gatewayserver applications. This time lets see how the behavior is going to be when we invoke the gatewayserver/eazybank/accounts/api/build-info request. This time we are seeing a response inside our postman client like , An error occurred. Please try after some time or contact support team!!! This response is coming from the circuit breaker fallback mechanism. This means, internally/implicitly my circuit breaker pattern implementation has a time limiter. Using this time limiter, it is going to wait for a maximum period of default value present inside the circuit breaker. Since this default value of circuit breaker is less than the total time taken by the retry operation, the fallback mechanism of circuit breaker is coming into picture and that's whay you are seeing the response i.e., An error occurred. Please try after some time or contact support team!!!
- *   Whenever you end up in this kind of scenario, now you have crisp clarity on what is happening. Don't pannick!  In this case, you can:
- *    1. Either reduce your wait duration under the resilience4j.retry configurations. For example, previously we had 100ms, and it was working fine for us.
- *    2. Or you can also change the default configurations of circuit breaker time limiter. For this:
- *      - Inside the GatewayServerApplication RouteLocator bean definition, under the route configurations of Accounts ms, we have defined some circuitBreaker filter configurations. Nothing but we have enabled the circuit breaker pattern for accounts ms. In this same GatewayServerApplication class, I am going to create a new bean i.e.,
- *      @Bean
- *        public Customizer<ReactiveResilience4JCircuitBreakerFactory> defaultCustomizer() {
- * 		return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
- * 				.circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())
- * 				.timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(4)).build()).build());
+ * Implementing Redis RateLimiter in Gateway Server
+ * ---------------------------------------------------
+ * 1. Add the dependency related to redis i.e.,spring-boot-starter-data-redis-reactive. This artifactId is from the groupId org.springframework.boot
+ * 2. Inside the GatewayServerApplication amin class. I am going to create 2 beans i.e.,
+ *   . The very first bean is of return type KeyResolver. i.e,
+ *   @Bean
+ *   KeyResolver userKeyResolver() {
+ * 		return exchange -> Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("user"))
+ * 				.defaultIfEmpty("anonymous");
  *    }
- *    - I am trying to create a bean of type Customizer<ReactiveResilience4JCircuitBreakerFactory>. Inside the method defaultCustomizer, we have a lambda expression. Lets try to understand what it is:
- *      . using the placeholder factory, which if you hover on you will notice it is of type ReactiveResilience4JCircuitBreakerFactory, I am trying to invoke the configureDefault behavior.
- *      . To this configureDefault behavior, I am passing a new object of Resilience4JConfigBuilder. After defining this object, I am trying to fluently invoke the methods i.e., circuitBreakerConfig and timeLimiterConfig and timeLimiterConfig
- *      . To this circuitBreakerConfig, we are passing some default values.
- *      . After that, we are trying to mention what is the timelimiter that my circuit breaker has to follow using the timeLimiterConfig behavior. As if now we saw/visualized that the time limiter it is following by default is around 1 second. My requirement is to increase that time. For the same we need to invoke this timeLimiterConfig behavior as shown.
- *  - What is time limiter? This is another pattern inside Resilience4J which will help us define what is the maximum time that your application is going to wait to complete a specific operation. So, for our timeLimiterConfig, we are trying to pass an input like, TimeLimiterConfig.custom() and what is the timeoutDuration(Duration.ofSeconds(4)).build() and so we are trying to set 4 seconds. With this, my circuit breaker pattern is going to wait for a maximum of 4 seconds whenever it is trying to wait for a particular operation to complete.
- *  - Once the changes are saved and a build is completed, stop and restart your gatewayserver.
+ *    - Inside the method userKeyResolver, I am trying to provide a key based upon which my RateLimiter pattern has to work. My instructor says he just copied this bean configuration code for KeyResolver from the official documentation.
+ *      The logic inside this method is crisp simple, First we are trying to get the headers inside the request and getting the header with the key/name 'user'. So, based upon that header value, I am going to create a KeyResolver. If someone is not sending any header inside the request with the key/name 'user', then I am going to assign a default value i.e., 'anonymous'. This is the logic that we have maintained for the KeyResolver implementation but in real projects you can change this logic based upon your requirements.
+ *  . The second bean that I am trying to create is of return type RedisRateLimiter i.e.,
+ *  @Bean
+ *  public RedisRateLimiter redisRateLimiter() {
+ * 		return new RedisRateLimiter(1, 1, 1);
+ *    }
+ *  - Here I am trying to create a new object of RedisRateLimiter, and I am trying to pass 3 different values like int defaultReplenishRate,int defaultBurstCapacity,int defaultRequestedTokens. With these configurations we are going to add 1 token in each second and burst capacity is also going to be 1 and the cost of each request is also going to be 1. With this, it is pretty clear that for each second, my end-user can only make on request.
+ * After defining these 2 beans, in the routing configurations that we have defined under the bean RouteLocator you can clearly see that as of now, we have implemented the circuit breaker patter for accounts route configurations. We have also implemented the retry pattern for loans route configurations. Maybe for cards, we can try to implement the RateLimiter pattern. So, just after the addResponseHeader filter configuration inside the cards route configurations, fluently invoke another filter with the name requestRateLimiter. Actually this requestRateLimiter filter is overloaded, nothing but we have 2 types of requestRateLimiter. One of them is a consumer that accepts some configurations and the other does not accept any input. So, I will invoke the one that consumes some configurations. Using lambda implementation, I am going to invoke setter methods like; setRateLimiter(-) which takes a RateLimiter object as input.
+ *  - To this setRateLimiter, I am going to pass the redisRateLimiter method that we have defined that returns us a RateLimiter object/bean. After the setRateLimiter, I am going to fluently invoke one more setter method i.e., setKeyResolver(-) which take a bean of KeyResolver as input. So to this, I am going to pass the method invocation i.e., userKeyResolver which is a definition that will return us a KeyResolver bean/object. Up to now, we have added/enforced the requestRateLimiter filter/pattern for all the API's inside the cards ms.
+ *  - As a next step, we need to start the redis DB or Redis container so that it can maintain creating the buckets with the 'user' / usernames associated values that we got from the headers and maintain all the configurations we defined inside the RedisRateLimiter object/bean. We are going to start our redis container with the help of docker. So please make sure your docker server is up and running and post that you can try open the terminal and run the docker command i.e., docker run -p 6379:6379 --name eazyredis -d redis. 6379 is the default port of redis. I am trying to give a name to the container using the flag --name and then the container name i.e., eazyredis. -d means starting the container in detached mode and at last the image name of redis i.e., 'redis' and by default the latest version will be pulled. Now, the redis container will be started behind the scenes. As a next step we need to provide the connection details of this redis container inside the application.yml file of GatewayServer.
+ *  - The properties that we need to add to the application.yml file will have a parent key which is 'spring' followed by 'data' then under this data I am going to add few new properties i.e.,
+ *      redis:
+ *       connect-timeout: 2s  - Represents the connection timeout
+ *       host: localhost  - What is the host
+ *       port: 6379   - What is the port number
+ *       timeout: 1s  - What is the timeout
+ * So these are the redis related configurations. Now make sure that the 'data' element inside the application.yml file is present as a child under 'spring'. This looks good, next, do a build and once its completed start your GatewayServer application. But make sure that your. rabbitMQ, configserver, eurekaserver,and cards services are running. As of now, for this visual demo, we don't need accounts and loans services because we have implemented RateLimiter pattern only for cards service. Once everything is started successfully, in order to visually test and verify our RateLimiter pattern implementation we need to send a lot many requests within a single second so that we can visually see what is happening behind the scenes. So, to perform some load testing we can leverage Apache benchmark server. The official website of apache benchmark project is https://httpd.apache.org
+ *  - On the LHS nav,if you can click on the download button you should be able to see some options on how we can download and set-up this server. You should be ale to see a link in the string 'Apache httpd for Microsoft Windows is available from a number of third party vendors.' which if you follow you can get more instructions on how you can set up this project for your Windows machine. Also, how to set up this project inside any other OS or even Windows system, you can always check with YouTube for videos that will help you set up this Apache benchmark. Actuality there are a good amount of videos that will help you with this regard. Alternatively,you can also google on how to set up apache benchmark, and you should see a good amount of blogs explaining this. My instructor showed this https://ubiq.co/tech-blog/how-to-use-apache-bench-for-load-testing/, It has instructions that can help you if you are using Unix based or Mac based OS's. Actually the installation is going to be very easy and straight forward for them. But for windows, the process is a bit lengthy. Like where you need to download this from the given links, and post that you need to set up the server.
+ *    But don't worry, since we are seeing the demo with my instructor. After setting up your Apache benchmark - Verify by running the command ab -V to see the version information.
+ *    Now run the command ab -n 10 -c 2 -v 3 http://localhost:8072/eazybank/cards/api/contact-info
+ *     . ab - stands for Apache benchmark
+ *     -n 10 means 10 requests. I am trying to send 10 requests and that's why I have mentioned -n 10
+ *     -c 2 means 2 concurrent requests. I am trying to send 2 concurrent requests at a time whenever this ab is trying to send these 10 requests and that's why I have mentioned -c 2
+ *       Nothing but instead of sending these requests one by one this ab will send 2 concurrent requests at a time.
+ *     -v 3 . Here -v indicates verbose and when I give/assign the value 3 to this verbose flag that indicates to this AB server that I want to see a detailed report in the output.
+ *     After this verbose flag related configurations, we need to mention the endpoint url that we are trying to invoke. In this case it is http://localhost:8072/eazybank/cards/api/contact-info - Here I am trying to invoke one of the cards service API which is contact-info. We are not invoking it directly, we are hitting it via GatewayServer as can be seen. On hitting this ab command i.e., ab -n 10 -c 2 -v 3 http://localhost:8072/eazybank/cards/api/contact-info
+ *       . You should be able to see/visualize a detailed explanation on what has happened. Let's focus on the summary i.e.,
+ *           Server Software:
+ * Server Hostname:        localhost
+ * Server Port:            8072
  *
- *  You're maybe wondering from where I got these kind of configurations. How do I know to define this kind of bean with such kind of lambda expressions which look very complex. haha! Boy, like we said, you know Java, and so you can always get all these kind of stuff in the official documentation. And btw as a reminder, before you write something of your own, make sure that Java or Spring people have not written that for you to avoid repeating yourself. Make use of there code. Your job is to just try to understand what they wrote and use it accordingly. Actually, most things have been written for you, just always be aon the lookout before writing your own shitty code. haha!
- *  If you are familiar with Spring Reactive concepts, then this lambda expression is going to be super easy to understand. Otherwise, don't ever worry, you can always find help in the official documentation or from the developer community. Once your gateway server started successfully, inside your postman client you can go ahead and invoke the gatewayserver/eazybank/accounts/api/build-info operation/request one more time and spot the difference as a result of whatever changes we have introduced. This time, you should not get the response as An error occurred. Please try after some time or contact support team!!! withing 4 seconds. You should get the fallback mechanism response from the retry pattern implemented inside our individual Accounts ms. i.e., 0.9. You can also check the console of Accounts ms inside which you should see some logger statements to confirm that there is a retry attempt that happened and since the retry is not successful even after the 3 attempts, the fallback mechanism came into picture.
- *  Up to now, you should be crisp clear of all the changes we have done inside this session.
+ * Document Path:          /eazybank/cards/api/contact-info
+ * Document Length:        209 bytes
  *
- *  As of now, we have been trying to  attempt the retry operation whenever there is an issue inside our getBuildInfo REST method of Accounts ms. Regardless of what type of exception happens inside your getBuildInfo REST method, in all such scenarios, the retry attempt will happen. What if there is a business requirement saying that, " Please don't retry whenever there is a NPE. Reason: If there is a NPE with a given input data, regardless of how many times you retry, you will always get a NPE. In such scenarios, we don't want our retry to happen. How to achieve this? Inside the application.yml file of Accounts ms, nothing but inside the application.yml file of the ms where you have implemented the retry pattern, under the retry configuration properties you need to define/add a new property i.e., ignoreExceptions. Under this property, we can define any number of exceptions with the help of hyphen (-). Inside yml, whenever we use the hyphen(-) or dash symbol, that indicates that it is one of the elements inside the list.
- *  ignoreExceptions:
- *         - java.lang.NullPointerException // You need to mention the fully qualified name including the package name like this.
- *         - You can define one more exception here
- *         - ...etc.
- *  Like this I am communicating that, "Please ignore the exception of type NPE as in such scenarios, please do not retry the request. Once the changes are saved and the build is completed, stop and restart Accounts and Gatewayserver applications respectively to verify our changes are working as expected. Now, inside postman if you try to invoke the request gatewayserver/eazybank/accounts/api/build-info you should be able to see the fallback response 0.9 which is coming from the retry pattern. Yes! the retry pattern is activated but, behind the scenes it is not going to make multiple retry attempts, this you can confirm from the console of the Accounts application. You should be able to see only 2 logger statements i.e.,
- * getBuildInfo() method invoked - This comes from the getBuildInfo REST method.
- * getBuildInfoFallback() method invoked - This comes from the getBuildInfoFallback method.
+ * Concurrency Level:      2
+ * Time taken for tests:   0.956 seconds  - Means all the requests are processed within 0.956 seconds. Which mean in this duration my ab send all the 10 requests to the backend server with a concurrency level as 2
+ * Complete requests:      10
+ * Failed requests:        9   - Out of the 10 requests 9 failed. Based on our rate Limiter configurations, for a user we have only assigned one token for each request/second
+ * Total transferred:      4550 bytes
+ * HTML transferred:       2090 bytes
+ * Requests per second:    10.46 [#/sec] (mean)
+ * Time per request:       191.292 [ms] (mean)
+ * Time per request:       95.646 [ms] (mean, across all concurrent requests)
+ * Transfer rate:          4.65 [Kbytes/sec] received
  *
- * This means that, with a single execution, the fallback mechanism to the retry pattern came into picture. Thus the retry is not happening whenever there is a NPE. So, this is one type of requirement that you may have. The other type of requirement that you may have is to retry only for a specific set of exceptions. Just like we have the retry configuration property i.e., ignore-exceptions, we can also define one more property which is retryExceptions as can be seen below:
- * retryExceptions:
- *      - java.util.concurrent.TimeoutException
- *      - You can define one more exception here
- *      - ...etc.
- * This way, I am saying, "Please retry the requests only in the scenario of timeout exception.
- * It is also important to note that, whenever we are configuring the rettry configuration property i.e., retryExceptions, then we don't need to define the ignoreExceptions property. Reason: Whenever we define an exception under retryExceptions configuration property, the retry operation will only happen for such kind of exceptions and all the remaining exceptions will be automatically ignored by the resilince4j. That's why it is important to note that whenever you are defining retryExceptions, you don't have to mention the ignoreExceptions configuration property.
- * Now after making these changes, insde the accounts controller as of now we have been throwing a NPE inside the getBuildInfo REST method. I will change that to TimeoutException. You will face a CE since TimeoutException is a checked exception. This will force us to add a throws TimeoutException statement to the method signature. Now once the changes are saved and the build is completed, inside the postman make the request gatewayserver/eazybank/accounts/api/build-info. This time since we are throwing a TimeoutException, behind the scenes my resilience4j framework might have retried multiple times based upon our configurations. You can confirm the same by checking with the Accounts ms console. Here you should be able to see 3 logger statements with the string "getBuildInfo() method invoked" Even after 3 attempts, since we are not sending a successful response at last the fallback method will get executed as can be confirmed by the logger statement, "getBuildInfoFallback() method invoked"
- * By now, you should be clear on how to configure ignore-exceptions and retry-exceptions based upon your requirements whenever you are configuring retry pattern inside your ms's. You may have a question like, how do we achieve the same whenever we are trying to implement retry pattern with the help of GatewayServer. It is very simple, for the same, if you go to the RouteLocator bean under the loans route configurations where we have defined a retry filter. To this retry filter you can configure more configurations using the predefine setter methods i.e., setRetries, setExceptions  - Where you can specify the list of Exceptions you want the retry attempts to apply, Actually, there is no option for ignoreExceptions here. Very similarly we have setStatuses - Where you can mention Http statuses based on which, the Http status codes, the retry attempts can be applied. Like this, there are several other setter methods which you can explore and use as per your requirements.
+ * For the very first request you can see we received a 200 i.e.,
+ *   ---
+ * LOG: header received:
+ * HTTP/1.1 200 OK
+ * transfer-encoding: chunked
+ * X-RateLimit-Remaining: 0
+ * X-RateLimit-Requested-Tokens: 1
+ * X-RateLimit-Burst-Capacity: 1
+ * X-RateLimit-Replenish-Rate: 1
+ * Content-Type: application/json
+ * Date: Sat, 03 May 2025 06:03:16 GMT
+ * eazybank-correlation-id: 9b29f46d-57f2-47aa-ac2d-3e0542bdc8cd
+ * X-Response-Time: 2025-05-03T09:02:50.254228400
+ * connection: close
  *
- * Bug Fix
- * --------
- * As a next step, we want to fix a small bug that we have inside our GatewayServer application. To understand more about this defect, previously when we were trying to test the retry pattern related changes inside the gateway server, we invoked the request gatewayserver/eazybank/loans/api/contact-info. If you check inside the response headers in your postman client we have eazybank-correlation-id header being populated multiple times with the same value according to my instructor. He said this is happening because whenever there is a retry attempt happening at the gatewayserver, the response filter that we have written to populate this eazybank-correlation-id is going to be executed. Solution to this:
- *  - Open the ResponseTraceFilter class that is present under the filters package inside gatewayserver application. Whenever a response comes, positive or negative, regardless of whether it is an exception response or a response as a result of retry, we are always simply trying to add the header with the name present inside the constant filterUtility.CORRELATION_ID. As a result of what I have just said, due to that the header is getting populated multiple times inside the response. This is not the correct and expected behavior.
- *  - So, we can try and add some if statement. Check this class for more details.
- * In my visualization, it is populating multiple times with different values. This must be a bug on my side as this is not what I am expecting.
- * * */
+ * Post that we started receiving a 429 - Too many requests
+ * This clearly tell you that the rate Limiter pattern that we have implemented is working perfectly. To solidify your clarity, if you commit the requestRateLimiter filter configurations from the cards route configurations, you will notice all the requests are being processed no matter how may they are as we will have not enforced this rate limit. Hope you can visually understand with crisp clarity all this.
+ * Up to now, you should have crisp clarity on the RedisRateLimiter pattern that we have implemented with the help of GatewayServer
+ *  * */
 @SpringBootApplication
 public class GatewayserverApplication {
 
@@ -209,7 +190,9 @@ public class GatewayserverApplication {
 						.uri("lb://LOANS"))
 				.route(p -> p.path("/eazybank/cards/**")
 						.filters(f -> f.rewritePath("/eazybank/cards/(?<segment>.*)", "/${segment}")
-								.addResponseHeader("X-Response-Time",LocalDateTime.now().toString()))
+								.addResponseHeader("X-Response-Time",LocalDateTime.now().toString())
+								.requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter())
+										.setKeyResolver(userKeyResolver())))
 						.uri("lb://CARDS")).build();
 	}
 
@@ -218,6 +201,23 @@ public class GatewayserverApplication {
 		return factory -> factory.configureDefault(id -> new Resilience4JConfigBuilder(id)
 				.circuitBreakerConfig(CircuitBreakerConfig.ofDefaults())
 				.timeLimiterConfig(TimeLimiterConfig.custom().timeoutDuration(Duration.ofSeconds(4)).build()).build());
+	}
+
+	@Bean
+	public RedisRateLimiter redisRateLimiter() {
+		return new RedisRateLimiter(1, 1, 1);
+	}
+
+	/**
+	 * Returns a KeyResolver which returns the first value of the "user" header from the request.
+	 * If the header is not present, it defaults to "anonymous".
+	 * We have configured this logic for the KeyResolver and since we are not sending any headers inside the request with the key/name 'user' it is going to consider the KeyResolver value as 'anonymous'.
+	 * If you want, you can test by sending the header inside the request, but that is not going to make any difference in the demo because inside the local system, we will always have a single user.
+	 */
+	@Bean
+	KeyResolver userKeyResolver() {
+		return exchange -> Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("user"))
+				.defaultIfEmpty("anonymous");
 	}
 
 
