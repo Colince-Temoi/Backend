@@ -18,47 +18,103 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-/** Update as of 04/05/2025
- * Implementing Rate Limiter Pattern in Accounts ms
- * ----------------------------------------------------
- * We will be discussing on how to implement Rate Limiter pattern in normal Spring boot ms's. Previously, we explored on how to implement Rate Limiter pattern inside a Gateway server. Now we will try implementing the same inside Accounts ms. For the same, I am choosing to implement this Rate Limiter pattern on /java-version API of AccountsController, that is on the behavior named getJavaVersion. I want this API to be invoked based upon the Rate Limitations that I am going to define. We need to follow the following steps:
- * 1. Mention a method level annotation i.e., @RateLimiter(<->,[-]). This annotation takes 2 input parameters, i.e., name which is mandatory and fallBackMethod which is optional.  The name will hold what is the name of this RateLimiter configuration. So, for that I am specifying it same as the REST API method name i.e., getJavaVersion. For now, I will not give any fallback mechanism/behavior. First lets have a look on how the behavior is going to be without fallback and later with fallback.
- * 2. Next, we need to mention the RateLimiter properties inside the application.yml. As of now we have circuit breaker and retry related configurations. Very similarly, I am going to mention RateLimiter related configuration/properties. All these you can find inside the Resiliency4J official documentation i.e.,
- * resilience4j.ratelimiter:
+/** Update as of 10/05/2025
+ * Introduction to Bulkhead Pattern
+ * -----------------------------------
+ * With the help of this bulkhead pattern, we can improve the resilience and isolation of components or services within a ms network/ a system. You may be wondering why on the RHS of this slide, there is an image of a boat or Ship.  The reason we are having it is because, this bulkhead pattern is inspired from the concept of bulkheads in the ships. So what are these bulkheads? If you can see the image of the ship, using these bulkheads, we are physically partitioning the entire ship so that even if one of the compartments is flooded with water, the other compartments are safe and secure.Nothing but it is not going to affect the other compartments/partitions inside the ship. This will thus enhance the overall stability and safety of the ship or vessel. If you have watched the Titanic movie, when the Ship collides with a mountain in the middle of the sea, it didn't immediately submerge into the ocean. Actually a lot of stories happened in between the collisions and climax. The water didn't enter into the entire ship at a time because behind the scenes there are bulkheads in the ship. When you lock a compartment, the water will not enter into the other compartments very easily.
+ * Using the same bulkheads inside the ships,the bulkhead pattern in the software perspective is inspired. So, with the help of this pattern we can isolate and limit the impact of failures or high loads in one component from spreading to the other components. It also helps to ensure that a heavy load in one part of the system does not bring down the entire system and this enables other components to work and continue functioning independently of each other. How bulkhead pattern is going to achieve the stability is, with the help of this pattern we can allocate or assign resources to a specific REST API or MS so that teh excessive usage of resources we can avoid. On a high level, the summery is: With the help of bulkhead pattern we can define the resource boundaries for all the components inside a ms and this will enhance the resilience and stability of the system. Check slides in order to understand this bulkhead pattern with the help of a diagram.
+ *
+ * How to implement the Bulkhead Pattern
+ * -------------------------------------
+ * Inside the Spring Cloud Gateway, there is no support for bulkhead pattern as of now. This being said, we can only implement bulkhead pattern by using the Resilience4J library. On the page - https://resilience4j.readme.io/docs/getting-started-3#configuration if you can scroll down in the Annotations section, you will notice there is an annotation with which we can leverage to implement the bulkhead pattern. You can see that with the help of @Bulkhead we can configure the bulkhead related configurations i.e.,
+ * @Bulkhead(name = BACKEND, type = Bulkhead.Type.THREADPOOL)
+ * public CompletableFuture<String> doSomethingAsync() throws InterruptedException {
+ *         Thread.sleep(500);
+ *         return CompletableFuture.completedFuture("Test");
+ *  }
+ *  - The above code you can find it on that page, I copied it from there.
+ *  name = BACKEND
+ *  type = Bulkhead.Type.THREADPOOL
+ *
+ *  Means, with these bulkhead configurations, we are trying to assign the thread pool to the operation/behavior 'doSomethingAsync'.
+ *  The properties related to bulkhead you can identify if you scroll up in the page under the configurations section. i.e.,
+ *  resilience4j.bulkhead:
  *     instances:
  *         backendA:
- *             limitForPeriod: 10
- *             limitRefreshPeriod: 1s
- *             timeoutDuration: 0
- *             registerHealthIndicator: true
- *             eventConsumerBufferSize: 100
+ *             maxConcurrentCalls: 10  // Here you can mention what is the maximum number of concurrent calls that a particular bulkhead pattern can support on top of a REST API.
  *         backendB:
- *             limitForPeriod: 6
- *             limitRefreshPeriod: 500ms
- *             timeoutDuration: 3s
+ *             maxWaitDuration: 10ms
+ *             maxConcurrentCalls: 20
  *
- * My instructor pasted/utilized the below properties:
- * resilience4j.ratelimiter:
- *   configs:
- *     default:  // Implies that I am trying to configure these properties/configs for all rate limiter instances/definitions inside my Accounts ms. That's why I have mentioned 'default'
- *       timeoutDuration: 1000
- *       limitRefreshPeriod: 5000
- *       limitForPeriod: 1
+ * // The above is normal are normal bulkhead configurations where you can only control the concurrent calls. But if you want to control the threads also, with the help of the below thread pool configurations you can assign maximum thread pool size, what is the core thread pool size, what is the queue capacity. So, these are all the properties that you can use to define the bulkhead configurations. I am not going to implement any of these inside our ms's  and we are not going to see the demo of bulkhead pattern in our ms's. The reason is, to see the demo of this bulkhead pattern we need some commercial tools or some performance tools like loadrunner or Jmeter where we can see the thread usage which is a complicated process.
  *
- * As child properties to default, we have mentioned 3 important properties i.e., timeoutDuration, limitRefreshPeriod and limitForPeriod.
- * limitRefreshPeriod - We have assigned it 5000 ms. This means, for every 5 seconds, I want to renew the quarter. What is the quarter that I have set for each refresh period? I have set it to 1. You can identify this with the help of the value assigned to limitForPeriod. That means, I want to renew the quarter for every 5 seconds. This means for every 5 seconds, I have configured that only one request is allowed. But in real production applications, the number will be in thousands.
- * limitForPeriod - We have assigned it 1. This means, for every 5 seconds, I have configured that only one request is allowed.
- * timeoutDuration - We have assigned it 1000 ms. Think like, one of the threads came and is trying to invoke a specific API but the rate limiter did not allow it because the number of requests allowed during a particular period is exhausted. So, in such scenarios, with the help of timeoutDuration, we are telling what is the maximum time that a particular thread can wait for the new refresh period to arrive with a new quarter. With this configuration my thread is going to wait for a maximum of 1 second. Within 1 second, if my rate limiter is not allowing the requests then my thread is simply not going to wait further, and it is going to return back with an error message.
+ * resilience4j.thread-pool-bulkhead:
+ *   instances:
+ *     backendC:
+ *       maxThreadPoolSize: 1
+ *       coreThreadPoolSize: 1
+ *       queueCapacity: 1
+ *       writableStackTraceEnabled: true
  *
- * If keen, you may have observed that this is something different from what we have discussed in the gateway server rate limiter definition and configurations. Yes, that true as both approaches are different. With the Gateway server and Redis Rate Limiter  and KeyResolver, we enforce the quarter limitations based upon  our defined criteria i.e., user/username, IP address, server, etc. But here in individual ms's (Without Spring Cloud GatewayServer), whenever we are trying to implement rate limiter pattern then the approach is going to be different as discussed in this session. Whatever properties/configurations that you provided inside the application.yml, is going to only apply for all type of requests coming towards your specific REST API method. But it is important to not that, they could also apply to all your REST API methods inside your specific ms given that you used @RateLimiter annotation on all your REST API methods - nothing but as a class level annotation.
- *  - This type of RateLimiter implementation, you can utilize where you have infrastructure that can only handle few requests i.e., 10,000 requests per second. Beyond 10,000 requests per second, if you don't want to accept the requests, then in such scenarios, then this approach is going to be super helpful.
- *  - You may also have different requirement(s) i.e., where you want a particular low priority API to process less number of requests than the other high priority API's (So that they can process more number of requests without any issues). All such type of custom requirements you can achieve with this approach.
+ * - Up to now, I am assuming you have the clarity of what is bulkhead pattern and how to implement it.
+ * In future whenever you have these kind of scenarios, where you want to define the boundaries for your API's inside the ms, you can leverage what we have just learnt in regard to the bulkhead pattern and with the help of your performance testing team you can always try to validate and verify your changes.
  *
- *  Once the above changes that we have discussed and implemented are saved and a build is completed, you can go ahead and start the accounts ms. But make sure your Rabbit, Config server and eureka server are all up and running. Finally, after the accounts service is started, you can start your gateway server. Reason: My accounts ms is registered with the eureka server and so, the same details from the eureka server I want my gateway server to fetch during the start-up.
- *  And btw , in this approach we don't need any redis container. To demo these changes, In our postman collection under gateway server, we have a request i.e., eazybank/accounts/api/java-version. If you invoke this API, you will get an output indicating everything is happy! haha. Now, when you invoke this send button multiple times, nothing but send multiple requests to this API, at some point you will be greeted by an error code "INTERNAL_SERVER_ERROR" with the message "RateLimiter 'getJavaVersion' does not permit further calls". Since inside the Accounts ms we have a global exception handler, it is throwing this "INTERNAL_SERVER_ERROR" 500 but behind the scenes the reason as to why this is issue came up is due to the rate limiter implementation that we have defined inside the Accounts ms on top of getJavaVersion method. Since this request, 'http://localhost:8072/eazybank/accounts/api/java-version' is a GET request you can also validate the same from the browser. If you refresh this page multiple times, you will get the same error message.
- *  As a next step, lets define a fallback mechanism for this RateLimiter pattern. As a second parameter to @RateLimiter(<RateLimiterName>,[fallbackMethod]), using the attribute fallbackMethod, we can define a fallback method that will be invoked if the rate limiter is not allowing the requests. To this I am assigning a method 'getJavaVersionFallback'. Copy the getJavaVersion method as it and replicate it just changing the method name to getJavaVersionFallback. Reason, whenever we are trying to create a fallback method, we need to make sure that the method signature is same as the original method signature.  In addition, we need to make sure we are passing one extra input parameter to this fallback method of type Throwable. Once this is done, as a next step you need to write the fallback logic. Here the fallback logic I want to write is: Inside the ResponseEntity body, I am going to simply return an output like "Java 17". So in cases where my original method is not able to process its business logic, I have defined a fallback method that will return this output. If you think like in the real projects; You have an original method which is going to perform a lot of heavy operations and this REST method supports a low or is a low priority API. So, based upon your Rate Limiter configurations on such methods, If you are not allowing any further requests to this REST method within a timeframe then you can simply return a fallback response - usually some simple logic you have to write inside your fallback. Could be something like saying, "Please try again after some time" or you could send some information from the cache. I mean, haha, it's up to you what kind of logic you want to write inside your fallback method.
- * - Now, once the build to these changes is completed. As usual, stop the Accounts service as well as the Gateway service and the restart them respectively. Now if you go to the browser and try to refresh the same page multiple times, at some point in time you will get the fallback method response i.e., "Java 17".
- * Up to now, you should be super clear on how to implement the rate limiter pattern inside your normal ms's. Like this, for each of the Resilience4j patterns, we are learning and implementing them in 2 different ways/places/approaches - With the help of Gateway pattern, nothing but at the Gateway server. And with the help of the resilience4j library + annotations on top of the normal ms's. Using these 2 approaches, now you have flexibility to implement these patterns either in the Gateway Server or in the normal ms's based upon your business requirements.
+ * Aspect order of Resiliency patterns.
+ * -----------------------------------
+ * As of now, we have discussed various resilience patterns supported by this resilience4j library. We have also gone ahead and implemented these patterns inside our ms's individually. Sometimes you may have complex business logic where you may end-up combining various resilience patterns. In such scenarios, you may have a question like; " What is the order that my resilience library is going to follow if I have multiple resilience patterns defined for a single REST API method or for a single service/routing path? "
+ * To understand this, inside the official doc of resilience4j library, https://resilience4j.readme.io/docs/getting-started-3#aspect-order, under the section "Aspect order" you can see various information regarding this. You can clearly see  the order of the patterns that resilience4j is going to follow, i.e, Retry ( CircuitBreaker ( RateLimiter ( TimeLimiter ( Bulkhead ( Function ) ) ) ) ) with the innermost - Bulkhead - taking 1st priority and the outermost - retry - taking the last priority. Which means retry pattern will be applied at the end. Here 'Function' represents the actual REST API method in your individual ms or the routing path that you have defined inside your gateway server.
+ * Sometimes you maybe fine with this default order but if you have some complex scenario where you want this default order then its is going to be super easy with the help of the properties like:
+ * - resilience4j.retry.retryAspectOrder
+ * - resilience4j.circuitbreaker.circuitBreakerAspectOrder
+ * - resilience4j.ratelimiter.rateLimiterAspectOrder
+ * - resilience4j.timelimiter.timeLimiterAspectOrder
+ * - resilience4j.bulkhead.bulkheadAspectOrder
+ * All those I have copied from the official doc. No magic here. In the yml configuration like shown below, using these properties you can define the order of execution i.e.,
+ * resilience4j:
+ *   circuitbreaker:
+ *     circuitBreakerAspectOrder: 1
+ *   retry:
+ *     retryAspectOrder: 2
+ * Also these yml configurations I have gotten from the official doc. The higher the number the higher the priority. So, with the above yml configurations, we are giving higher priority to the retry pattern. Higher priority means higher value which means that it is going to be applied/executed first. Post that only then the circuit breaker pattern will be applied/executed and so on.
+ * In the doc you can see that - Circuit Breaker starts after Retry finish its work
+ * This was some quick information that I need to give and for more other details including even stuff we have not yet discussed, you can refer to the official doc.
+ * In regard to this Aspect order of Resiliency patterns, my instructors humble advice is, "Please don't try to use all these patterns simultaneously in a single ms or in a single routing path, it will be like doing over-engineering and without proper testing, you may get some surprises inside the production." Please do some due diligence and post that only, go with the required patterns inside your individual ms or routing path configurations.
+ *
+ * Demo of Resiliency patterns using docker containers
+ * -----------------------------------------------------
+ * As of now we implemented and tested various resiliency patterns inside our local system. To test the same changes using docker containers we have to create docker containers for all the services that we are leveraging in our system with an updated tags to what we had previously. For example, prior to making a change to a service, if its tag name was v5, then the new tag should be v6 to accommodate/capture these new changes. Since you are familiar on how to go about generating docker images and updating docker compose file(s) information, you can go ahead and do it by following the below simple guide:
+ * 1. Inside your pom.xml change the tag name inside your jib plugin configuration.
+ * 2. Inside your docker compose file change the tag name for the respective docker service container.
+ * And btw, inside the GitHub repo of your instructor, you can find maven as well as docker commands that we have been using throughout this course. Make sure in future to replicate this readme file in your GitHub repo as well.
+ *
+ * Since we introduced a redis service, means we are doing some changes inside our docker compose file i.e.,
+ * - Create a new redis service configuration inside your docker compose file i.e.,
+ *   redis:
+ *     image: redis
+ *     ports:
+ *       - "6379:6379"
+ *     healthcheck:
+ *       test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]  // To perform the health check this is the command that we need to use. You can always get this command from the official documentation of redis as well.
+ *       timeout: 10s   // This is the timeout configuration
+ *       retries: 10    // This is the retry configuration
+ *     extends:
+ *       file: common-config.yml   // Post that, I am trying to extend the network-deploy-service service present inside the common-config file so that my redis service will also start under the network of 'eazybank'.
+ *       service: network-deploy-service
+ * - Reason: To implement the Rate Limiter pattern with the help of Spring Cloud gateway, we need a redis service to store the rate limiter configurations - that is the key(s) i.e., KeyResolver and the value(s) - RedisRateLimiterConfiguration.
+ * - After mentioning/defining the redis service related configurations inside the docker compose file, inside the gatewayserver service defined in this same docker compose file, under the dependencies, nothing but the depends-on section, we need to add this new dependency which is related to redis service.
+ *   You may have noticed that the poor guy, "gatewayserver" has a lot of dependencies, and he has to start towards the end haha.
+ *   So after defining the dependencies information, under the environment variables, nothing but the 'environment' section of this 'gatewayserver' service, we need to provide environment properties/configurations related to redis service i.e.,
+ *       SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s   // This is the connection timeout of redis
+ *       SPRING_DATA_REDIS_HOST: redis           // This is the host name. We are using the name of the service that we have created inside our docker compose file. We should not mention 'localhost' here.
+ *       SPRING_DATA_REDIS_PORT: 6379            // This is the port number
+ *       SPRING_DATA_REDIS_TIMEOUT: 1s           // This is the timeout configuration
+ *
+ * - At last, make sure to make change related to the tags. I.e.,
+ * Accounts/Cards/Loans services previously had the tag name as v5 and now it has the tag name as v6.
+ * Gatewayserver service previously had the tag name as v1 and now it has the tag name as v2.
+ * Configserver/Eureka services previously had the tag name as v1 and will retain the same as we have not made any changes to it.
+ * - So after making all these changes, I have copied the same docker-compose.yml file into the qa and prod profiles. We didn't make any changes inside the common-config.yml file. As a next step we can try to execute the docker compose up command for the production profile and see if everything is working as expected or not.
+ *
  *
  *  * */
 @SpringBootApplication

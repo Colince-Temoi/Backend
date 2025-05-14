@@ -96,7 +96,7 @@
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v1</image>
+						<image>colince819/${project.artifactId}:v2</image>
 					</to>
 				</configuration>
 			</plugin>
