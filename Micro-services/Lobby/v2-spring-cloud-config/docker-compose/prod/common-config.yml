@@ -1,7 +1,7 @@
 services:
   network-deploy-service:
     networks:
-      - eazybank
+      - get_tt_right
 
   microservice-db-config:
     extends:
