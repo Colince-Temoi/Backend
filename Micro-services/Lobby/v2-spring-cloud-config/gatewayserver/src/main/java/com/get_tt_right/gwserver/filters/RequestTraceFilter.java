@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 /** Detailed explanation of what this class does.
  * This filter I am trying to define as a bean and that's why you can see the @Component annotation. Its only in this way that my filter class will be recognized by the Spring Cloud Gateway server/Application.
  * We also have annotated it with @Order(1) which means that this filter will be executed first. Sometimes, you may want to define any number of filters and in such scenarios If you want to define an order of execution for your filters then you can use the @Order annotation and mention its input value as 1, 2, 3, 4, 5 and so on. So, based upon the order that you have mentioned, using the same order all the filters will be executed in the same order. So whatever we have defined here as @Order(1) will make sure that this filter will always be executed first inside my gateway server.
@@ -46,6 +48,23 @@ public class RequestTraceFilter implements GlobalFilter {
      * @param exchange This is the ServerWebExchange reference that is associated with the current request.
      * @param chain This is the GatewayFilterChain reference that gives us the capability to invoke the next filter in the chain.
      * @return We are returning a Mono of Void as we are not returning anything specifically from this filter method. We are just trying to invoke the next filter.
+     *
+     * Learning Point:
+     * ----------------
+     * Spring Cloud Gateway's ServerHttpRequest is immutable, so calling mutate() creates a new request.
+     * You must rebuild the ServerWebExchange with the mutated request so that the updated headers are propagated.
+    // Mutate the request with the new header
+    ServerHttpRequest mutatedRequest = exchange.getRequest()
+    .mutate()
+    .header(filterUtility.CORRELATION_ID, correlationId)
+    .build();
+
+    // Mutate the exchange with the new request
+    exchange = exchange.mutate()
+    .request(mutatedRequest)
+    .build();
+     *
+     * And this is what we have done with the one-liner like : exchange = exchange.mutate().request(exchange.getRequest().mutate().header(filterUtility.CORRELATION_ID, correlationId).build()).build();
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -61,6 +80,7 @@ public class RequestTraceFilter implements GlobalFilter {
         } else {
             correlationId = generateCorrelationId();
             exchange.getAttributes().put(FilterUtility.CORRELATION_ID, correlationId); // Store in attributes
+            exchange = exchange.mutate().request(exchange.getRequest().mutate().header(filterUtility.CORRELATION_ID, correlationId).build()).build(); // Mutate the request with the new header then Mutate the exchange with the new request and then Using the mutated exchange in the return statement.
             logger.debug("eazyBank-correlation-id generated in RequestTraceFilter : {}", correlationId);
         }
         return chain.filter(exchange);
