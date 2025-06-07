@@ -37,6 +37,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+<!--		By simply adding this dependency,we are telling to the micrometer to expose the actuator metrics in a format that my prometheus can understand.
+            In future if your organization decided to go with some other monitoring system other prometheus, then you just simply need to change the artifact id and with that you should be good.
+-->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -143,7 +150,7 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v6</image>
+						<image>colince819/${project.artifactId}:v7</image>
 					</to>
 				</configuration>
 			</plugin>

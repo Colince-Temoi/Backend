@@ -406,7 +406,7 @@ services:
       service: 'microservice-eureka-config'
 
   gatewayserver:
-    image: "colince819/gatewayserver:v3"
+    image: "colince819/gatewayserver:v2"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
