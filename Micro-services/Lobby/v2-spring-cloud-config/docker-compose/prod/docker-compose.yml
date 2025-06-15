@@ -432,5 +432,5 @@ services:
       service: 'microservice-eureka-config'
 
 networks:
-  eazybank:
+  get_tt_right:
     driver: bridge
