@@ -31,11 +31,19 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
+		<otelVersion>2.8.0</otelVersion>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.opentelemetry.javaagent</groupId>
+			<artifactId>opentelemetry-javaagent</artifactId>
+			<version>${otelVersion}</version> <!--Trying to refer to the otel version variable that we defined above inside the properties parent element-->
+			<scope>runtime</scope> <!--This is a runtime dependency  which means during compilation we don't need this dependency, only when we are trying to run our application, at runtime only I want this library to be utilized.-->
 		</dependency>
 <!--		By simply adding this dependency,we are telling to the micrometer to expose the actuator metrics in a format that my prometheus can understand.
             In future if your organization decided to go with some other monitoring system other prometheus, then you just simply need to change the artifact id and with that you should be good.

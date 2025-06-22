@@ -30,16 +30,8 @@ import org.springframework.web.bind.annotation.*;
  * @author Colince Temoi
  */
 
-/** Update as of 27/3/2025
- * Implementing Cross-Cutting Concerns Tracing and Logging
- * ----------------------------------------------------------
- *  For the fetchCardDetails method, we have introduced @RequestHeader("eazybank-correlation-id") String correlationId as a parameter.
- *  As a next step, we need to leverage this correlation input value and try to log some statements inside this LoansController class's fetchLoanDetails method. For the same we have defined an slf4j logger property for this class. Using the logger reference, we are going to create some logger statements inside my fetchLoanDetails method.
- *  We can mention the same log statement that we mentioned inside the CustomerController class's fetchCustomerDetails method here.
- *  Before the method executing starts, it will first print the correlation id. When this log,logger.debug("EazyBank_correlation-id found: {}", correlationId);, prints on the console, it will be having:
- *  *   - the class name
- *  *   - The statement which we are trying to print which includes the correlation id
- *
+/** Update as of 22/6/2025
+ * At the /fetch API, we were trying to generate the logs by appending a correlationId that we are receiving from the gatewayserver application in the headers. Now, we are going to remove the log statement like; logger.debug("EazyBank_correlation-id found: {}", correlationId); and replace that with logger.debug("Fetch Loan Details Method Start");. Similarly, before the return statement mention  a logger i.e., logger.debug("Fetch Loan Details Method End");. These are like markers to indicate the start and end of the respective methods' execution.
  */
 
 @Tag(
@@ -128,8 +120,9 @@ public class LoansController {
     public ResponseEntity<LoansDto> fetchLoanDetails( @RequestHeader("eazybank-correlation-id") String correlationId,
                                                       @RequestParam @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
                                                                String mobileNumber) {
-        logger.debug("EazyBank_correlation-id found: {}", correlationId);
+        logger.debug("Fetch Loan Details Method Start");
         LoansDto loansDto = iLoansService.fetchLoan(mobileNumber);
+        logger.debug("Fetch Loan Details Method End");
         return ResponseEntity.status(HttpStatus.OK).body(loansDto);
     }
 

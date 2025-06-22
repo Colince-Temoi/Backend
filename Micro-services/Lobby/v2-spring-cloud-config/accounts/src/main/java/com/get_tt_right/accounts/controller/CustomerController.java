@@ -18,17 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/** Update as of 27/3/2025
- * Implementing Cross-Cutting Concerns Tracing and Logging
- * ----------------------------------------------------------
- * + fetchCustomerDetails(mobileNumber):ResponseEntity<CustomerDetailsDto> currently takes a mobile number as input parameter which is coming as a request parameter, we need to modify REST API method to accept one more input that is going to come as part of the request header.For this we need to leverage @RequestHeader annotation and as input to it, we need to mention <header_name>:String i.e., @RequestHeader("eazybank-correlation-id") Type placeholder, So whatever value we have in this header, we need to assign it to a method parameter/placeholder with the name  correlationId and is of type String.
- * With this in place our REST API method will now have access to the correlation id inside the request header that is being sent by my gateway server. Now, I am going to create few loggers inside this controller and using those loggers and this correlationId value we will print some logger statements which will help us during the debugging. For the same we have defined an slf4j logger property for this class. Using the logger reference, we are going to create some logger statements inside my fetchCustomerDetails method. Before the method executing starts, it will first print the correlation id. When this log,logger.debug("EazyBank_correlation-id found: {}", correlationId);, prints on the console, it will be having:
- *   - the class name
- *   - The statement which we are trying to print which includes the correlation id
- * After levering this correlation id inside my Accounts ms, I want to forward the same to my Loans and Accounts ms as well. For the same, we need to pass this correlationId as a second parameter to the fetchCustomerDetails method present inside the iAccountsService interface.
- * You can check the CustomerService, CustomerServiceImpl, CardsFeignClient and LoansFeignClient classes for the changes we have done.
- * With this, all the changes we are to do inside the accounts ms is completed. As a next step, we need to make sure the fetch API's available inside the cards and loans ms's are also accepting the request header with the name eazybank-correlation-id.
- * Check out these the CardsController and LoansController classes fetch api's for more details.
+/** Update as of 21/6/2025
+ * As of now, we are trying to generate the logs and tyring to append the correlationId in the log that we are receiving from the gateway server application. Instead of this, we are going to introduce new logger statements i.e., logger.debug("Fetch Customer Details Method Start");. To this Logger statement,my OpenTelemetry at runtime  it is going to inject metadata information - Application name,Trace ID and Span ID. With that reason, we no more need to manually append the correlationId that we are receiving in the headers of the request from the gatewayserver application in the log(s).
+ * Also, before the return statement mention  a logger i.e., logger.debug("Fetch Customer Details Method End");. This way, you can add any number of logs inside your ms's at the controller layer, service layer and repository layer. It's up to you where you want to define the log statements. By default, all the logs will have distributed tracing information based upon the pattern that we have mentioned/configured inside the application.yml file of the respective ms's.
  * */
 @Tag(
         name = "REST APIs for Customers in EazyBank",
@@ -70,9 +62,9 @@ public class CustomerController {
             @RequestParam
             @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
             String mobileNumber) {
-        logger.debug("eazyBank_correlation-id found: {}", correlationId);
+        logger.debug("Fetch Customer Details Method Start");
         CustomerDetailsDto customerDetailsDto = iCustomerService.fetchCustomerDetails(mobileNumber, correlationId);
-
+         logger.debug("Fetch Customer Details Method End");
         return ResponseEntity.status(HttpStatus.SC_OK).body(customerDetailsDto);
     }
 }
