@@ -1,0 +1,34 @@
+# Inside this file we have some tempo related configurations like;
+# My instructor didn't explain much about these configurations. He just said, 'These are all the configurations related to tempo which we need to follow based upon the official documentation'. If you need any details about these configurations which he didn't give, you can always find the documentations.
+# He didn't go into details because in real projects, the responsibility of all these configurations belongs to the platforms team
+server:
+  http_listen_port: 3100 # It is going to listen at the port 3100
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+
+ingester:
+  trace_idle_period: 10s # The trace idle period
+  max_block_bytes: 1_000_000 # The maximum block bytes
+  max_block_duration: 5m # The maximum block duration
+
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_compaction_objects: 1000000
+    block_retention: 1h
+    compacted_block_retention: 10m
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks
+    pool:
+      max_workers: 100
+      queue_depth: 10000
+

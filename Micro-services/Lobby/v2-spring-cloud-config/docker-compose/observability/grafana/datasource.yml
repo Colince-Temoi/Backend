@@ -1,11 +1,11 @@
 apiVersion: 1
 
-deleteDatasources:
+deleteDatasources: # We are first trying to delete any datasource with the below listed names.
   - name: Prometheus
   - name: Loki
   - name: Tempo
 
-datasources:
+datasources: # Post that, we are trying to create new datasource's with the names and configurations like below.
   - name: Prometheus
     type: prometheus
     uid: prometheus
@@ -18,10 +18,10 @@ datasources:
     editable: true
     jsonData:
       httpMethod: GET
-  - name: Tempo
-    type: tempo
-    uid: tempo
-    url: http://tempo:3100
+  - name: Tempo # Name of the datasource
+    type: tempo # And it is of type tempo
+    uid: tempo # The uid I am trying to give to this is tempo
+    url: http://tempo:3100 # It is going to start at the port 3100. Grafana is going to interact with tempos using the service name 'tempo' as can be seen in this url.
     access: proxy
     orgId: 1
     basicAuth: false
