@@ -38,7 +38,7 @@ services:
     #      cofigserver:
     #        condition: 'service_healthy'
     environment:
-      SPRING_PROFILES_ACTIVE: qa
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_CONFIG_IMPORT: configserver:http://cofigserver:8071/
       SPRING_DATASOURCE_USERNAME: 'root'
       SPRING_DATASOURCE_PASSWORD: 'root'

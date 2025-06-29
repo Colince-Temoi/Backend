@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
-		<otelVersion>2.8.0</otelVersion>
+		<otelVersion>2.17.0</otelVersion>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -119,7 +119,7 @@
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v7</image>
+						<image>colince819/${project.artifactId}:v8</image>
 					</to>
 				</configuration>
 			</plugin>

@@ -1,7 +1,7 @@
 services:
   network-deploy-service:
     networks:
-      - eazybank
+      - get_tt_right
 
   microservice-db-config:
     extends:
@@ -16,6 +16,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "root"
 
+# Common definition for all the services
   microservice-base-config:
     extends:
       service: network-deploy-service
@@ -25,13 +26,17 @@ services:
           memory: 512M
     environment:
       SPRING_RABBITMQ_HOST: "rabbit"
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-2.11.0.jar"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
 
   microservice-configserver-config:
     extends:
       service: microservice-base-config
-#    depends_on:
-#      cofigserver:
-#        condition: 'service_healthy'
+    #    depends_on:
+    #      cofigserver:
+    #        condition: 'service_healthy'
     environment:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://cofigserver:8071/

@@ -41,10 +41,10 @@ datasources: # Post that, we are trying to create new datasource's with the name
     url: http://gateway:3100
     jsonData:
       httpHeaderName1: "X-Scope-OrgID"
-      derivedFields:
-        - datasourceUid: tempo
-          matcherRegex: "\\[.+,(.+),.+\\]"
-          name: TraceID
-          url: '$${__value.raw}'
+      derivedFields: # configurations related to derrived fields
+        - datasourceUid: tempo # If you can see, I am trying to mention/use the datasource uid of tempo. This you can clearly see we have defined under Tempo datasource. The same value is what we are assigning here.
+          matcherRegex: "\\[.+,(.+),.+\\]" # What is the matcher regex. In the grafana UI, while we were defining this, it was like \[.+,(.+),.+\] notice the single slashes. Here, we need to make sure we are making/adding one more slash in all the place wherever we have the slashes. Actually, these same kind of rules we usually follow whenever we are trying to create strings with special characters inside Java as well.
+          name: TraceID # What is your field name
+          url: '$${__value.raw}' # What is the internal URl or query value. While mentioning this inside the Grafana UI, we were giving it as '${__value.raw}' - Notice the single dollar sign. But here we need to give 2 dollar symbols since this is a yml configuration and very similarly under the regex pattern also just to make sure that your yml configurations is considering the \, we need to make sure we are making/adding one more slash in all the place wherever we have the slashes.
     secureJsonData:
       httpHeaderValue1: "tenant1"
