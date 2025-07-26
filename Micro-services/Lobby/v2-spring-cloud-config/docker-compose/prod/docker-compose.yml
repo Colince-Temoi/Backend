@@ -1,4 +1,18 @@
 services:
+#  Since we are trying to use Keycloak inside our local system, we are trying to use the command 'start-dev' so that keycloak will leverage it's internal in-memory db
+#  We are also extending the service 'network-deploy-service' from the common-config.yml file which will make sure that our keycloak service starts in the same network, get_tt_right, where all the other services are going to start.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: keycloak
+    ports:
+      - "7080:8080"
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+    command: "start-dev"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
   read:
     image: grafana/loki:latest
     command: "-config.file=/etc/loki/config.yaml -target=read"
@@ -274,7 +288,7 @@ services:
       service: 'network-deploy-service'
 
   eurekaserver:
-    image: "colince819/eurekaserver:v3"
+    image: "colince819/eurekaserver:v4"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -297,7 +311,7 @@ services:
       service: 'microservice-configserver-config'
 
   cofigserver:
-    image: "colince819/configserver:v3"
+    image: "colince819/configserver:v4"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -317,10 +331,8 @@ services:
       service: 'microservice-base-config'
 
   accounts:
-    image: "colince819/accounts:v8"
+    image: "colince819/accounts:v9"
     container_name: accounts-ms
-    ports:
-      - "8080:8080"
     healthcheck:
       test: 'curl --fail --silent http://localhost:8080/actuator/health/readiness | grep "UP" || exit 1'
       interval: 10s
@@ -341,10 +353,8 @@ services:
       service: 'microservice-eureka-config'
 
   loans:
-    image: "colince819/loans:v8"
+    image: "colince819/loans:v9"
     container_name: loans-ms
-    ports:
-      - "8090:8090"
     healthcheck:
       test: 'curl --fail --silent http://localhost:8090/actuator/health/readiness | grep "UP" || exit 1'
       interval: 10s
@@ -365,10 +375,8 @@ services:
       service: 'microservice-eureka-config'
 
   loans1:
-    image: "colince819/loans:v8"
+    image: "colince819/loans:v9"
     container_name: loans-ms1
-    ports:
-      - "8091:8090"
     healthcheck:
       test: 'curl --fail --silent http://localhost:8090/actuator/health/readiness | grep "UP" || exit 1'
       interval: 10s
@@ -389,10 +397,8 @@ services:
       service: 'microservice-eureka-config'
 
   cards:
-    image: "colince819/cards:v8"
+    image: "colince819/cards:v9"
     container_name: cards-ms
-    ports:
-      - "9000:9000"
     healthcheck:
       test: 'curl --fail --silent http://localhost:9000/actuator/health/readiness | grep "UP" || exit 1'
       interval: 10s
@@ -413,7 +419,7 @@ services:
       service: 'microservice-eureka-config'
 
   gatewayserver:
-    image: "colince819/gatewayserver:v4"
+    image: "colince819/gatewayserver:v5"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
@@ -435,6 +441,7 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_TIMEOUT: 1s
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
     extends:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
