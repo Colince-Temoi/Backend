@@ -14,9 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** In this class we are simply loading the user details from the DB by leveraging the CustomerRepository interface.
+ * So, we are populating the authorities and at last we are trying to create an object of User by passing email, pwd and authorities as inputs. The same we are returning from this method.
+ * Back to our Get_tt_rightBankUsernamePwdAuthenticationProvider with the help of PasswordEncoder we are trying to check if the pwds are matching after the hashing process. Check the Get_tt_rightBankUsernamePwdAuthenticationProvider class for more details.
+ * */
 @Service
 @RequiredArgsConstructor
-public class EazyBankUserDetailsService implements UserDetailsService {
+public class Get_tt_rightBankUserDetailsService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
 
