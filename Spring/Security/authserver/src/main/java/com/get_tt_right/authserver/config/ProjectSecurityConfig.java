@@ -98,28 +98,14 @@ public class ProjectSecurityConfig {
         return http.build();
     }
 
-    /** Updated on 8/6/2025
+    /** Updated on 8/7/2025
      *---------------------------
-     * Demo of Opaque Tokens with Spring Auth server
+     * Revert back to Self_contained/jwt token scenario
      * ---------------------------------------------------
-     * We are going to make changes inside the auth server and resource server to accept and process Opaque tokens. The amin difference between Opaque and Jwt tokens is - Jwt tokens are self-contained tokens. Which means the resource server can validate the Jwt tokens locally without depending on the auth server for each and every request. With opaque tokens, the resource server is going to rely on the auth server to validate the token received for each and every request. In most of the real scenarios, Jwt tokens are going to be used because they have lot many advantages.
-     * Opaque tokens are rarely used for super critical applications. You also have to note that Opaque tokens are going to bring some performance issues as well since the resource server is going to rely on the auth server for each and every request. All these information we already discussed. Anyway, we will see the demo of opaque tokens as well. So, under the client that we have configured that is going to support client credentials, we are going to change the accessTokenFormat(OAuth2TokenFormat.'constraint') constraint from SELF_CONTAINED to REFERENCE. Whenever we configure this REFERENCE as a token format, behind the scenes the auth server is going to generate opaque tokens. If you navigate to the 'REFERENCE' constraint, you should be able to see a docstring  highlighting what this is. I.e.,Reference (opaque) tokens are unique identifiers that serve as a reference to the token metadata and claims of the user and/or client, stored at the provider.
-     * Any time the resource server needs more details about the client or about the end user, it needs to rely on the auth server to fetch those details by providing the initial received opaque token. So, yea, that's the first change we need to make inside the auth server. As a next step, we need to make some changes to the resource server so that it can connect with the auth server for each and every token introspection. This kind of change we already made when we were testing the KeyCloak changes - You can review that, but we are also going to see. In the ProjectSecurityConfig in the resource server, you will notice I have commented out some opaque token related changes. Uncomment them and then comment out the jwt related configurations i.e.,
-     * /*http.oauth2ResourceServer(rsc ->
-     *                 rsc.jwt(jwtConfigurer ->
-     *                         jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));//
-     *
-     *  http.oauth2ResourceServer(rsc ->
-     *                 rsc.opaqueToken(otc ->
-     *                         otc.authenticationConverter(new KeycloakOpaqueRoleConverter())
-     *                                 .introspectionUri(this.introspectionUri)
-     *                                 .introspectionClientCredentials(this.clientId, this.clientSecret)));//
-     *
-     * Don't use the 2 at once. If you are using opaque token configurations, then make sure you have commented out the Jwt token configurations as should above. Reason: The things are not going to work and your auth server is going to fail to start as Spring Security framework is going to happily throw you an exception.
-     * So here, rsc. opaqueToken, we are trying to tell the format as opaque token and under the 'otc.authenticationConverter...' we are trying to use the KeycloakOpaqueRoleConverter. Next we are trying to provide what is the introspectionUri and also what is the introspectionClientCredentials.
-     * To resolve the CE's un comment the code i.e.,
-     *
-     * /*  @Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
+     * Not recommended to use the Opaque/reference token scenario and so revert back the changes we have done in regard to opaque token scenario back to Jwt token scenario in both the auth server and the resource server i.e.,
+     * 1. Change any clients configured inside registeredClientRepository to have the accessTokenFormat constrained to SELF_CONTAINED instead of REFERENCE. With this, the auth server is going to generate the Jwt token format
+     * 2. In the resource server side, inside the ProjectSecurityConfig, comment and uncomment out the code ie.,
+     *   /*@Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
      *     String introspectionUri;
      *
      *     @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-id}")
@@ -128,18 +114,30 @@ public class ProjectSecurityConfig {
      *     @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-secret}")
      *     String clientSecret;//
      *
-     * It is present inside the class ProjectSecurityConfig just on top.
-     * As a next step, in the application.properties of the resource server uncomment the below 3 properties ie..,
+     *     /*http.oauth2ResourceServer(rsc ->
+     *                 rsc.opaqueToken(otc ->
+     *                         otc.authenticationConverter(new KeycloakOpaqueRoleConverter())
+     *                                 .introspectionUri(this.introspectionUri)
+     *                                 .introspectionClientCredentials(this.clientId, this.clientSecret)));//
      *
-     * # Opaque Token Configuration
-     * #spring.security.oauth2.resourceserver.opaque.introspection-uri= ${INTROSPECT_URI:http://localhost:8081/realms/eazybankdev/protocol/openid-connect/token/introspect}
-     * #spring.security.oauth2.resourceserver.opaque.introspection-client-id=${INTROSPECT_ID:eazybankintrospect}
-     * #spring.security.oauth2.resourceserver.opaque.introspection-client-secret=${INTROSPECT_SECRET:YwBiML6JqwIwhFengHACDMol7CkwbOpN}
+     *   http.oauth2ResourceServer(rsc ->
+     *                 rsc.jwt(jwtConfigurer ->
+     *                         jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));
      *
-     * Make sure to change the values i.e., In the 1st property, you can see we have the introspection uri of KeyCloak, instead make sure to mention the introspect URI of my Spring Authorization server. This you can get form the http://localhost:9000/.well-known/openid-configuration with the key 'introspection_endpoint'
-     * Next, we need to configure the client id and the client secret i.e.,get_tt_right-bankintrospect and YwBiML6JqwIwhFengHACDMol7CkwbOpN respectively. Using this client id and client secret, my resource server is going to invoke the introspection uri. Make sure the 2 are configured in the auth server where we are configuring a client(s). In our case, we want to leverage clientCredClient, so copy/duplicate its configurations and rename it to 'introspectClient'. Make sure the same variable name you pass into the constructor of InMemoryRegisteredClientRepository.
-     * So, for the introspect client, change the client id and secret to get_tt_right-bankintrospect and YwBiML6JqwIwhFengHACDMol7CkwbOpN respectively. And for the introspectClient we don't need 'ADMIN' and 'USER' roles in the scope configurations. After making these changes, do a build which will restart the auth server behind the scenes.
-     * Now, in the resource server, open KeycloakOpaqueRoleConverter - Inside this class, we have changes related to the KeyCloak scenario. Check its docstring for continuation of this discussion.
+     *  In the application.properties file of the resource server also comment and uncomment the lines of code like:
+     *    #spring.security.oauth2.resourceserver.opaque.introspection-uri= ${INTROSPECT_URI:http://localhost:8081/realms/eazybankdev/protocol/openid-connect/token/introspect}
+     *    #spring.security.oauth2.resourceserver.opaque.introspection-client-id=${INTROSPECT_ID:get_tt_right-bankintrospect}
+     *    #spring.security.oauth2.resourceserver.opaque.introspection-client-secret=${INTROSPECT_SECRET:YwBiML6JqwIwhFengHACDMol7CkwbOpN}
+     *
+     *    spring.security.oauth2.resourceserver.jwt.jwk-set-uri=${JWK_SET_URI:http://localhost:9000/oauth2/jwks}
+     *
+     *  You can now do a build of your auth server and resource server and try to test the flows once more again just to make sure the Jwt token format is working fine as expected. Hurreey! everything worked as expected.
+     *  With all we have discussed, we can call it a wrap as far as security is concerned. Now, you have the power to read - the docs of course.
+     *  Disclaimer!
+     *  ------------
+     *  Spring Authorization server framework is a pretty new framework in the Spring ecosystem and is going to evolve a lot in the coming days. My humble request is keep yourself updated with the docs for any newer stuff and find out how you can make your auth server even better.
+     *  So, that's more or less around the 'Getting started' with Spring Authorization Server project. For any questions and doubts or anything whatsoever, always check with the official documentation - you are big boy now. There is a 'How-to Guides' section in the official documentation that can answer most of you questions.
+     *
      * */
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
@@ -162,37 +160,11 @@ public class ProjectSecurityConfig {
 //                .scope(OidcScopes.PROFILE)
 
                 .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                        .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
                         .build())
 
 //                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
-
-        RegisteredClient introspectClient  = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("get_tt_right-bankintrospect")
-                .clientSecret("{noop}YwBiML6JqwIwhFengHACDMol7CkwbOpN")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-
-//                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oidc-client")
-//                .postLogoutRedirectUri("http://127.0.0.1:8080/")
-
-                .scopes(scopeConfig -> {
-                    scopeConfig.addAll(List.of(OidcScopes.OPENID));
-                })
-//                .scope(OidcScopes.OPENID)
-//                .scope(OidcScopes.PROFILE)
-
-                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-                        .build())
-
-//                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-                .build();
-
 
         RegisteredClient authCodeClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("get_tt_right-client")
@@ -221,7 +193,7 @@ public class ProjectSecurityConfig {
                         .refreshTokenTimeToLive(Duration.ofHours(8)).reuseRefreshTokens(false)
                         .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED).build()).build();
 
-        return new InMemoryRegisteredClientRepository(clientCredClient,introspectClient,authCodeClient,pkceClient);
+        return new InMemoryRegisteredClientRepository(clientCredClient,authCodeClient,pkceClient);
     }
 
     @Bean
