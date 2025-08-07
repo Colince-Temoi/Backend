@@ -2,6 +2,7 @@ package com.eazybytes.config;
 
 import com.eazybytes.filter.CsrfCookieFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,14 +23,14 @@ import java.util.List;
 @Configuration
 public class ProjectSecurityConfig {
 
-   /*  @Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
+   @Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
     String introspectionUri;
 
     @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-id}")
     String clientId;
 
     @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-secret}")
-    String clientSecret;*/
+    String clientSecret;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -60,14 +61,14 @@ public class ProjectSecurityConfig {
                         .requestMatchers("/myCards").hasRole("USER")
                         .requestMatchers("/user").authenticated()
                         .requestMatchers("/notices","/contact","/error","/register").permitAll());
-        http.oauth2ResourceServer(rsc ->
+         /*http.oauth2ResourceServer(rsc ->
                 rsc.jwt(jwtConfigurer ->
-                        jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));
-        /*http.oauth2ResourceServer(rsc ->
+                        jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));*/
+        http.oauth2ResourceServer(rsc ->
                 rsc.opaqueToken(otc ->
                         otc.authenticationConverter(new KeycloakOpaqueRoleConverter())
                                 .introspectionUri(this.introspectionUri)
-                                .introspectionClientCredentials(this.clientId, this.clientSecret)));*/
+                                .introspectionClientCredentials(this.clientId, this.clientSecret)));
         return http.build();
     }
     @Bean
