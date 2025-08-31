@@ -1,0 +1,24 @@
+# Server port
+server:
+  port: 9010
+
+# Giving a name to our message service
+spring:
+  application:
+    name: "message"
+  cloud:
+    function:
+      definition: email|sms
+    stream:
+      bindings:
+        emailsms-in-0: # Input binding
+          destination: send-communication # Queue name
+          group: ${spring.application.name} # Suffix for queue name to ensure it is unique and prevent random generation of suffix values to our queue
+        emailsms-out-0: # Output binding
+          destination: communication-sent # The exchange name. With the help of this, messages/events/notifications from message ms' emailsms function will be sent to this exchange.
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s

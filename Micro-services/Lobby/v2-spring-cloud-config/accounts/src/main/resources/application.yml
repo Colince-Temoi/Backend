@@ -22,11 +22,21 @@ spring:
     port: '5672'
     username: 'guest'
     password: 'guest'
+    connection-timeout: 10s
 
   cloud:
     openfeign:
       circuitbreaker:
         enabled: true
+    function:
+      definition: updateCommunication
+    stream:
+      bindings:
+        updateCommunication-in-0:
+          destination: communication-sent # This is the queue name where my accounts ms is always going to look/check for message
+          group: ${spring.application.name} # Will be the suffix of the queue name. Defined so that our queue name is unique and will not have a randomly generated suffix value.
+        sendCommunication-out-0: # I have noted that here, you can prefix any name that is not necessarily the function name. But for the input binding you HAVE to!
+          destination: send-communication
 
 eureka:
   instance:

@@ -123,6 +123,17 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<version>2.6.0</version>
 		</dependency>
 
+		<!-- This is the main dependency whenever you want to enable Spring Cloud Stream inside your ms. -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+		<!-- This I need to add because I want to use RabbitMQ as my event/message broker  -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -158,7 +169,7 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v9</image>
+						<image>colince819/${project.artifactId}:v10</image>
 					</to>
 				</configuration>
 			</plugin>

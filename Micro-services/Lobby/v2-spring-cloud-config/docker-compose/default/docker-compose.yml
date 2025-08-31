@@ -271,19 +271,19 @@ services:
       file: 'common-config.yml'
       service: 'microservice-db-config'
 
-  rabbit:
-    image: rabbitmq:4.0-management
-    hostname: rabbitmq
-    ports:
+  rabbit: # Service name.
+    image: rabbitmq:4.0-management # Image name
+    hostname: rabbitmq # Hostname at which the RabbitMQ is going to start.
+    ports: # Port mappings.
       - "5672:5672"
       - "15672:15672"
-    healthcheck:
+    healthcheck: # Health check related details.
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 5s
-    extends:
+    extends: # At last, we are trying to tag our rabbit service to the same network where the other ms's are also going to start.
       file: 'common-config.yml'
       service: 'network-deploy-service'
 
@@ -331,7 +331,7 @@ services:
       service: 'microservice-base-config'
 
   accounts:
-    image: "colince819/accounts:v9"
+    image: "colince819/accounts:v10"
     container_name: accounts-ms
     healthcheck:
       test: 'curl --fail --silent http://localhost:8080/actuator/health/readiness | grep "UP" || exit 1'
@@ -340,6 +340,8 @@ services:
       retries: 10
       start_period: 10s
     depends_on:
+      rabbit:
+        condition: 'service_healthy'
       cofigserver:
         condition: 'service_healthy'
       accountsdb:
@@ -348,6 +350,7 @@ services:
       SPRING_APPLICATION_NAME: "accounts"
       OTEL_SERVICE_NAME: "accounts"
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
+      SPRING_RABBITMQ_HOST: "rabbit"
     extends:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
@@ -417,6 +420,18 @@ services:
     extends:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
+
+  message:
+    image: "eazybytes/message:v1"
+    container_name: message-ms
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit" # This is the correct and MUST way because using this service name ONLY, the communication between the message and rabbit services is going to happen. Whereas other properties like RabbitMQ username, pwd, port number - no need to define them as I left them to be automatically the default values - If you needed the to customize or explicitly defined the to suit your requirements how you want, then you will have to define them explicitly. AI can help you define them. Whatever I have said in this comment to should be enough to connect the dots. This also applies to all the other services that we have defined in this docker-compose.yml file.
+    extends: # This service also we are trying to start in the same network where all other services are also going to start.
+      file: common-config.yml
+      service: network-deploy-service
 
   gatewayserver:
     image: "colince819/gatewayserver:v5"
