@@ -335,9 +335,9 @@ services:
     container_name: accounts-ms
     healthcheck:
       test: 'curl --fail --silent http://localhost:8080/actuator/health/readiness | grep "UP" || exit 1'
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     depends_on:
       rabbit:
@@ -360,9 +360,9 @@ services:
     container_name: loans-ms
     healthcheck:
       test: 'curl --fail --silent http://localhost:8090/actuator/health/readiness | grep "UP" || exit 1'
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     depends_on:
       cofigserver:
@@ -382,9 +382,9 @@ services:
     container_name: loans-ms1
     healthcheck:
       test: 'curl --fail --silent http://localhost:8090/actuator/health/readiness | grep "UP" || exit 1'
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     depends_on:
       cofigserver:
@@ -404,9 +404,9 @@ services:
     container_name: cards-ms
     healthcheck:
       test: 'curl --fail --silent http://localhost:9000/actuator/health/readiness | grep "UP" || exit 1'
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     depends_on:
       cofigserver:
@@ -422,7 +422,7 @@ services:
       service: 'microservice-eureka-config'
 
   message:
-    image: "eazybytes/message:v1"
+    image: "colince819/message:v1"
     container_name: message-ms
     depends_on:
       rabbit:
