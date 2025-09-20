@@ -129,9 +129,15 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<artifactId>spring-cloud-stream</artifactId>
 		</dependency>
 		<!-- This I need to add because I want to use RabbitMQ as my event/message broker  -->
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+		</dependency> -->
+
+		<!-- This I need to add because I want to use Apache Kafka as my event/message broker  -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
 		</dependency>
 
 		<dependency>
@@ -169,7 +175,7 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v10</image>
+						<image>colince819/${project.artifactId}:v11</image>
 					</to>
 				</configuration>
 			</plugin>

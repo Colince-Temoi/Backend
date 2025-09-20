@@ -36,11 +36,17 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-stream</artifactId>
         </dependency>
-<!-- This I need to add because I want to use RabbitMQ as my event/message broker  -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
-        </dependency>
+		<!-- This I need to add because I want to use RabbitMQ as my event/message broker  -->
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+		</dependency> -->
+
+		<!-- This I need to add because I want to use Apache Kafka as my event/message broker  -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
+		</dependency>
 <!-- Related to Unit testing if you are going to write unit testing logic-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -101,7 +107,7 @@
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v1</image>
+						<image>colince819/${project.artifactId}:v2</image>
 					</to>
 				</configuration>
 			</plugin>

@@ -16,9 +16,7 @@ spring:
           group: ${spring.application.name} # Suffix for queue name to ensure it is unique and prevent random generation of suffix values to our queue
         emailsms-out-0: # Output binding
           destination: communication-sent # The exchange name. With the help of this, messages/events/notifications from message ms' emailsms function will be sent to this exchange.
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    connection-timeout: 10s
+      kafka:
+        binder:
+          brokers: # If you have multiple kafka brokers running inside a cluster you can try to mention all of them as a list of elements under the 'brokers' element.
+            - localhost:9092
