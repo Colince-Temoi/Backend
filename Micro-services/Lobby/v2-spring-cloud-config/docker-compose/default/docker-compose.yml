@@ -1,4 +1,25 @@
 services:
+  kafka:
+    image: docker.io/bitnami/kafka:4.1
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   #  Since we are trying to use Keycloak inside our local system, we are trying to use the command 'start-dev' so that keycloak will leverage it's internal in-memory db
   #  We are also extending the service 'network-deploy-service' from the common-config.yml file which will make sure that our keycloak service starts in the same network, get_tt_right, where all the other services are going to start.
   keycloak:
@@ -331,7 +352,7 @@ services:
       service: 'microservice-base-config'
 
   accounts:
-    image: "colince819/accounts:v10"
+    image: "colince819/accounts:v11"
     container_name: accounts-ms
     healthcheck:
       test: 'curl --fail --silent http://localhost:8080/actuator/health/readiness | grep "UP" || exit 1'
@@ -351,6 +372,7 @@ services:
       OTEL_SERVICE_NAME: "accounts"
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
       SPRING_RABBITMQ_HOST: "rabbit"
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092" # This is also present in the application.yml file of accounts ms. The difference is, inside the application.yml file we mentioned the value, "localhost:9092", but here we need to mention what is the service name. In our case 'kafka' and it is available at the port 9092. Never forget this!, that's among the differences between running dependent services in a local environment and a higher environment like docker environment.
     extends:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
@@ -422,13 +444,14 @@ services:
       service: 'microservice-eureka-config'
 
   message:
-    image: "colince819/message:v1"
+    image: "colince819/message:v2"
     container_name: message-ms
     depends_on:
       rabbit:
         condition: service_healthy
     environment:
       SPRING_RABBITMQ_HOST: "rabbit" # This is the correct and MUST way because using this service name ONLY, the communication between the message and rabbit services is going to happen. Whereas other properties like RabbitMQ username, pwd, port number - no need to define them as I left them to be automatically the default values - If you needed the to customize or explicitly defined the to suit your requirements how you want, then you will have to define them explicitly. AI can help you define them. Whatever I have said in this comment to should be enough to connect the dots. This also applies to all the other services that we have defined in this docker-compose.yml file.
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092" # This is also present in the application.yml file of accounts ms. The difference is, inside the application.yml file we mentioned the value, "localhost:9092", but here we need to mention what is the service name. In our case 'kafka' and it is available at the port 9092. Never forget this!, that's among the differences between running dependent services in a local environment and a higher environment like docker environment.
     extends: # This service also we are trying to start in the same network where all other services are also going to start.
       file: common-config.yml
       service: network-deploy-service
@@ -460,6 +483,10 @@ services:
     extends:
       file: 'common-config.yml'
       service: 'microservice-eureka-config'
+
+volumes:
+  kafka_data:
+    driver: local
 
 networks:
   get_tt_right:
