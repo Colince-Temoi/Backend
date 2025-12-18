@@ -1,0 +1,6 @@
+dependencies:
+- name: getttrightbank-common
+  repository: file://../../getttrightbank-common
+  version: 0.1.0
+digest: sha256:d231b1f5f8c8d00a7fefd0c2640c2399fc13ec97a731db75604738c48a58ba5d
+generated: "2025-11-27T08:45:47.8925991+03:00"
