@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: colince819/eurekaserver
-  tag: v9
+  tag: v4
 
 containerPort: 8070
 

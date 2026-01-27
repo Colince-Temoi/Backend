@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: colince819/message
-  tag: v9
+  tag: v2
 
 containerPort: 9010
 

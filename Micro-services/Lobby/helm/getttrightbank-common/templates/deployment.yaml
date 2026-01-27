@@ -85,5 +85,26 @@ spec:
               name: {{ .Values.global.configMapName }}
               key: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
         {{- end }}
+        {{- if .Values.accounts_datasource_enabled }}
+        - name: SPRING_DATASOURCE_URL
+          valueFrom: 
+            configMapKeyRef:
+              name: {{ .Values.global.configMapName }}
+              key: ACCOUNTS_SPRING_DATASOURCE_URL
+        {{- end }}
+        {{- if .Values.loans_datasource_enabled }}
+        - name: SPRING_DATASOURCE_URL
+          valueFrom: 
+            configMapKeyRef:
+              name: {{ .Values.global.configMapName }}
+              key: LOANS_SPRING_DATASOURCE_URL
+        {{- end }}
+        {{- if .Values.cards_datasource_enabled }}
+        - name: SPRING_DATASOURCE_URL
+          valueFrom: 
+            configMapKeyRef:
+              name: {{ .Values.global.configMapName }}
+              key: CARDS_SPRING_DATASOURCE_URL
+        {{- end }}
         
 {{- end -}}

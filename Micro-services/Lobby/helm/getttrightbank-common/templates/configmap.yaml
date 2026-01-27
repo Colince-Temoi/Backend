@@ -13,4 +13,7 @@ data:
   OTEL_METRICS_EXPORTER: {{ .Values.global.otelMetricsExporter }}
   OTEL_LOGS_EXPORTER: {{ .Values.global.otelLogsExporter }}
   SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: {{ .Values.global.kafkaBrokerURL }}
+  ACCOUNTS_SPRING_DATASOURCE_URL: {{ .Values.global.accounts_spring_datasource_url }}
+  LOANS_SPRING_DATASOURCE_URL: {{ .Values.global.loans_spring_datasource_url }}
+  CARDS_SPRING_DATASOURCE_URL: {{ .Values.global.cards_spring_datasource_url }}
 {{- end -}}

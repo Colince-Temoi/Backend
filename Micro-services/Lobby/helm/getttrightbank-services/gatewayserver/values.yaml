@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: colince819/gatewayserver
-  tag: v9
+  tag: v5
 
 containerPort: 8072
 
