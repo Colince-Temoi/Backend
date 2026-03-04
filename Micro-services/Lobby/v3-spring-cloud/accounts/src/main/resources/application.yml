@@ -1,0 +1,132 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "accounts"
+  profiles:
+     active: "prod"
+#  datasource:
+#    url: jdbc:mysql://localhost:3307/accountsdb
+#    username: 'root'
+#    password: 'root'
+#  For the below datasource, h2 and jpa related mentions is for the In-mem DB. You can comment them out and un-comment the above when you want to use a real DB
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  sql:
+    init:
+      mode: always
+#  jpa:
+#    show-sql: true
+
+  config:
+    import: 'optional:configserver:http://localhost:8071'
+  rabbitmq:
+    host: 'localhost'
+    port: '5672'
+    username: 'guest'
+    password: 'guest'
+    connection-timeout: 10s
+
+  cloud:
+    kubernetes:
+      discovery:
+        all-namespaces: true
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    function:
+      definition: updateCommunication
+    stream:
+      default-binder: kafka
+      bindings:
+        updateCommunication-in-0:
+          destination: communication-sent # This is the queue name where my accounts ms is always going to look/check for message
+          group: ${spring.application.name} # Will be the suffix of the queue name. Defined so that our queue name is unique and will not have a randomly generated suffix value.
+        sendCommunication-out-0: # I have noted that here, you can prefix any name that is not necessarily the function name. But for the input binding you HAVE to!
+          destination: send-communication
+      kafka:
+        binder:
+          brokers: # If you have multiple kafka brokers running inside a cluster you can try to mention all of them as a list of elements under the 'brokers' element.
+            - localhost:9092
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+
+endpoints:
+  shutdown:
+    enabled: true
+
+info:
+  app:
+    name: "accounts"
+    description: "Eazy Bank Accounts SApplication"
+    version: "1.0.0"
+
+logging:
+  level:
+    com:
+      get_tt_right:
+        accounts: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+
+resilience4j.retry:
+  configs:
+    default:
+      maxAttempts: 3
+#      waitDuration: 100
+      waitDuration: 500  # To help us in the demo of circuit breaker timeout
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      ignore-exceptions:
+        - java.lang.NullPointerException
+      retry-exceptions:
+        - java.util.concurrent.TimeoutException
+
+resilience4j.ratelimiter:
+  configs:
+    default:
+      timeoutDuration: 1000
+      limitRefreshPeriod: 5000
+      limitForPeriod: 1

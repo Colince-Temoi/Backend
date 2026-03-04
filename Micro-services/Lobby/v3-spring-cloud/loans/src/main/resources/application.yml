@@ -1,0 +1,84 @@
+# Everything we copied from Accounts microservice except the port number.
+server:
+  port: 8090
+spring:
+  application:
+    name: "loans"
+#  datasource:
+#    url: jdbc:mysql://localhost:3309/loansdb
+#    username: 'root'
+#    password: 'root'
+#  For the below datasource, h2 and jpa related mentions is for the In-mem DB. You can comment them out and un-comment the above when you want to use a real DB
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  sql:
+    init:
+      mode: always
+#  jpa:
+#    show-sql: true
+  config:
+    import: "optional:configserver:http://localhost:8071"
+  profiles:
+    active:
+      - "qa"
+  rabbitmq:
+    host: 'localhost'
+    port: '5672'
+    username: 'guest'
+    password: 'guest'
+  cloud:
+    kubernetes:
+      discovery:
+        all-namespaces: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+endpoints:
+  shutdown:
+    enabled: true
+
+info:
+  app:
+    name: "loans"
+    description: "Eazy Bank Loans SApplication"
+    version: "1.0.0"
+
+logging:
+  level:
+    com:
+      get_tt_right:
+        loans: "DEBUG"
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

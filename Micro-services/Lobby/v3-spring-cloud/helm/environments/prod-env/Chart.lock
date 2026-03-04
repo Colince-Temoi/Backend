@@ -1,0 +1,24 @@
+dependencies:
+- name: getttrightbank-common
+  repository: file://../../getttrightbank-common
+  version: 0.1.0
+- name: configserver
+  repository: file://../../getttrightbank-services/configserver
+  version: 0.1.0
+- name: accounts
+  repository: file://../../getttrightbank-services/accounts
+  version: 0.1.0
+- name: cards
+  repository: file://../../getttrightbank-services/cards
+  version: 0.1.0
+- name: loans
+  repository: file://../../getttrightbank-services/loans
+  version: 0.1.0
+- name: gatewayserver
+  repository: file://../../getttrightbank-services/gatewayserver
+  version: 0.1.0
+- name: message
+  repository: file://../../getttrightbank-services/message
+  version: 0.1.0
+digest: sha256:55ad8a4ba714391bd1019070ea439dfc22767b2f63a214a00de9621618a9040a
+generated: "2026-02-06T08:59:03.8408796+03:00"

@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    #active: native
+    active: git
+  cloud:
+    config:
+      server:
+#        native:
+#          searchLocations: "file:///C://Users//pc//Documents//config"
+        git:
+          uri: "https://github.com/Colince-Temoi/configs.git"
+server:
+  port: 8071
+
+  rabbitmq:
+    host: 'localhost'
+    port: '5672'
+    username: 'guest'
+    password: 'guest'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    com:
+      get_tt_right:
+        configserver: "DEBUG"
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+encrypt:
+  key: "45D81EC1EF61DF9AD8D3E5BB397F9"
