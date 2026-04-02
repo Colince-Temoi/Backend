@@ -1,7 +1,7 @@
 package com.get_tt_right.loans.controller;
 
+import com.get_tt_right.common.dto.ErrorResponseDto;
 import com.get_tt_right.loans.constants.LoansConstants;
-import com.get_tt_right.loans.dto.ErrorResponseDto;
 import com.get_tt_right.loans.dto.LoansContactInfoDto;
 import com.get_tt_right.loans.dto.LoansDto;
 import com.get_tt_right.loans.dto.ResponseDto;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

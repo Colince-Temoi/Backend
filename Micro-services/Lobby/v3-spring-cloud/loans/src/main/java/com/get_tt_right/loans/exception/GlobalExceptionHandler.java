@@ -1,6 +1,6 @@
 package com.get_tt_right.loans.exception;
 
-import com.get_tt_right.loans.dto.ErrorResponseDto;
+import com.get_tt_right.common.dto.ErrorResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

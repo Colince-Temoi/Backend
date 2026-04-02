@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: colince819/loans
-  tag: v11
+  tag: final
 
 containerPort: 8090
 

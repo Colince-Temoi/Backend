@@ -1,8 +1,8 @@
 package com.get_tt_right.accounts.controller;
 
 import com.get_tt_right.accounts.dto.CustomerDetailsDto;
-import com.get_tt_right.accounts.dto.ErrorResponseDto;
 import com.get_tt_right.accounts.service.ICustomerService;
+import com.get_tt_right.common.dto.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.get_tt_right</groupId>
+	<artifactId>getttright-bom</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>getttright-bom</name>
+	<description>Common BOM for getttrightbank microservices</description>
+	<packaging>pom</packaging> <!-- Required in order to use the BOM feature -->
+	<url>www.getttright.com</url> <!-- Here, I have mentioned my website -->
+	<licenses> <!-- Here, I have mentioned license information-->
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<developers> <!-- Here, I have mentioned list of developer information/details-->
+		<developer>
+			<name>Colince Temoi</name>
+			<email>tutor@gettttright.com</email>
+			<organization>getttright</organization>
+			<organizationUrl>www.getttright.com</organizationUrl>
+		</developer>
+	</developers>
+	<scm> <!-- Here, I have mentioned SCM/GitHub repo details-->
+		<url>https://github.com/Colince-Temoi/Backend/tree/main/Micro-services/Lobby/v3-spring-cloud</url>
+	</scm>
+
+	<!-- Each of these properties we are going to leverage inside our ms's. All of these properties are self-explanatory.
+	 The important thing I want to highlight here is - if you are trying to use any of the 3rd party libraries i.e.,spring doc or h2 db or lombok or open telemetry or micrometer, etc These are all the 3rd party libraries which we are trying to use outside the Spring Boot ecosystem.
+	 For all these kind of 3rd party libraries, please make sure you mention the EXACT! version that you want to use. Of course even if you don't mention these version numbers our ms's they are still going to work because the Spring Boot starter dependencies, they are capable of adopting the latest version of these 3rd party libraries.
+	 But we should never do that,we should always tyr to have control on the versions of these 3rd party libraries. So, to have that control, we need to make sure we are mentioning the EXACT! version that we want to use.
+	 So, below are all the properties that are required by our ms's.
+	 -->
+	<properties>
+		<common-lib.version>1.0.0</common-lib.version>
+		<spring-boot.version>4.0.5</spring-boot.version>
+		<java.version>21</java.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<spring-cloud.version>2025.1.0</spring-cloud.version>
+		<spring-doc.version>2.8.14</spring-doc.version>
+		<h2.version>2.3.232</h2.version>
+		<lombok.version>1.18.42</lombok.version>
+		<otel.version>2.22.0</otel.version>
+		<micrometer.version>1.16.0</micrometer.version>
+		<jib.version>3.5.1</jib.version>
+		<image.tag>final</image.tag>
+	</properties>
+
+	<modules>
+		<module>common</module> <!--Here, common is my submodule name and that's why I am trying to mention the same here. Now my parent pom is aware of this submodule that I have created. Btw if you ctrl + click on this submodule name in the module tag, you can be able to navigate to the common submodule pom.xml. hahaha! -->
+	</modules>
+
+	<!--Define all common dependencies that you want imported to your child ms's here-->
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<!--Dependencies defined here will not be imported to our child ms's - They are only primarily for version mgt-->
+	<dependencyManagement>
+		<dependencies>
+			<!--The very first dependency here is related to the SpringBoot dependencies
+                SpringBoot framework has a BOM file using which we can try to import all the springboot related dependencies inside our individual ms's.
+                So here, what we are trying to do is - we are trying to import the BOM file of SpringBoot dependencies with the specified version.
+                Like we said, these dependencies that we are defining under the dependency management i.e., spring-boot-dependencies, is going to help all my child ms's to get the spring boot dependencies with so-and-so version number.
+            -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version> <!-- This version we have defined in our properties and the same we are trying to refer to with this syntax -->
+				<type>pom</type> <!-- So, under each of the dependencies we have to mention this type as pom and the scope as import -->
+				<scope>import</scope>
+			</dependency>
+			<!--Next we have added the dependencies related to the 3rd party libraries i.e., lombok, h2 db, spring doc, etc.
+                Lombok is a 3rd party library which is from the outside of the Spring Boot ecosystem and thats's why we are adding such dependencies separately. So, for all these kind of 3rd party libraries, please make sure you mention the EXACT! version that you want to use.
+            -->
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- It is going to help us to document our ms's by using OpenAPI specifications and Swagger.-->
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+				<version>${spring-doc.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!--We are not trying to import this as a pom because this dependency does not support pom style of importing.
+                The reason is under spring-boot-starter-test, we don't have much of the libraries and dependencies. It is a small library which supports unit testing inside the spring boot projects.
+                That's why we have added this dependency as a normal dependency.
+            -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring-boot.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<!--Here we are trying to define the spring cloud related dependencies. Since under spring cloud we have various subprojects like Eureka, ConfigServer, etc. All such subprojects since we are looking to use them inside our individual ms's, that's why I need to import this entire spring cloud related BOM file by mentioning the type as pom and the scope as import.-->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<!--After defining all the above dependencies under the dependency mgt tag, we don't have to make any changes under the build tag
+		You should now be crisp clear on what we have done so far.
+	-->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

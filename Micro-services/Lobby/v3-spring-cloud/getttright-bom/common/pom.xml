@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!--First get rid of this spring boot parent and instead mention getttright-bom as the parent so that this submodule also refers to the same parent bom file-->
+    <!--<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.5</version>
+        <relativePath/>
+    </parent>-->
+    <parent>
+        <groupId>com.get_tt_right</groupId>
+        <artifactId>getttright-bom</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>com.get_tt_right</groupId>
+    <artifactId>common</artifactId>
+    <!--Under the version, you can see that below is the default version that I got from the spring boot generated.
+    Instead, as a best practice what we can do is we can try to create a property inside the parent BOM file i.e., "common-lib.version" and to this I am giving a version number as 1.0.0
+    Now instead of using this hard coded value, we will try to reference the property common-lib.version that we have defined in the parent pom.
+    -->
+   <!-- <version>0.0.1-SNAPSHOT</version>-->
+    <!--The common module's own pom.xml has ${common-lib.version} as its version tag, and Maven cannot resolve a property for its own module's version during install. It's a Maven limitation — a module cannot use a property to define its own <version>
+    Fix: Hardcode the Version in common/pom.xml.
+    Going Forward
+Whenever you bump/update the common library version, update it in two places:
+     1. common/pom.xml → <version>1.0.1</version>
+     2. BOM parent pom.xml → <common-lib.version>1.0.1</common-lib.version>
+    -->
+    <!--<version>${common-lib.version</version> -->
+    <version>1.0.0</version>
+    <name>common</name>
+    <description>common project for getttrightbank microservices</description> <!--Here mention a suitable description just to look more professional-->
+    <!--Remove the properties details below-->
+    <!--<properties>
+        <java.version>21</java.version>
+    </properties>-->
+    <!--Under the dependencies we have starter web as well as lombok. Since lombok is a 3rd party library refer the version based upon the value that we have defined inside the parent pom.xml
+    And since the Spring boot starter test is already available inside the parent pom.xml we can safely remove it. Apart from the lombok we need to add one more dependency which is related to the spring doc since inside my DTO classes I have annotations related to the open api.
+    That's why I need to add that dependency inside my pom.xml of common module.
+     -->
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <version>${lombok.version}</version>
+        </dependency>
+       <!-- <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${spring-doc.version}</version>
+        </dependency>
+    </dependencies>
+<!--At last, we can get rid of all the below build related configurations because they are already present inside the parent pom.xml-->
+   <!-- <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>-->
+
+</project>

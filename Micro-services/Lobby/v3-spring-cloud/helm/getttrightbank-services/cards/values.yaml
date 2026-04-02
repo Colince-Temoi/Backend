@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: colince819/cards
-  tag: v11
+  tag: final
 
 containerPort: 9000
 

@@ -10,7 +10,7 @@ replicaCount: 2
 
 image:
   repository: colince819/accounts
-  tag: v13
+  tag: final
 
 containerPort: 8080
 

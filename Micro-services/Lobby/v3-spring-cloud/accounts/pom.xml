@@ -2,38 +2,60 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<!--
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
+	</parent> -->
+    <!--Below we are pasting the parent details which are going to have getttright-bom detail
+    As can be seen I have mentioned the artifactId as getttright-bom which is same as the artifactId property value that we have mentioned inside the pom.xml of getttright-bom project.
+    Same drill also for groupId. Like this the same groupId and artifactId we have to mention inside the accounts pom.xml.
+    version also, you need to mention the same version that you have defined inside your getttright-bom pom.xml.
+    Coming to the relativePath - you need to mention what is the relative path to the bom file that we have created. Like this you can see it is present inside the getttright-bom project with the name as pom.xml. Since it is present outside of this accounts ms we need to mention the two dots and backward slash i.e., ../ to indicate one step outside the parent folder in this case v3-spring-cloud.
+    and now under the v3-spring-cloud we have a project/folder getttright-bom followed by the file name which is pom.xml. Okay without mentioning this relative path, inside your local system it may work because your ide will do all the magic work for you but if you try to use some CI/CD tools inside your ms's deployments, then definitely those tools will need the exact location of your pom.xml file.
+    That's why it is mandatory to mention this relative path as well.
+    -->
+	<parent>
+		<groupId>com.get_tt_right</groupId>
+		<artifactId>getttright-bom</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../getttright-bom/pom.xml</relativePath>
 	</parent>
 
+	<!--
+	Coming to the groupId, artifactId, version, packaging, name and description - we don't have to change anything because these are specific to the accounts ms.
+	-->
 	<groupId>com.get_tt_right</groupId>
 	<artifactId>accounts</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>accounts</name>
 	<description>Microservice for Accounts</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
-	<properties>
+	<!--Next, we don't have to define the properties tag and its related child tags inside the individual ms's because we already defined them inside the parent bom file i.e., getttright-bom pom.xml-->
+	<!--<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<otelVersion>2.17.0</otelVersion>
-	</properties>
+	</properties>-->
+
+	<!--Under the dependencies, my ms already defined a list of dependencies that it requires. Like it needs actuator, opentelemetry related dependency, micrometer related dependency, data jpa, starter validation, starter web, etc.
+	 So, all these dependencies no need to touch on them as they are already defined. But the beauty her is - in future whenever you are looking for an option to change the Spring Boot version, you don't have to change anything inside the accounts ms.
+	 You just have to go to the pom.xml file of getttright-bom and under the properties definition for the spring-boot.version you can easily change the value. The same applies for other properties i.e., java.version, maven.compiler.source, maven.compiler.target, spring-cloud.version, etc.
+	 Like this, for all the dependencies - the control of the version number will always be in the getttright-bom pom.xml but not in the individual ms's.
+	 Now, you may have a question like - why is my accounts ms need to define all the individual dependencies i.e., starter actuator, starter data jpa, starter validation, starter web, etc.? Coz mahn! I mean - we already imported all the entire spring boot related dependencies under the dependency mgt definition of getttright-bom. That is a great and valid question.
+	 To clarify this - Here in the accounts ms pom.xml file you will be able to observe that the accounts ms need only a set of dependencies from the spring boot library. There are 100's of libraries/dependencies inside the Spring boot, therefore my accounts ms doesn't need all of them. It only needs 4-5 dependencies and that's why spring boot bom it will not try to give all the dependencies to the child ms's. Instead, the child ms, has to let the parent bom know of which specific spring boot dependencies it wants to use so that the same dependencies related libraries will be downloaded under this accounts ms.
+	 Hope you are clear. For any spring boot dependencies related libraries, we don't have to mention the version number specifically because we already mentioned the spring boot version inside the parent pom file. Now, coming to the telemetry, micrometer related dependencies - since these are 3rd party libraries it is recommended to mention the specific version that you want to use so that it is going to give control to you in the future. Instead of you relying on the spring boot to choose one of the latest dependencies. You as a developer you are going to have control on which version of the 3rd party library you want to use.
+	 -->
 	<dependencies>
+
+		<dependency>
+			<groupId>com.get_tt_right</groupId>
+			<artifactId>common</artifactId>
+			<version>${common-lib.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -42,7 +64,7 @@
 		<dependency>
 			<groupId>io.opentelemetry.javaagent</groupId>
 			<artifactId>opentelemetry-javaagent</artifactId>
-			<version>${otelVersion}</version> <!--Trying to refer to the otel version variable that we defined above inside the properties parent element-->
+			<version>${otel.version}</version> <!--Trying to refer to the otel version variable that we defined above inside the properties of parent pom.xml-->
 			<scope>runtime</scope> <!--This is a runtime dependency  which means during compilation we don't need this dependency, only when we are trying to run our application, at runtime only I want this library to be utilized.-->
 		</dependency>
 <!--		By simply adding this dependency,we are telling to the micrometer to expose the actuator metrics in a format that my prometheus can understand.
@@ -51,6 +73,7 @@
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${micrometer.version}</version> <!--Here also we are trying to mention the version with the property defined inside the parent pom file-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -68,6 +91,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!--
+		Now, below we have spring cloud related dependencies. For Spring Cloud also, we have imported the bom file under the dependencies mgt section of getttright-bom project's pom.xml
+		Since Spring cloud also is going to have lot many subprojects and dependencies, by default all those dependencies will not be imported into the child project/ms. Instead the child ms needs to define which specific dependencies of spring cloud it wants to use.
+		Here we are trying to use/define - config, amqp, k8s discovery client, resilince4j, openfeign, stream and kafka related spring cloud dependencies.
+		-->
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -106,15 +135,19 @@
 <!--			<artifactId>mysql-connector-j</artifactId>-->
 <!--			<scope>runtime</scope>-->
 <!--		</dependency>-->
+		<!--Coming to the h2 db since it is a 3rd party dependency, we have to mention the version details like we had earlier own discussed regarding 3rd party libraries.-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
+			<version>${h2.version}</version>
 		</dependency>
+		<!--The same applies to the lombok also. I will try to mention the version number as it is a 3rd party lib-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+			<version>${lombok.version}</version>
 		</dependency>
 <!--Behind the scenes it is going to scan all your REST APIs and prepare the documentation based upon the OpenAPI specification
 It is also going to provide you a swagger UI using which anyone can understand your REST APIs, the details of your REST APIs, and the validations that you have enforced and everything.
@@ -123,10 +156,12 @@ For some reason if you are building your application with an older version of Sp
 If you run your application and open the path /swagger-ui.html, you will see the swagger UI. Magic! ha-ha!
 This is a beautiful documentation about the REST APIs that you have built.
 -->
+		<!--Under the springdoc also, under each of our ms's we have hardcoded the version number. Get rid of the hardcoded value and instead  mention the property name which is defined inside the parent pom file-->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.6.0</version>
+			<!--<version>2.6.0</version>-->
+			<version>${spring-doc.version}</version>
 		</dependency>
 
 		<!-- This is the main dependency whenever you want to enable Spring Cloud Stream inside your ms. -->
@@ -146,11 +181,12 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency>-->
+
 		<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
@@ -158,8 +194,8 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
+<!--Under the dependency mgt we were currently trying to import the spring cloud bom file. We no more need this section now as we are already doing this inside the parent bom file-->
+	<!--<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -169,8 +205,12 @@ This is a beautiful documentation about the REST APIs that you have built.
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
+	</dependencyManagement> -->
 
+	<!--Next if you try to observe under the build we are trying to refer to a jib version which as of now were hardcoding it inside each of the ms's
+	What we can do now is to refer to the property defined inside our parent pom which is jib.version. Also under the image name we are also trying to hardcode this v13 or whatever image tag in all the individual ms's.
+	Instead, since our requirement is to maintain it in a single place, and we have defined this in the parent pom properties, we can refer to that. For the less changing ms's like config server, eureka server, you can just hard code this image tag.
+	-->
 	<build>
 		<plugins>
 
@@ -178,10 +218,12 @@ This is a beautiful documentation about the REST APIs that you have built.
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.4.4</version>
+				<!--<version>3.4.4</version>-->
+				<version>${jib.version}</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v13</image>
+						<!--<image>colince819/${project.artifactId}:v13</image>-->
+						<image>colince819/${project.artifactId}:${image.tag}</image>
 					</to>
 				</configuration>
 			</plugin>

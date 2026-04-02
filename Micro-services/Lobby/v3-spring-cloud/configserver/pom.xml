@@ -2,35 +2,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
+	<!--<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
+	</parent>-->
+	<parent>
+		<groupId>com.get_tt_right</groupId>
+		<artifactId>getttright-bom</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../getttright-bom/pom.xml</relativePath>
 	</parent>
 	<groupId>com.get_tt_right</groupId>
 	<artifactId>configserver</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>configserver</name>
 	<description>Config Server for EazyBank microservices</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
-	<properties>
+
+	<!--<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<otelVersion>2.17.0</otelVersion>
-	</properties>
+	</properties>-->
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -40,7 +34,7 @@
 		<dependency>
 			<groupId>io.opentelemetry.javaagent</groupId>
 			<artifactId>opentelemetry-javaagent</artifactId>
-			<version>${otelVersion}</version> <!--Trying to refer to the otel version variable that we defined above inside the properties parent element-->
+			<version>${otel.version}</version> <!--Trying to refer to the otel version variable that we defined inside the properties parent pom element-->
 			<scope>runtime</scope> <!--This is a runtime dependency  which means during compilation we don't need this dependency, only when we are trying to run our application, at runtime only I want this library to be utilized.-->
 		</dependency>
 
@@ -50,6 +44,7 @@
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>${micrometer.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -68,12 +63,13 @@
 			<artifactId>spring-cloud-config-monitor</artifactId>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency>-->
 	</dependencies>
+	<!--
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -84,7 +80,7 @@
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
+	</dependencyManagement> -->
 
 	<build>
 		<plugins>
@@ -92,10 +88,11 @@
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.4.4</version>
+				<!--<version>3.4.4</version>-->
+				<version>${jib.version}</version>
 				<configuration>
 					<to>
-						<image>colince819/${project.artifactId}:v4</image>
+						<image>colince819/${project.artifactId}:${image.tag}</image>
 					</to>
 				</configuration>
 			</plugin>
