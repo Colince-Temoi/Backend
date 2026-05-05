@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.get_tt_right</groupId>
+    <artifactId>getttright-bom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>getttright-bom</name>
+    <description>Common BOM for getttrightbank microservices</description>
+    <packaging>pom</packaging> <!--Whenever you want to use a particular maven project as a BOM, then you need to define/mention the packaging as pom-->
+    <url>www.getttright.com</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Colince Temoi</name>
+            <email>tutor@gettttright.com</email>
+            <organization>gettttright</organization>
+            <organizationUrl>www.getttright.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/Colince-Temoi/Backend/tree/main/Event-driven-microservices/00_start/</url>
+    </scm>
+<!--    Here we have declared so many properties as can be seen below
+This is the centralized place where we are going to maintain the version details of all the libraries that we are going to use inside our ms's environment.
+This gives the developers the flexibility to change the version numbers only in one place in case if they want to upgrade or downgrade a particular library or framework.
+-->
+    <properties>
+        <common-lib.version>1.0.0</common-lib.version>
+        <spring-boot.version>3.3.4</spring-boot.version>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <h2.version>2.2.224</h2.version>
+        <lombok.version>1.18.34</lombok.version>
+    </properties>
+<!--    Next, we have the modules section.
+We have a common module. If you ctrl + click the module value i.e., common, you will be able to see the pom.xml file of the common module. You can find the docstring there of what it contains.
+Inside the common module we are going to maintain all the source code that is common for all the ms's.
+For example as you can see, under this common project we have a single Java class with the name ErrorResponseDto - this we are going to leverage in all our ms's whenever we want to send an error response to our client application.
+This kind of common code we can keep/maintain inside this common module. And btw this common module is a submodule under this getttright-bom project.
+Very similarly you can maintain many other submodules under this getttright-bom project which can carry various common logic around for example; auditing, logging, etc. So, its up to you based upon your business requirements, you can create any number of submodules under this getttright-bom project.
+-->
+    <modules>
+        <module>common</module>
+    </modules>
+<!--    Next we have the dependencies section
+Here, I have mentioned the devtools and  spring boot starter test dependencies.
+These are the 2 dependencies which are common for all my ms's and supporting components inside my project set up.
+Any dependency which is common for all your ms's and supporting components i.e.m gatewayserver, ..etc. You can keep them under this dependencies section so that you don't have to repeat them in every ms's pom.xml
+-->
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+<!--    Under the dependency mgt section, we have defined many other dependencies as shown below -->
+    <dependencyManagement>
+        <dependencies>
+<!--            What this dependency is going to do is, it is going to download the BOM file of Spring Boot framework with the specified version.
+If you ctrl + click on the artifactId value i.e., spring-boot-dependencies, you will be able to see the BOM file of the Spring Boot framework with the specified version. Inside that BOM file also, you will be able to see that the spring team have defined/mentioned so many libraries as can be seen in the properties section version details.
+Along with the version details, under the dependency mgt, there are many dependencies defined. So,we are trying to bring all these dependency details into our BOM file by using this dependencyManagement section.
+With this set up, my BOM file will have metadata information about all the dependencies supported by the Spring Boot framework. My individual ms's, whatever spring boot dependency that they want to use, they can define such dependency details in their respective pom.xml file - This we will visualize in a few.
+-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type> <!--Type is pom-->
+                <scope>import</scope> <!--Scope is import-->
+            </dependency>
+<!--            Next we have lombok and h2 dependencies defined. Reason: They are outside the Spring Boot ecosystem and therefore we need to define these dependency details along with their respective versions, type as pom and scope as import
+These are nothing but 3rd party libraries/dependencies.
+-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+<!--            Next I am trying to mention the dependency related to the Spring Boot starter test which is going to help us to write unit tests and integration tests-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+<!--            Next I have mentioned the dependency details related to the Spring Cloud framework. Spring Cloud just like Spring Boot also has many subprojects. So all those subprojects and dependency details we are trying to import into our BOM so that our individual ms's they can declare/define and use them in their respective pom.xml files as needed.  -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+<!--After the dependency mgt section we have the below plugin details under the build section-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

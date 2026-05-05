@@ -1,0 +1,15 @@
+package com.get_tt_right.accounts.repository;
+
+import com.get_tt_right.accounts.entity.Accounts;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+/** This is the repository which is going to help us to to perform the CRUD operations on top of the accounts table.
+ * */
+@Repository
+public interface AccountsRepository extends JpaRepository<Accounts, Long> {
+
+    Optional<Accounts> findByMobileNumberAndActiveSw(String mobileNumber, boolean active);
+
+}

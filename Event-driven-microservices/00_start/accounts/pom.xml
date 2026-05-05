@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+<!--    Like this here the parent is getttright-bom with the given specified relative path
+After defining this parent, under the dependencies section, my accounts ms has to define all the dependencies that it requires for its business logic - check that out below.
+-->
+    <parent>
+        <groupId>com.get_tt_right</groupId>
+        <artifactId>getttright-bom</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../getttright-bom/pom.xml</relativePath>
+    </parent>
+    <groupId>com.get_tt_right</groupId>
+    <artifactId>accounts</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>accounts</name>
+    <description>Microservice for Accounts</description>
+
+<!--    My accounts ms here has defined many spring boot related libraries like starter-data-jpa, starter-validation, starter-web  also spring cloud related libraries i.e., spring-cloud-starter-netflix-eureka-client also we have 3rd party related libraries i.e., h2 db, lombok
+By mentioning all these dependency details, my accounts ms will only download the jars and libraries related to these dependencies but not any other dependencies that we have under the spring boot or even spring cloud ecosystem.
+Similarly, we are also trying to refer the common module because it is also a library - our custom library. And that's why we are trying to define it as a dependency using artifactId as common and the version details we are trying to mention/refer to what we have inside the getttright-bom/pom.xml bom file.
+For the spring boot and spring cloud libraries you don't have to define the version, but coming to the 3rd party related libraries i.e., h2 db, lombok you have to specifically define/mention the version - it's a good practice. Like this you are going to have the flexibility in case if you want to avoid upgrading your 3rd party libraries but only the spring boot and spring cloud libraries you want to upgrade. Like this in such cases this beast practice is going to help you because you are trying to use the 3rd party libraries with a specific version.
+-->
+    <dependencies>
+        <dependency>
+            <groupId>com.get_tt_right</groupId>
+            <artifactId>common</artifactId>
+            <version>${common-lib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+            <version>${h2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <version>${lombok.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>
