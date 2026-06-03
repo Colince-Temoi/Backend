@@ -26,7 +26,7 @@ public class CustomerMapper {
         return customer;
     }
     /** Since we are giving the flexibility to the end user to update only the name and email as part of the update operation, we need to populate/map only these 2 fields - hope you can recall this from the CustomerAggregate class update related logic.
-     * At last we need to return the updated customer object.
+     * 
      * */
 
     public static Customer mapEventToCustomer(CustomerUpdatedEvent customerUpdatedEvent, Customer customer) {

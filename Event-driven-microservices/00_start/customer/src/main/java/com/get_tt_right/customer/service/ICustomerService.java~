@@ -1,5 +1,6 @@
 package com.get_tt_right.customer.service;
 
+import com.get_tt_right.customer.command.event.CustomerDeletedEvent;
 import com.get_tt_right.customer.command.event.CustomerUpdatedEvent;
 import com.get_tt_right.customer.dto.CustomerDto;
 import com.get_tt_right.customer.entity.Customer;
@@ -41,7 +42,12 @@ public interface ICustomerService {
     /** Previous Signature
      * @param customerId - Input Customer ID
      * @return boolean indicating if the delete of Customer details is successful or not
-*/
-    boolean deleteCustomer(String customerId);
 
+    boolean deleteCustomer(String customerId);
+*/
+    /** New Signature
+     * @param customerDeletedEvent - CustomerDeletedEvent object
+     * @return boolean indicating if the delete of Customer details is successful or not
+     */
+    boolean deleteCustomer(CustomerDeletedEvent customerDeletedEvent);
 }

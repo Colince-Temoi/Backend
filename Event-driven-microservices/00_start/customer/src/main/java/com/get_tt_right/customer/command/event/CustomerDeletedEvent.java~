@@ -1,0 +1,11 @@
+package com.get_tt_right.customer.command.event;
+
+import lombok.Data;
+
+/** NOUN+VERB(PastTense)+Event
+ * */
+@Data
+public class CustomerDeletedEvent {
+    private String customerId;
+    private boolean activeSw;
+}

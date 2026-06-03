@@ -1,0 +1,22 @@
+package com.get_tt_right.customer.command;
+
+import lombok.Builder;
+import lombok.Data;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+/**
+ *  activeSw - This is a field which we are going to use to indicate whether a given customer is right now active or soft deleted. From the end-user perspective whenever an end user the create API, s/he is going to provide only the name, mobile and email. The other 2 fields in this class i.e., activeSw and customerId we are going to populate inside our logic.
+ *  By the time the end user is invoking the create API , we are going to trigger this CreateCustomerCommand so that the axon framework can process this CreateCustomerCommand and save the data inside the write DB.
+ *  On top of this class we are going to mention a couple of Lombok annotations.
+ *  Now, here, on top of the customerId field, we need to mention an axon related annotation which is @TargetAggregateIdentifier. This annotation is very similar to the @Id annotation which we have inside the Spring Data JPA project. Just like how we are going to communicate the PK  column to the Spring Data JPA with the help of @Id annotation, very similarly by using this annotation, we are telling to the axon framework that please always use this customerId field as a PK/Unique value to associate to a customer record that we are going to store inside the DB. More details about this annotation we will discuss in the coming sessions when we are visualizing the demo.
+ * */
+@Data // This annotation purpose you already know - it is going to generate a lot of code related to getters, setters, constructor, toString etc. You can Ctl + Click on this annotation to see the docstring on the work it is going to do for you
+@Builder // This is going to allow you to create the object of this class using the builder pattern or with the help of build methods. In the coming sessions we will create the object of this class using the build method, and it is at that time that your ware going to understand the purpose on why we have added this annotation on top of this class.
+public class CreateCustomerCommand {
+    @TargetAggregateIdentifier
+    private final String customerId;
+    private final String name;
+    private final String email;
+    private final String mobileNumber;
+    private final boolean activeSw;
+}

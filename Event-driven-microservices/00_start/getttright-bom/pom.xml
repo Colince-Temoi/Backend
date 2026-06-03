@@ -39,6 +39,7 @@ This gives the developers the flexibility to change the version numbers only in 
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <h2.version>2.2.224</h2.version>
         <lombok.version>1.18.34</lombok.version>
+        <axon.version>4.10.1</axon.version>
     </properties>
 <!--    Next, we have the modules section.
 We have a common module. If you ctrl + click the module value i.e., common, you will be able to see the pom.xml file of the common module. You can find the docstring there of what it contains.
@@ -112,6 +113,14 @@ These are nothing but 3rd party libraries/dependencies.
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.axonframework</groupId>
+                <artifactId>axon-bom</artifactId>
+                <version>${axon.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

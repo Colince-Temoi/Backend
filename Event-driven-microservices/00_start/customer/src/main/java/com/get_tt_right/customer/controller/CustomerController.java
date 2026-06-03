@@ -24,6 +24,7 @@ public class CustomerController {
         this.iCustomerService = iCustomerService;
     }
 
+    /*
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createCustomer(@Valid @RequestBody CustomerDto customerDto) {
         customerDto.setCustomerId(UUID.randomUUID().toString());
@@ -32,7 +33,9 @@ public class CustomerController {
                 .status(org.springframework.http.HttpStatus.CREATED)
                 .body(new ResponseDto(CustomerConstants.STATUS_201, CustomerConstants.MESSAGE_201));
     }
+    */
 
+    /*
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchCustomerDetails(@RequestParam("mobileNumber")
     @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
@@ -40,7 +43,8 @@ public class CustomerController {
         CustomerDto fetchedCustomer = iCustomerService.fetchCustomer(mobileNumber);
         return ResponseEntity.status(org.springframework.http.HttpStatus.OK).body(fetchedCustomer);
     }
-
+    */
+/*
     @PutMapping("/update")
     public ResponseEntity<ResponseDto> updateCustomerDetails(@Valid @RequestBody CustomerDto customerDto) {
         boolean isUpdated = iCustomerService.updateCustomer(customerDto);
@@ -55,6 +59,9 @@ public class CustomerController {
                             CustomerConstants.MESSAGE_500_UPDATE));
         }
     }
+    */
+
+    /*
 
     @PatchMapping("/delete")
     public ResponseEntity<ResponseDto> deleteCustomer(@RequestParam("customerId")
@@ -73,5 +80,7 @@ public class CustomerController {
                             CustomerConstants.MESSAGE_500_DELETE));
         }
     }
+    */
+
 
 }

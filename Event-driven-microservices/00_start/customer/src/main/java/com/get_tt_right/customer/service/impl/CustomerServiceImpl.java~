@@ -90,7 +90,7 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     /** We already have enough logic related to the Customer Deletion, so we will use the same - no DML here.
-     * First we are trying to fetch the customer from the DB using the given customerId. If no such customer, we are going to throw this ResourceNotFoundException. If available, we are going to set the activeSw to IN_ACTIVE_SW and save it into the DB.
+     * First we are trying to fetch the customer from the DB using the given customerId. If available, we are going to set the activeSw to IN_ACTIVE_SW and save it into the DB.
      * */
     @Override
     public boolean deleteCustomer(String customerId) {

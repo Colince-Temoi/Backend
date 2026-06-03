@@ -1,0 +1,17 @@
+package com.get_tt_right.customer.command;
+
+import lombok.Builder;
+import lombok.Data;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+/**
+ * During the delete operation we are only going to expect the customerId from the end user when they are invoking the delete REST API.
+ * The activeSw related field is not going to be provided by the end user but we are going to populate it to false inside our logic. That's why I am trying to mention this field as 
+ * */
+@Data
+@Builder
+public class DeleteCustomerCommand {
+    @TargetAggregateIdentifier
+    private final String customerId;
+    private final boolean activeSw;
+}

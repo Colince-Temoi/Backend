@@ -57,6 +57,10 @@ For the spring boot and spring cloud libraries you don't have to define the vers
             <optional>true</optional>
             <version>${lombok.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+        </dependency>
     </dependencies>
 
 
