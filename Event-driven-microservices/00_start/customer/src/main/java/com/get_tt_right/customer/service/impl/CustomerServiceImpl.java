@@ -1,5 +1,6 @@
 package com.get_tt_right.customer.service.impl;
 
+import com.get_tt_right.common.event.CustomerDataChangedEvent;
 import com.get_tt_right.customer.command.event.CustomerUpdatedEvent;
 import com.get_tt_right.customer.constants.CustomerConstants;
 import com.get_tt_right.customer.dto.CustomerDto;
@@ -10,6 +11,7 @@ import com.get_tt_right.customer.mapper.CustomerMapper;
 import com.get_tt_right.customer.repository.CustomerRepository;
 import com.get_tt_right.customer.service.ICustomerService;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class CustomerServiceImpl implements ICustomerService {
 
     private CustomerRepository customerRepository;
+    private EventGateway eventGateway;
 
     /* Previous implementation
     @Override
@@ -91,6 +94,13 @@ public class CustomerServiceImpl implements ICustomerService {
 
     /** We already have enough logic related to the Customer Deletion, so we will use the same - no DML here.
      * First we are trying to fetch the customer from the DB using the given customerId. If no such customer, we are going to throw this ResourceNotFoundException. If available, we are going to set the activeSw to IN_ACTIVE_SW and save it into the DB.
+     *
+     * Materialized View Pattern Impl for Customer Deletion
+     * ------------------------------------------------------
+     * Since the DeleteCustomerCommand object didn't have the mobile number, we couldn't dispatch the CustomerDataChanged event right away from the CustomerAggregate handler method for the DeleteCustomerCommand. That's why we are going to dispatch the event from the CustomerServiceImpl class. And here we are trying to leverage the EventGateway object to publish/dispatch the event.
+     * To publish the event 1st we need the event object. So, create the CustomerDataChangedEvent object. Once this object is created, inside that object I am going to populate the mobile number by invoking the set mobile number method. From where are we going to get that mobile number - from the customer entity object that is loaded from the DB using the customer id provided.
+     * Very similarly, you need to populate the active SW by invoking the setActiveSw method. To this I am going to populate the value which is false or alternatively we can try to pass the constant CustomerConstants.IN_ACTIVE_SW. Once the event object is ready, we can try to pass the same to the publish method of the EventGateway object.
+     * With these changes - my customer ms is going to publish the events whenever the data is being changed.
      * */
     @Override
     public boolean deleteCustomer(String customerId) {
@@ -99,6 +109,11 @@ public class CustomerServiceImpl implements ICustomerService {
         );
         customer.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
         customerRepository.save(customer);
+        // Materialized View Pattern Impl for Customer Deletion.
+        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
+        customerDataChangedEvent.setMobileNumber(customer.getMobileNumber());
+        customerDataChangedEvent.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
+        eventGateway.publish(customerDataChangedEvent);
         return true;
     }
 

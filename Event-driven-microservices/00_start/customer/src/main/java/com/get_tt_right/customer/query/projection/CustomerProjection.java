@@ -6,6 +6,7 @@ import com.get_tt_right.customer.command.event.CustomerUpdatedEvent;
 import com.get_tt_right.customer.entity.Customer;
 import com.get_tt_right.customer.service.ICustomerService;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,16 @@ import org.springframework.stereotype.Component;
 /** First, on top of this class we need to mention an annotation which is @Component because we want a bean of this class to be created by the Spring framework. Followed by we are going to mention another class level annotation which is @RequiredArgsConstructor. This annotation is coming from the Lombok library.
  * Next, we are going to create a method with the signature 'public void on(CustomerCreatedEvent customerCreatedEvent)'. Check this method docstring for more details.
  * With this now, we have completed all the logic related to the CustomerCreated Event. Very similarly, we need to write the logic for other kinds of events. So, copy and paste the createCustomer 'on' method and modify it to handle the other event objects.
+ *
+ * ContD - 2 discussion on Event Processors in Axon Framework
+ * --------------------------------------------------------
+ * Here, all the events related to the customer I can assign to a processing group. To create and assign the events to a processing group, we just have to use an annotation which is @ProcessingGroup. To this annotation, we can give/mention a name to the processing group as a string input to this annotation i.e., @ProcessingGroup("customer-group").
+ * With this, what is going to happen is - all the event handlers that we have inside this class are going to be tagged to a same group. In case if your command is publishing multiple events, since both the events are assigned to a same group, when we switch to the Subscribing event processor, all those events are going to be processed using a single thread. Once the processing group is created - as a next step, we need to make small configuration on the Spring boot main class which is CustomersApplication.
+ * In Customers application we are going to create a method - configure. Check out this method's docstring for more details.
  * */
 @Component
 @RequiredArgsConstructor
+@ProcessingGroup("customer-group")
 public class CustomerProjection {
 
     private final ICustomerService iCustomerService;
@@ -37,11 +45,18 @@ public class CustomerProjection {
      * And btw, it is not always mandatory to follow the style of creating an object using the constructor and then using BeanUtils.copyProperties method to copy the data from the event object to the entity object. We also have other alternative ways with which you can follow or different developers may follow. For example, a developer may decide to send the event object details as is to the respective ServiceImpl method as illustrated for this UpdateCustomerEvent in the CustomerServiceImpl class.
      * Here, we are going to invoke the updateCustomer method of the ICustomerService interface. To this updateCustomer method, I am going to pass the CustomerUpdatedEvent object instead of what we had defined in the signature earlier i.e., boolean updateCustomer(CustomerDto customerDto);
      * As a next step, inside the CustomerServiceImpl - check its docstring for more details.
+     *
+     * ContD - 1 discussion on Event Processors in Axon Framework
+     * --------------------------------------------------------
+     * Here at this point in time, let's imagine we are getting some RTE - what we will do is we will do a simulation by trying to type a line of code i.e., throw new RuntimeException("It is a bad day"); with the message we are trying to pass being "It is a bad day" and the next line, I am going to keep it commented for now.
+     * Now do a build - once it is completed, trigger the update request from postman, but before that, try to fetch the data you have inside the read DB for the given test mobile number. Since we will be doing an update and specifically for the name field, currently it can be noted that inside the read DB we the response to fetching the customer with a given test mobile number has the name currently as "Colince Linus Temoi" and the email as "tutor1@getttright". Now, we will try to take that fetch response and paste it in the update request body and this time the name we are going to keep it as "Colince Temoi" and the email as we will update it to "colince@getttright.com". Now, click on the send button to fire the request. As soon as you do this, yiu will ge a successful message 😂. Now, lets see what happened behind the scenes - In the Axon Dashboard, if you refresh the Event Store/Write DB data, you will see there is a new Event published - you can even see the payload data to confirm that the name and email data that we send during the update is what has been written in the Write DB/Event Store. This confirms the payload that we sent during the update operation and it is actually stored into the Event Store/ Write DB. But what happened on the read Side?
+     * On the read side there is a RTE and that's why the update operation on the Reader DB side failed. We can confirm this by invoking the fetch customer API and you should be still able to see the old data in the name and email fields 😂😂 Do you think this is acceptable? Of course not - if we are facing some exception on the read side, then we should definitely roll back what happened on the command side - but as has been verified, that is not happening. So, to resolve this issue, we need to understand how the Event Processors inside the Axon framework they are going to work. Check the contD: discussion in the GatewayserverApplication.java.
      * */
     @EventHandler
     public void on(CustomerUpdatedEvent customerUpdatedEvent) {
 //        Customer customerEntity = new Customer();
 //        BeanUtils.copyProperties(customerCreatedEvent,customerEntity);
+//        throw new RuntimeException("It is a bad day");
         iCustomerService.updateCustomer(customerUpdatedEvent);
     }
 

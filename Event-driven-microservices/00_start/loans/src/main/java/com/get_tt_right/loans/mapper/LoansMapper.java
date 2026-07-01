@@ -1,5 +1,6 @@
 package com.get_tt_right.loans.mapper;
 
+import com.get_tt_right.loans.command.event.LoanUpdatedEvent;
 import com.get_tt_right.loans.dto.LoansDto;
 import com.get_tt_right.loans.entity.Loans;
 
@@ -22,6 +23,14 @@ public class LoansMapper {
         loans.setAmountPaid(loansDto.getAmountPaid());
         loans.setOutstandingAmount(loansDto.getOutstandingAmount());
         return loans;
+    }
+
+    public static Loans mapEventToLoan(LoanUpdatedEvent event, Loans loan) {
+        loan.setLoanType(event.getLoanType());
+        loan.setTotalLoan(event.getTotalLoan());
+        loan.setAmountPaid(event.getAmountPaid());
+        loan.setOutstandingAmount(event.getOutstandingAmount());
+        return loan;
     }
 
 }

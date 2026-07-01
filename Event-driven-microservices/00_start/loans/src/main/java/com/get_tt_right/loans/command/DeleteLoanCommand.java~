@@ -1,0 +1,4 @@
+package com.get_tt_right.loans.command;
+
+public class DeleteLoanCommand {
+}

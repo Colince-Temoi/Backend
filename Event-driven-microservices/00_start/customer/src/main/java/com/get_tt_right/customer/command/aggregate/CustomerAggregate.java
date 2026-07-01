@@ -1,5 +1,6 @@
 package com.get_tt_right.customer.command.aggregate;
 
+import com.get_tt_right.common.event.CustomerDataChangedEvent;
 import com.get_tt_right.customer.command.CreateCustomerCommand;
 import com.get_tt_right.customer.command.DeleteCustomerCommand;
 import com.get_tt_right.customer.command.UpdateCustomerCommand;
@@ -8,6 +9,7 @@ import com.get_tt_right.customer.command.event.CustomerDeletedEvent;
 import com.get_tt_right.customer.command.event.CustomerUpdatedEvent;
 import com.get_tt_right.customer.entity.Customer;
 import com.get_tt_right.customer.exception.CustomerAlreadyExistsException;
+import com.get_tt_right.customer.exception.ResourceNotFoundException;
 import com.get_tt_right.customer.repository.CustomerRepository;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -17,6 +19,7 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 /*** On top of this class we need to mention an annotation which is @Aggregate - It is an annotation from the axon framework. By mentioning this class level annotation we are telling to the axon framework that this class is going to act as an aggregator which is responsible to process all the command that we are going to trigger from the controller layer - CustomerCommandController class. From this CustomerCommandController class we are just trying to assemble the inputs into a command object and publishing the command with the help of CommandGateway. So, this published command we need to handle inside the CustomerAggregate class.
@@ -47,18 +50,29 @@ public class CustomerAggregate {
      * So, as a next step, we need to write the event sourcing logic - Check this just after this constructor as we are going to define a new method which is 'on' - actually the method name can be anything haha!
      * Hope you are seeing and connecting with the patterns. Whenever we are trying to handle a command, first we can perform any validations on the command object, followed by we need to copy the validate command object to the event object, followed by we need to publish the event object to the axon framework, and finally we need to write the event sourcing logic. So, once the event object is published to the framework, the framework is going to look for the logic present inside the respective @EventHandler method definition, and it is going to execute the logic, and then store the data inside the write/ES DB. Once this data is written into the ES/Write DB, the framework is going to finally subsequently publish the respective event object to the event bus.
      * So, as of now, we have completed everything on the command side. As a next step we should try to build the Projection on the Query side which is going to consume the event object from the event bus and store the given data to the read DB.
-     *  */
+     *
+     * Whatever validations we are doing here is nothing but the most basic style of handling the validations inside the Axon framework. With this basic style as we have implemented, we are trying to perform validations immediately the Command object is dispatched to the handler. Though there is no specific disadvantage with this basic style/approach, but it is generally recommended by the Axon framework team to implement these validations before dispatching of the respective command object to the handler logic. There is an interface with the name, 'MessageDispatchInterceptor' inside the Axon framework using which you can define an implementation class, and you can override the handle abstract method. With that what is going to happen is, whenever a command is being dispatched with the help of CommandGateway, just before handing over the command object to the respective handler method in the Aggregate class, whatever logic that you are going to define inside your interceptor is going to be executed.
+     * So, as a next step what we will do is we will move this validation logic to the interceptor implementation class. To create an interceptor impl class, under the command package I am going to create a new sub-package with the name "interceptor". Under this interceptor sub-package I am going to create a new class with the name "CustomerCommandInterceptor". Check out the CustomerCommandInterceptor class for more details.
+     *
+     * Materialized View Pattern Impl
+     * --------------------------------
+     * Just like we are creating the CustomerCreatedEvent object, what we are going to do is, we are going to create a new object of CustomerDataChangedEvent. Once this object is created, using the same BeanUtils#copyProperties method, I am going to copy the data from the CreateCustomerCommand object to the CustomerDataChangedEvent object. Once the CustomerDataChangedEvent event object is ready we are going to disburse the event. How? By Invoking the apply method and behind the scenes, the event object is going to be dispatched once the "@EventSourcingHandler" method is executed/handled. This we already know. But with the help of apply method, we will be able to dispatch/publish ONLY one event object which we have already done i.e., the CustomerCreatedEvent object. How about the other event that we have? Let's now understand how to dispatch multiple events. If you go to the apply method that we are trying to invoke, you will see that it is going to return an object of type ApplyMore. Using this ApplyMore we should be able to invoke many other methods available to dispatch more event objects. If you check on the members of ApplyMore(I) by entering into it and clicking ctrl + f12 , you will see there are 4 more different methods - you can always read the documentation of these methods to understand when to use them. But in our scenario, we are going to invoke the method which is andThen because we want to dispatch the event without any conditions. As soon as the 1st event is dispatched and processed, immediately we want to dispatch the 2nd event without worrying about any conditions. That's why we are using this method.
+     * Now, to this method we need to pass the lambda expression and inside this lambda expression using the AggregateLifecycle#apply method, we are going to pass the CustomerDataChangedEvent object. With this, what is going to happen? Once the very 1st event is dispatched and processed, immediately the 2nd event is going to be dispatched to the event bus. This is just one approach - we will discuss other approaches as well. Next, under the update and delete command handlers as well we need to do the same drill.
+     * */
     @CommandHandler
     public CustomerAggregate(CreateCustomerCommand createCustomerCommand, CustomerRepository customerRepository) {
-        Optional<Customer> optionalCustomer = customerRepository.
+        /*Optional<Customer> optionalCustomer = customerRepository.
                 findByMobileNumberAndActiveSw(createCustomerCommand.getMobileNumber(), true);
         if (optionalCustomer.isPresent()) {
             throw new CustomerAlreadyExistsException("Customer already registered with given mobileNumber "
                     + createCustomerCommand.getMobileNumber());
-        }
+        }*/
         CustomerCreatedEvent customerCreatedEvent = new CustomerCreatedEvent();
         BeanUtils.copyProperties(createCustomerCommand, customerCreatedEvent);
-        AggregateLifecycle.apply(customerCreatedEvent);
+        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
+        BeanUtils.copyProperties(createCustomerCommand, customerDataChangedEvent);
+        AggregateLifecycle.apply(customerCreatedEvent).andThen(
+                () -> AggregateLifecycle.apply(customerDataChangedEvent));
     }
 
     /** This method is going to accept the event of type CustomerCreatedEvent, and it is going to populate the fields of this aggregate class with the data present inside this event object.
@@ -84,12 +98,30 @@ public class CustomerAggregate {
      * As usual, if needed the first thing we can do is to perform some validations based upon the data that we have received inside the command object input. Otherwise, we can proceed to the next steps which are creating the event, copying the data and invoke the apply method of the AggregateLifecycle class.
      * For now, I am going to skip the validations part inside the UpdateCustomerCommand handler method because in the coming sessions we will visualize a better way on how to define the validations using an Interceptor class instead of defining all the validation logic inside aggregate class respective handler methods/constructor. Instead we can keep all that validation logic inside an Interceptor class.
      *
+     * Reading Data from Event Store
+     * -----------------------------
+     * In order to read the data from the EventStore, first we need to inject a bean of type EventStore which is provided by the Axon framework to help read data from the Write/Event store DB.
+     * Using this "eventStore" reference we can invoke an overloaded method readEvents, the first one is going to accept the aggregateIdentifier as an input - this is going to give all the events associated to an aggregateIdentifier. But if you are looking to read the Write DB from a specific sequence number then you need to invoke the second method which is going to accept the aggregateIdentifier and the sequence number as an input. For our example, I am going to use the first method to read the data from the Write DB.
+     * To that method, I am going to pass the aggregateIdentifier which is going to be customerId that we can get from the command object. We need to chain this method to invoke asStream method because we want to read all the events as a stream followed by I want to convert my entire stream of elements into a list. On the LHS, I can try to catch the o/p into type List<?> which is a generic type. Next, we are checking if commands is empty - to imply that there are no records associated to a given customer Id. In such scenarios there is no meaning of performing the update operation and that's why we need to throw a ResourceNotFoundException. The resource here is the "Customer" and the resource id is going to be "customerId".
+     * As a next step, we can keep a break point at the line where we are reading the data from the Write DB and we can try to debug this method line by line - of course after saving and building our changes. Now if you try to debug line by line you will see that my List of commands has 3 elements which are nothing but the events which are associated to a given customerId. So, this way you can always read the data from the event store DB. Currently, as we have seen we are just performing the empty check, but if needed you can try to read the data inside these events, and accordingly you can take a decision whether to proceed with your business logic or not. Now, you can release the breakpoint / resume execution and happily you should get a successful response in your postman.
+     * With all this we have discussed, you should now be crisp clear on how we can read the data from the Write DB. Since we are trying to perform the same empty check validation/ nothing but checking of a customer is existed with a given mobile number and active switch as true or not inside the CustomerCommandInterceptor class, we are not going to keep this code that we have just discussed here. But for your reference in future on this discussion, I will just comment it out.
+     *
+     * Materialized View Pattern Impl
+     * -------------------------------
+     * This time for update command handling, lets see a different approach of publishing the 2nd event to the Event Bus. How? By just invoking the apply method of AggregateLifecycle - as long as you are invoking the apply method of AggregateLifeCycle multiple times with different event object details all those event objects are going to be dispatched by the AggregateLifeCycle. No difference from the very 1st approach that we discussed in the CustomerCreatedEvent handling logic during dispatching a second/multiple event objects. Here, since we are using Axon framework inside our ms's, we are trying to leverage the Axon framework to dispatch the event objects to the Event Bus. But if you are not using Axon framework then you know what to do. In case if you are using Kafka or RabbitMQ inside your Spring boot applications then you can leverage Spring Cloud Stream to dispatch the events to the Kafka Topics or to the Rabbit queues. Inside our ms's sessions we discussed and visualized in detail on how to disburse events to the Kafka Topics or to the Rabbit queues. In case if you have any doubts around the same - you can refresh yourself on the respective sessions related to the kafka or rabbitmq topics.
      * */
     @CommandHandler
     public void handle(UpdateCustomerCommand updateCustomerCommand, EventStore eventStore) {
+      /*  List<?> commands = eventStore.readEvents(updateCustomerCommand.getCustomerId()).asStream().toList();
+        if(commands.isEmpty()) {
+            throw new ResourceNotFoundException("Customer", "customerId", updateCustomerCommand.getCustomerId());
+        }*/
         CustomerUpdatedEvent customerUpdatedEvent = new CustomerUpdatedEvent(); // This time the event object that we are creating is going to be of type CustomerUpdatedEvent.
         BeanUtils.copyProperties(updateCustomerCommand, customerUpdatedEvent); // Into the customerUpdatedEvent object, we are going to copy the data from the updateCustomerCommand object as the source.
+        CustomerDataChangedEvent customerDataChangedEvent = new CustomerDataChangedEvent();
+        BeanUtils.copyProperties(updateCustomerCommand, customerDataChangedEvent);
         AggregateLifecycle.apply(customerUpdatedEvent); // At last, we are publishing the event object. Once this event is published, we need to provide the logic on how this event needs to be stored, inside the write/ES DB. For the same, we need to copy the entire on method from the CustomerCreatedEvent handler method and this time the input to this method is going to be CustomerUpdatedEvent object.
+        AggregateLifecycle.apply(customerDataChangedEvent);
     }
 
     /** This method is going to accept an event object of type CustomerUpdatedEvent as an input.
@@ -106,6 +138,12 @@ public class CustomerAggregate {
         this.email= customerUpdatedEvent.getEmail();
     }
 
+    /** Materialized View Pattern Impl
+     * -------------------------------
+     * At last we need to dispatch a 2nd event object from the DeleteCustomerCommand handler method as well. But we can't dispatch an event from this method. Why? Reason : Under the DeleteCustomerCommand we are only accepting the customerId but not the mobile number. haha! If I don't have mobile number then I can't populate the mobile number field inside the CustomerDataChangedEvent object and with this fact - my profile ms will not have any clue to which customer so-and-so event need to be processed.
+     * That's why what we are going to so is - instead of dispatching the CustomerDataChangedEvent object from the DeleteCustomerCommand handler method, we are going to dispatch this event object directly from the CustomerServiceImpl class. There you can be able to see a deleteCustomer method impl which is going to be executed to update the active switch flag to false. So, immediately after that operation, we want to trigger an event to the profile ms. But we have a problem? CustomerServiceImpl is not an Aggregator class and that's why we cannot use AggregateLifeCycle#apply method kind of logic here. What is the workaround? Well, we can try to use the EventGateway object that is provided by the Axon framework. How? Inject the EventGateway secondary type as a bean inside the CustomerServiceImpl class.
+     * Using this bean, you should be able to publish a single event or a list of events. Check the deleteCustomer method impl for more details.
+     * */
     @CommandHandler
     public void handle(DeleteCustomerCommand deleteCustomerCommand) {
         CustomerDeletedEvent customerDeletedEvent = new CustomerDeletedEvent();

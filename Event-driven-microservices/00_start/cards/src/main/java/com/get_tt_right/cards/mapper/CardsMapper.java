@@ -1,5 +1,6 @@
 package com.get_tt_right.cards.mapper;
 
+import com.get_tt_right.cards.command.event.CardUpdatedEvent;
 import com.get_tt_right.cards.dto.CardsDto;
 import com.get_tt_right.cards.entity.Cards;
 
@@ -22,6 +23,14 @@ public class CardsMapper {
         cards.setAvailableAmount(cardsDto.getAvailableAmount());
         cards.setAmountUsed(cardsDto.getAmountUsed());
         return cards;
+    }
+
+    public static Cards mapEventToCard(CardUpdatedEvent event, Cards card) {
+        card.setCardType(event.getCardType());
+        card.setTotalLimit(event.getTotalLimit());
+        card.setAmountUsed(event.getAmountUsed());
+        card.setAvailableAmount(event.getAvailableAmount());
+        return card;
     }
 
 }

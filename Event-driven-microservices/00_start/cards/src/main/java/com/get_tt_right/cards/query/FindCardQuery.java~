@@ -1,0 +1,5 @@
+package com.get_tt_right.cards.query;
+
+public class FindCardQuery {
+    
+}

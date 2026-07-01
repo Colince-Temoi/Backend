@@ -1,5 +1,7 @@
 package com.get_tt_right.loans.service.impl;
 
+import com.get_tt_right.common.event.LoanDataChangedEvent;
+import com.get_tt_right.loans.command.event.LoanUpdatedEvent;
 import com.get_tt_right.loans.constants.LoansConstants;
 import com.get_tt_right.loans.dto.LoansDto;
 import com.get_tt_right.loans.entity.Loans;
@@ -9,6 +11,7 @@ import com.get_tt_right.loans.mapper.LoansMapper;
 import com.get_tt_right.loans.repository.LoansRepository;
 import com.get_tt_right.loans.service.ILoansService;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,10 +22,11 @@ import java.util.Random;
 public class LoansServiceImpl implements ILoansService {
 
     private LoansRepository loansRepository;
+    private EventGateway eventGateway;
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
-     */
+
     @Override
     public void createLoan(String mobileNumber) {
         Optional<Loans> optionalLoan = loansRepository.findByMobileNumberAndActiveSw(mobileNumber,
@@ -32,11 +36,11 @@ public class LoansServiceImpl implements ILoansService {
         }
         loansRepository.save(createNewLoan(mobileNumber));
     }
-
+     */
     /**
      * @param mobileNumber - Mobile Number of the Customer
      * @return the new loan details
-     */
+
     private Loans createNewLoan(String mobileNumber) {
         Loans newLoan = new Loans();
         long randomLoanNumber = 1000000000L + new Random().nextInt(900000000);
@@ -48,6 +52,19 @@ public class LoansServiceImpl implements ILoansService {
         newLoan.setOutstandingAmount(LoansConstants.NEW_LOAN_LIMIT);
         newLoan.setActiveSw(LoansConstants.ACTIVE_SW);
         return newLoan;
+    }
+     */
+    /**
+     * @param loan - Loans object
+     */
+    @Override
+    public void createLoan(Loans loan) {
+        Optional<Loans> optionalLoans = loansRepository.findByMobileNumberAndActiveSw(loan.getMobileNumber(),
+                LoansConstants.ACTIVE_SW);
+        if (optionalLoans.isPresent()) {
+            throw new LoanAlreadyExistsException("Loan already registered with given mobileNumber " + loan.getMobileNumber());
+        }
+        loansRepository.save(loan);
     }
 
     /**
@@ -65,13 +82,27 @@ public class LoansServiceImpl implements ILoansService {
     /**
      * @param loansDto - LoansDto Object
      * @return boolean indicating if the update of loan details is successful or not
-     */
+
     @Override
     public boolean updateLoan(LoansDto loansDto) {
         Loans loan = loansRepository.findByMobileNumberAndActiveSw(loansDto.getMobileNumber(),
                 LoansConstants.ACTIVE_SW).orElseThrow(
                 () -> new ResourceNotFoundException("Loan", "LoanNumber", loansDto.getLoanNumber().toString()));
         LoansMapper.mapToLoans(loansDto, loan);
+        loansRepository.save(loan);
+        return true;
+    }
+     */
+    /**
+     * @param event - LoanUpdatedEvent Object
+     * @return boolean indicating if the update of loan details is successful or not
+     */
+    @Override
+    public boolean updateLoan(LoanUpdatedEvent event) {
+        Loans loan = loansRepository.findByMobileNumberAndActiveSw(event.getMobileNumber(),
+                LoansConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber",
+                event.getMobileNumber()));
+        LoansMapper.mapEventToLoan(event, loan);
         loansRepository.save(loan);
         return true;
     }
@@ -87,6 +118,11 @@ public class LoansServiceImpl implements ILoansService {
                 );
         loan.setActiveSw(LoansConstants.IN_ACTIVE_SW);
         loansRepository.save(loan);
+        // MV impl
+        LoanDataChangedEvent loanDataChangedEvent = new LoanDataChangedEvent();
+        loanDataChangedEvent.setMobileNumber(loan.getMobileNumber());
+        loanDataChangedEvent.setLoanNumber(0L);
+        eventGateway.publish(loanDataChangedEvent);
         return true;
     }
 

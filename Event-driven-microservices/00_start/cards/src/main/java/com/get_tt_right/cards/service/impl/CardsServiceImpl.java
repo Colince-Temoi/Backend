@@ -1,5 +1,6 @@
 package com.get_tt_right.cards.service.impl;
 
+import com.get_tt_right.cards.command.event.CardUpdatedEvent;
 import com.get_tt_right.cards.constants.CardsConstants;
 import com.get_tt_right.cards.dto.CardsDto;
 import com.get_tt_right.cards.entity.Cards;
@@ -8,7 +9,9 @@ import com.get_tt_right.cards.exception.ResourceNotFoundException;
 import com.get_tt_right.cards.mapper.CardsMapper;
 import com.get_tt_right.cards.repository.CardsRepository;
 import com.get_tt_right.cards.service.ICardsService;
+import com.get_tt_right.common.event.CardDataChangedEvent;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,10 +22,11 @@ import java.util.Random;
 public class CardsServiceImpl implements ICardsService {
 
     private CardsRepository cardsRepository;
+    private EventGateway eventGateway;
 
-    /**
+    /** Old Impl
      * @param mobileNumber - Mobile Number of the Customer
-     */
+
     @Override
     public void createCard(String mobileNumber) {
         Optional<Cards> optionalCard = cardsRepository.findByMobileNumberAndActiveSw(mobileNumber,
@@ -32,11 +36,11 @@ public class CardsServiceImpl implements ICardsService {
         }
         cardsRepository.save(createNewCard(mobileNumber));
     }
-
+     */
     /**
      * @param mobileNumber - Mobile Number of the Customer
      * @return the new card details
-     */
+
     private Cards createNewCard(String mobileNumber) {
         Cards newCard = new Cards();
         long randomCardNumber = 100000000000L + new Random().nextInt(900000000);
@@ -48,6 +52,20 @@ public class CardsServiceImpl implements ICardsService {
         newCard.setAvailableAmount(CardsConstants.NEW_CARD_LIMIT);
         newCard.setActiveSw(CardsConstants.ACTIVE_SW);
         return newCard;
+    }
+     */
+
+    /**
+     * @param card - Cards object
+     */
+    @Override
+    public void createCard(Cards card) {
+        Optional<Cards> optionalCard = cardsRepository.findByMobileNumberAndActiveSw(card.getMobileNumber(),
+                CardsConstants.ACTIVE_SW);
+        if (optionalCard.isPresent()) {
+            throw new CardAlreadyExistsException("Card already registered with given mobileNumber " + card.getMobileNumber());
+        }
+        cardsRepository.save(card);
     }
 
     /**
@@ -65,13 +83,28 @@ public class CardsServiceImpl implements ICardsService {
     /**
      * @param cardsDto - CardsDto Object
      * @return boolean indicating if the update of card details is successful or not
-     */
+
     @Override
     public boolean updateCard(CardsDto cardsDto) {
         Cards card = cardsRepository.findByMobileNumberAndActiveSw(cardsDto.getMobileNumber(),
                 CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "CardNumber",
                 cardsDto.getCardNumber().toString()));
         CardsMapper.mapToCards(cardsDto, card);
+        cardsRepository.save(card);
+        return true;
+    }
+     */
+
+    /**
+     * @param event - CardUpdatedEvent Object
+     * @return boolean indicating if the update of card details is successful or not
+     */
+    @Override
+    public boolean updateCard(CardUpdatedEvent event) {
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(event.getMobileNumber(),
+                CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "CardNumber",
+                event.getMobileNumber()));
+        CardsMapper.mapEventToCard(event, card);
         cardsRepository.save(card);
         return true;
     }
@@ -87,6 +120,12 @@ public class CardsServiceImpl implements ICardsService {
                 );
         card.setActiveSw(CardsConstants.IN_ACTIVE_SW);
         cardsRepository.save(card);
+
+        // MV impl
+        CardDataChangedEvent cardDataChangedEvent = new CardDataChangedEvent();
+        cardDataChangedEvent.setMobileNumber(card.getMobileNumber());
+        cardDataChangedEvent.setCardNumber(0L);
+        eventGateway.publish(cardDataChangedEvent);
         return true;
     }
 

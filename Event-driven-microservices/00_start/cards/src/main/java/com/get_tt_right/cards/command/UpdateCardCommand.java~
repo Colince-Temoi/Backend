@@ -1,0 +1,4 @@
+package com.get_tt_right.cards.command;
+
+public class UpdateCardCommand {
+}

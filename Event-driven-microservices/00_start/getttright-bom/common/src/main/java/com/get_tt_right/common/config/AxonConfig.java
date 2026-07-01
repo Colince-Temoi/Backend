@@ -1,0 +1,26 @@
+package com.get_tt_right.common.config;
+
+import com.thoughtworks.xstream.XStream;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/** On top of this class I am going to keep the @Configuration annotation. Now, inside this class, I am going to create a method#xStream which is going to return the bean of XStream object. This method is not going to accept anything as an input.
+ * On top of this method I am going to mention the @Bean annotation. Inside that method 1st we are creating the object of XStream class. Using this xStream reference I need ton invoke the method#allowTypesByWildcard and pass the String array as an input.
+ * Inside that array, I need to pass all the wildcards that I want considered as safe. So here, I am going to mention a pattern which is "com.get_tt_right.**". With this what we are trying to communicate is - Any class which has a package name that starts with "com.get_tt_right" is going to be considered as safe. Nothing but I want that class object serialization to be allowed.
+ * Finally, towards the end, we need to return the XStream object. Of course in the String array instead of just "com.get_tt_right.**" we can also try to be more specific if we want to. Such that instead of mentioning a generic package we can try to mention the event package name like "com.get_tt_right.event". But we want to stick to this generic pattern for now, so that in future if something get added, we don't want to come back to this class and make changes.
+ * This way I can provide a list of patterns that can be considered by the framework to allow the Serialization of the objects. Now, we have created a configuration class/file but this file we need to use in all the ms's. What we can do is, we can try to open the CustomersApplication and on top of this class name we are going to mention the annotation which is @Import(AxonConfig.class). And as can be seen, to this import annotation we are going to pass the AxonConfig class as an input.
+ * Since inside the CustomersApplication the root package is "com.get_tt_right", the same AxonConfig configuration class should work, otherwise you need to mention your customer ms specific package inside this AxonConfig. Mention the same @Import annotation inside the AccountsApplication, LoansApplication, CardsApplication and ProfileApplication
+ * */
+@Configuration
+public class AxonConfig {
+
+    @Bean
+    public XStream xStream() {
+        XStream xStream = new XStream();
+        xStream.allowTypesByWildcard(new String[] {
+                "com.get_tt_right.**"
+        });
+        return xStream;
+    }
+
+}

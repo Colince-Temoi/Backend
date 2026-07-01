@@ -1,0 +1,4 @@
+package com.get_tt_right.cards.command.event;
+
+public class CardCreatedEvent {
+}

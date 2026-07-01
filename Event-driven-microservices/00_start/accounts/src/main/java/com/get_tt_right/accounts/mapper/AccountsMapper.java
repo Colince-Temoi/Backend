@@ -1,5 +1,6 @@
 package com.get_tt_right.accounts.mapper;
 
+import com.get_tt_right.accounts.command.event.AccountUpdatedEvent;
 import com.get_tt_right.accounts.dto.AccountsDto;
 import com.get_tt_right.accounts.entity.Accounts;
 /** Here, I have the logic to transfer the data from Dto to entity and vice versa
@@ -24,6 +25,12 @@ public class AccountsMapper {
         accounts.setAccountType(accountsDto.getAccountType());
         accounts.setBranchAddress(accountsDto.getBranchAddress());
         return accounts;
+    }
+
+    public static Accounts mapEventToAccount(AccountUpdatedEvent event, Accounts account) {
+        account.setAccountType(event.getAccountType());
+        account.setBranchAddress(event.getBranchAddress());
+        return account;
     }
 
 }
