@@ -1,0 +1,74 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: "accounts"
+  datasource:
+    url: jdbc:h2:file:~/accounts;AUTO_SERVER=true
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+# In the case of accounts ms, since it is receiving the request from another ms or from outside, we need to make sure the binding name has "in" as part of the binding name. The destination has to be the same. That's the naming convention we follow Spring Cloud Functions and Spring Cloud Stream.
+# Once the destination is mentioned, inside the accounts ms application.yml file, we need to mention one more configuration here which is "group" - to this group, I am assigning a value by reading the property which is spring.application.name. which we have already configured here in the accounts ms application.yml file. i.e., accounts. The reason that we need to mention "group" property for the input binding but not for the output binding is - it is very simple, in real applications we will end up having multiple instances of ms's. Here my accounts ms is acting as a consumer - if there are 10 different instances of accounts ms running behind the scenes, I want all them to be registered with the same group name which is accounts itself. When they are registered with the same group name what is going to happen behind the scenes is, they are going to act as a consumer group. When a consumer group is formed, the Spring cloud stream will make sure that the request is only forwarded to only one of the instances of the consumer ms which is accounts. Whereas on the customer side we don't have to mention because right now customer ms is a producer and a producer should not have any group details because while they are producing a message, the request is already being processed by one of the ms instances. Once this producer publishes the message, it will reach to the RabbitMQ. Since there is no need of load balancing here on the producer side - we don't need to mention "group" property/details here. Whereas since on the consumer side load balancing is required and since we want to make sure only one of the consumer ms instance need to process the request, that's why we need to mention this "group" property.
+# With the configurations that we have just mentioned, what will happen is - the Spring cloud stream and rabbitmq, they are going to work together, and they will try to forward the request that will come to the destination "update-account-mobile-number"  to the binding "updateAccountMobileNumber-in-0".  But with that only, the story is not going to end! haha. Once the request is received by this binding, we need to give a clue to the Spring cloud stream to which Java method or to which REST API, it needs to forward the request. In other words, we need to convey to the Spring cloud Stream, where is the business logic to process the request that is received by the binding "updateAccountMobileNumber-in-0". So, from the destination, "update-account-mobile-number", the message will be read but the message need to be executed by some business logic. To convey the same what we are going to do is - we are going to make some function configurations, how? just below the cloud property, I am going to mention a property function.definition to this we need to mention a value which is "updateAccountMobileNumber". Please make sure the function definition is same as the prefix that we have used inside the input binding name. i.e., updateAccountMobileNumber-in-0. If you follow this naming convention, then automatically the Spring cloud stream will know to which function it has to forward the request that is going to be received by this input binding i.e., updateAccountMobileNumber-in-0. Now, I have created a Spring cloud function definition. As a next step, I need to create a function which is going to have all the business logic. To be consistent, even on the output binding that we have defined in the customer ms application.yml file please make sure you are using the same prefix. i.e., updateAccountMobileNumber-out-0.
+  cloud:
+    function:
+# If you have multiple function definitions, they should be separated by a semicolon as seen below.
+      definition: updateAccountMobileNumber;rollbackAccountMobileNumber
+    stream:
+      bindings:
+        updateAccountMobileNumber-in-0:
+          destination: update-account-mobile-number
+          group: ${spring.application.name}
+# Since this Account ms is going to publish the message to the cards ms, we want to update the next binding details as configured below. Like this we are adding new binding details. With these settings, the message will be forwarded to the specified destination inside the RabbitMQ. On the Card ms application.yml file, we need to make changes related to "in" binding that we have done inside the accounts ms to consume the message that we are trying to publish to the specified destination - same drill as we have been discussing. No rocket science!
+        updateCardMobileNumber-out-0:
+          destination: update-card-mobile-number
+# Like this we are configuring the destination name for the new binding that we have created.
+        rollbackCustomerMobileNumber-out-0:
+          destination: rollback-customer-mobile-number
+# In bound binding configurations.
+        rollbackAccountMobileNumber-in-0:
+          destination: rollback-account-mobile-number
+          group: ${spring.application.name}
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "accounts"
+    description: "Eazy Bank Accounts Application"
+    version: "1.0.0"
+
+logging:
+  pattern:
+    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

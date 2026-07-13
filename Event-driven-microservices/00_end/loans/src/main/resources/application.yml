@@ -1,0 +1,70 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: "loans"
+  datasource:
+    url: jdbc:h2:file:~/loans;AUTO_SERVER=true
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+# Streaming and Function related configurations.
+  cloud:
+    function:
+      definition: updateLoanMobileNumber
+    stream:
+      bindings:
+        updateLoanMobileNumber-in-0:
+          destination: update-loan-mobile-number
+          group: ${spring.application.name}
+        # Since this Cards ms is not going to publish any message to any other ms, we are not going to update the next binding details as like we did inside the customer, cards or accounts ms.
+        #Usually the output bindings we are going to define whenever we are going to publish a message from a given ms to another ms. But once we update the mobile number inside the loans ms then,there is no next ms to invoke - the business flow should end. Initially the request will be received by the customer ms followed by accounts followed by cards followed by loans.
+        # So, we can stop the entire business flow inside the loans ms since we are done updating the mobile number inside all the ms's - that is one option. The other option is we can publish an event into the message queue confirming that loans ms also updated the mobile number which confirms the entire flow of mobile number updation is completed successfully. This event can be consumed by any other client application or any other ms just to make sure the flow is completed successfully.
+        # What we will do is, we will try to follow the 2nd option where we will try to publish an event confirming that the mobile number update is successful in all the ms's - the same message I will try to consume inside the customer ms's which is the originator of this entire business flow. My customer ms can then proceed to do whatever it wants based upon this status that it receives. Maybe it can update a flag inside the DB or it can provide the same status to the client applications in case the client applications are interested to know the overall status - they can keep polling the customer ms and this customer ms can update the entire txn status whether it is successful or not.
+        #That's why we are going to have an output binding here as seen below.
+        updateMobileNumberStatus-out-0:
+          destination: update-mobile-number-status
+        rollbackCardMobileNumber-out-0:
+          destination: rollback-card-mobile-number
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "loans"
+    description: "Eazy Bank Loans Application"
+    version: "1.0.0"
+
+logging:
+  pattern:
+    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

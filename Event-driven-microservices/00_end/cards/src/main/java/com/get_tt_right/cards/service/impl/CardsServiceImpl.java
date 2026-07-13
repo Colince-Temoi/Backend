@@ -1,0 +1,157 @@
+package com.get_tt_right.cards.service.impl;
+
+import com.get_tt_right.cards.constants.CardsConstants;
+import com.get_tt_right.cards.dto.CardsDto;
+import com.get_tt_right.cards.entity.Cards;
+import com.get_tt_right.cards.exception.CardAlreadyExistsException;
+import com.get_tt_right.cards.exception.ResourceNotFoundException;
+import com.get_tt_right.cards.mapper.CardsMapper;
+import com.get_tt_right.cards.repository.CardsRepository;
+import com.get_tt_right.cards.service.ICardsService;
+import com.get_tt_right.common.dto.MobileNumberUpdateDto;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.util.Optional;
+import java.util.Random;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class CardsServiceImpl implements ICardsService {
+
+    private final CardsRepository cardsRepository;
+    private final StreamBridge streamBridge;
+
+    /**
+     * @param mobileNumber - Mobile Number of the Customer
+     */
+    @Override
+    public void createCard(String mobileNumber) {
+        Optional<Cards> optionalCard = cardsRepository.findByMobileNumberAndActiveSw(mobileNumber,
+                CardsConstants.ACTIVE_SW);
+        if (optionalCard.isPresent()) {
+            throw new CardAlreadyExistsException("Card already registered with given mobileNumber " + mobileNumber);
+        }
+        cardsRepository.save(createNewCard(mobileNumber));
+    }
+
+    /**
+     * @param mobileNumber - Mobile Number of the Customer
+     * @return the new card details
+     */
+    private Cards createNewCard(String mobileNumber) {
+        Cards newCard = new Cards();
+        long randomCardNumber = 100000000000L + new Random().nextInt(900000000);
+        newCard.setCardNumber(randomCardNumber);
+        newCard.setMobileNumber(mobileNumber);
+        newCard.setCardType(CardsConstants.CREDIT_CARD);
+        newCard.setTotalLimit(CardsConstants.NEW_CARD_LIMIT);
+        newCard.setAmountUsed(0);
+        newCard.setAvailableAmount(CardsConstants.NEW_CARD_LIMIT);
+        newCard.setActiveSw(CardsConstants.ACTIVE_SW);
+        return newCard;
+    }
+
+    /**
+     * @param mobileNumber - Input mobile Number
+     * @return Card Details based on a given mobileNumber
+     */
+    @Override
+    public CardsDto fetchCard(String mobileNumber) {
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(mobileNumber, CardsConstants.ACTIVE_SW)
+                .orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", mobileNumber)
+                );
+        return CardsMapper.mapToCardsDto(card, new CardsDto());
+    }
+
+    /**
+     * @param cardsDto - CardsDto Object
+     * @return boolean indicating if the update of card details is successful or not
+     */
+    @Override
+    public boolean updateCard(CardsDto cardsDto) {
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(cardsDto.getMobileNumber(),
+                CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "CardNumber",
+                cardsDto.getCardNumber().toString()));
+        CardsMapper.mapToCards(cardsDto, card);
+        cardsRepository.save(card);
+        return true;
+    }
+
+    /**
+     * @param cardNumber - Input Card Number
+     * @return boolean indicating if the delete of card details is successful or not
+     */
+    @Override
+    public boolean deleteCard(Long cardNumber) {
+        Cards card = cardsRepository.findById(cardNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Card", "cardNumber", cardNumber.toString())
+                );
+        card.setActiveSw(CardsConstants.IN_ACTIVE_SW);
+        cardsRepository.save(card);
+        return true;
+    }
+
+    /** Implementing Compensation Transactions
+     *  ---------------------------------------
+     *  When an Exception happens inside cards ms, what it has to do? It has to roll back its own txn on the cards DB, followed by it needs to invoke the compensation txn inside the account ms and accounts ms needs to invoke the compensation txn inside the customer ms. This is the flow that we need to implement.
+     * */
+    @Override
+    @Transactional
+    public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        boolean result = false;
+        try {
+            String currentMobileNum = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Cards cards = cardsRepository.findByMobileNumberAndActiveSw(currentMobileNum,
+                    true).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", currentMobileNum)
+            );
+            cards.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+            cardsRepository.save(cards);
+            // throw new RuntimeException("Some error occurred while updating mobileNumber");
+            updateLoanMobileNumber(mobileNumberUpdateDto);
+            result = true;
+        } catch (Exception e) {
+            log.error("Exception occurred while updating mobileNumber", e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackAccountMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
+
+    }
+    /** This will take care of publishing a message to the loan ms.
+     * */
+    private void updateLoanMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending updateLoanMobileNumber request for the details: {}", mobileNumberUpdateDto); // This entire object is going to be printed on the console along with the log statement.
+        var result = streamBridge.send("updateLoanMobileNumber-out-0",mobileNumberUpdateDto);
+        log.info("Is the updateLoanMobileNumber request successfully triggered ? : {}", result); // This logger is going to print Is the updateAccountMobileNumber request successfully triggered or not. To this logger we are printing a variable "result". The data inside this "result" variable we are catching from the StreamBridge#send method output. If you navigate into the method#send, you will be able to see that its return type is boolean. The same boolean, we are going to print onto the console to confirm whether the data is sent to the accounts ms or not with the help of the given binding name. i.e., "updateAccountMobileNumber-out-0".
+    }
+
+    /** This will take care of publishing a message to the accounts ms.
+     * It will be responsible to trigger/initiate the compensation txn inside the Account ms.
+     * Like this, we are done with handling the exception scenario of the cards ms. Next is loans ms using the same drill, as we have done in the cards ms. No rocket science here.
+     * */
+    private void rollbackAccountMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending rollbackAccountMobileNumber request for the details: {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("rollbackAccountMobileNumber-out-0",mobileNumberUpdateDto);
+        log.info("Is the rollbackAccountMobileNumber request successfully triggered ? : {}", result);
+    }
+
+    @Override
+    public boolean rollbackMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Cards cards = cardsRepository.findByMobileNumberAndActiveSw(newMobileNumber,
+                true).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", newMobileNumber)
+        );
+        cards.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        cardsRepository.save(cards);
+        rollbackAccountMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
+
+}

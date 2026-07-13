@@ -1,0 +1,162 @@
+package com.get_tt_right.accounts.service.impl;
+
+import com.get_tt_right.accounts.constants.AccountsConstants;
+import com.get_tt_right.accounts.dto.AccountsDto;
+import com.get_tt_right.accounts.entity.Accounts;
+import com.get_tt_right.accounts.exception.AccountAlreadyExistsException;
+import com.get_tt_right.accounts.exception.ResourceNotFoundException;
+import com.get_tt_right.accounts.mapper.AccountsMapper;
+import com.get_tt_right.accounts.repository.AccountsRepository;
+import com.get_tt_right.accounts.service.IAccountsService;
+import com.get_tt_right.common.dto.MobileNumberUpdateDto;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.util.Optional;
+import java.util.Random;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class AccountsServiceImpl  implements IAccountsService {
+
+    private final AccountsRepository accountsRepository;
+    private final StreamBridge streamBridge;
+
+    /**
+     * @param mobileNumber - String
+     */
+    @Override
+    public void createAccount(String mobileNumber) {
+        Optional<Accounts> optionalAccounts= accountsRepository.findByMobileNumberAndActiveSw(mobileNumber,
+                AccountsConstants.ACTIVE_SW);
+        if(optionalAccounts.isPresent()){
+            throw new AccountAlreadyExistsException("Account already registered with given mobileNumber "+mobileNumber);
+        }
+        accountsRepository.save(createNewAccount(mobileNumber));
+    }
+
+    /**
+     * @param mobileNumber - String
+     * @return the new account details
+     */
+    private Accounts createNewAccount(String mobileNumber) {
+        Accounts newAccount = new Accounts();
+        newAccount.setMobileNumber(mobileNumber);
+        long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
+        newAccount.setAccountNumber(randomAccNumber);
+        newAccount.setAccountType(AccountsConstants.SAVINGS);
+        newAccount.setBranchAddress(AccountsConstants.ADDRESS);
+        newAccount.setActiveSw(AccountsConstants.ACTIVE_SW);
+        return newAccount;
+    }
+
+    /**
+     * @param mobileNumber - Input Mobile Number
+     * @return Accounts Details based on a given mobileNumber
+     */
+    @Override
+    public AccountsDto fetchAccount(String mobileNumber) {
+        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(mobileNumber, AccountsConstants.ACTIVE_SW)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", mobileNumber)
+        );
+        AccountsDto accountsDto = AccountsMapper.mapToAccountsDto(account, new AccountsDto());
+        return accountsDto;
+    }
+
+    /**
+     * @param accountsDto - AccountsDto Object
+     * @return boolean indicating if the update of Account details is successful or not
+     */
+    @Override
+    public boolean updateAccount(AccountsDto accountsDto) {
+        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(accountsDto.getMobileNumber(),
+                AccountsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber",
+                accountsDto.getMobileNumber()));
+        AccountsMapper.mapToAccounts(accountsDto, account);
+        accountsRepository.save(account);
+        return  true;
+    }
+
+    /**
+     * @param accountNumber - Input Account Number
+     * @return boolean indicating if the delete of Account details is successful or not
+     */
+    @Override
+    public boolean deleteAccount(Long accountNumber) {
+        Accounts account = accountsRepository.findById(accountNumber).orElseThrow(
+                () -> new ResourceNotFoundException("Account", "accountNumber", accountNumber.toString())
+        );
+        account.setActiveSw(AccountsConstants.IN_ACTIVE_SW);
+        accountsRepository.save(account);
+        return true;
+    }
+
+    /** Inside this method, we will write the same logic which we have written inside the CustomerServiceImpl. I mean, just copy the entire piece of code and modify as necessary. No rocket science required.
+     *
+     * Implementing Compensation Transactions
+     * ---------------------------------------
+     * Here,on top of the method#updateMobileNumber, we will add a method level annotation i.e., @Transactional. But this time, it is going to be trick haha! because by just mentioning this annotation we are going to achieve the rollback of ONLY the data changes that are committed only in this Accounts ms. To trigger a compensation transaction, we need to make sure we are catching the exception and inside the Exception handling block, we need to trigger the compensation transaction inside the previous ms which is the Customer ms.
+     * So inside this method#updateMobileNumber, we need to introduce a try..catch block and whatever entire code that we have inside this method, we need to put inside the try block. And inside the catch block, for now let it remain empty. To resolve the CE's in regard to "Missing return statement - create a boolean variable outside the try block with the name "result" and initialized to a default value of false. This "result" I will then try to update it to true in the try block if all the code present inside the try block is executed. The same I will "result" I will return as an output from the method#updateMobileNumber.
+     * In the case of exception, what we want to do is - 1st log the error details. 2nd rollback the existing txn that updates the data inside the accounts ms DB as a result of the line of code accountsRepository.save(accounts); in the try block. Since we are catching the exception, and since we are not going to throw this exception that we have caught to the parent method - which will be of no use, we need to manually/explicitly rollback the current txn. How? It is very easy - we just have to use the class which is TransactionAspectSupport and invoke its method#currentTransactionStatus() followed by setRollbackOnly() method.
+     * Once the current txn is rolled back inside the accounts ms, as a next step, I need to trigger/initiate the compensation txn on the customer ms. For this, we need to create a new private method#rollbackCustomerMobileNumber. This rollbackCustomerMobileNumber method I will invoke inside the catch block by passing to it the MobileNumberUpdateDto object as an input. With these changes, the accounts ms whenever a RTE happens, it is going to publish a message to the destination "rollback-customer-mobile-number" as configured for the new binding "rollbackCustomerMobileNumber-out-0" in the accounts ms application.yml file. As a next step, we need to make the changes inside the customer ms to consume the messages that are going to be published to the destination "rollback-customer-mobile-number" - this we know how to go about!
+     * As of now, we have done handling the scenarios of Exceptions that may occur inside the Customer ms or in the Accounts ms. As a next step, let's try to handle the scenario where a RTE is going to happen inside the cards ms. Check the docstring for more details under the method #updateMobileNumber inside CardsServiceImpl class. It is going to be very similar to what we have done inside the Accounts ms. No rocket science required!
+     *  */
+    @Override
+    @Transactional
+    public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        boolean result = false;
+        try {
+            String currentMobileNum = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(currentMobileNum,
+                    true).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", currentMobileNum)
+            );
+            accounts.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+            accountsRepository.save(accounts);
+            // throw new RuntimeException("Some error occurred while updating mobileNumber");
+            updateCardMobileNumber(mobileNumberUpdateDto);
+            result =  true;
+        } catch (Exception e) { // This catch block is going to catch all types of Exceptions.
+            log.error("Exception occurred while updating mobileNumber", e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackCustomerMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
+    }
+    /** This will take care of publishing a message to the cards ms.
+     * */
+    private void updateCardMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending updateCardMobileNumber request for the details: {}", mobileNumberUpdateDto); // This entire object is going to be printed on the console along with the log statement.
+        var result = streamBridge.send("updateCardMobileNumber-out-0",mobileNumberUpdateDto);
+        log.info("Is the updateCardMobileNumber request successfully triggered ? : {}", result); // This logger is going to print Is the updateAccountMobileNumber request successfully triggered or not. To this logger we are printing a variable "result". The data inside this "result" variable we are catching from the StreamBridge#send method output. If you navigate into the method#send, you will be able to see that its return type is boolean. The same boolean, we are going to print onto the console to confirm whether the data is sent to the accounts ms or not with the help of the given binding name. i.e., "updateAccountMobileNumber-out-0".
+    }
+
+    /** This will take care of publishing a message to the customer ms.
+     * */
+    private void rollbackCustomerMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending rollbackCustomerMobileNumber request for the details: {}", mobileNumberUpdateDto);
+        var result = streamBridge.send("rollbackCustomerMobileNumber-out-0",mobileNumberUpdateDto);
+        log.info("Is the rollbackCustomerMobileNumber request successfully triggered ? : {}", result);
+    }
+
+    /** If keen enough, you will notice this same code implementation is what we have inside the CustomerServiceImpl - just copy and paste it here! And just change a few things i.e., instead of using customerRepository, change that to accountsRepository. Customer to Accounts and also the variable name "customer" to "accounts".
+     *  With this logic upto accountsRepository.save(accounts);, the account details are going to be undone/rolled back by updating to the previous old number which is available inside this currentMobileNum variable/field. But the job of the accounts ms is only but half done here! hahah! because once the accounts ms has rolled back its own data, next, it needs to trigger/initiate the compensation of the customer ms. How? simple, we already have the method#rollbackCustomerMobileNumber - just invoke it from this method after the save operation.
+     * */
+    @Override
+    public boolean rollbackMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(newMobileNumber,
+                true).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", newMobileNumber)
+        );
+        accounts.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        accountsRepository.save(accounts);
+        rollbackCustomerMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
+
+}

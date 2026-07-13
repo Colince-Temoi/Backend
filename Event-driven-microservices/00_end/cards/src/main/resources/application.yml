@@ -1,0 +1,70 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: "cards"
+  datasource:
+    url: jdbc:h2:file:~/cards;AUTO_SERVER=true
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
+# As of now, inside this file, there are no streaming and function related configurations. You can go to the accounts ms application.yml file and copy the entire streaming and function related configurations and paste them here as below.
+# With these configurations, the cards ms can start consuming the messages from the destination "update-card-mobile-number" inside the RabbitMQ. Once the message is consumed, we want a function#updateCardMobileNumber to be executed. As always, make sure the function definition is same as the prefix that we have mentioned inside the input binding name. i.e., updateCardMobileNumber-in-0. And for consistency, the output binding name should also have the same prefix.
+  cloud:
+    function:
+      definition: updateCardMobileNumber;rollbackCardMobileNumber
+    stream:
+      bindings:
+        updateCardMobileNumber-in-0:
+          destination: update-card-mobile-number
+          group: ${spring.application.name}
+        # Since this Cards ms is going to publish the message to the loans ms, we want to update the next binding details as configured below. Like this we are adding new binding details. With these settings, the message will be forwarded to the specified destination inside the RabbitMQ. On the Loans ms application.yml file, we need to make changes related to "in" binding that we have done inside the cards or accounts ms to consume the message that we are trying to publish to the specified destination - same drill as we have been discussing. No rocket science!
+        updateLoanMobileNumber-out-0:
+          destination: update-loan-mobile-number
+        rollbackAccountMobileNumber-out-0:
+          destination: rollback-account-mobile-number
+        rollbackCardMobileNumber-in-0:
+          destination: rollback-card-mobile-number
+          group: ${spring.application.name}
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "cards"
+    description: "Eazy Bank Cards Application"
+    version: "1.0.0"
+
+logging:
+  pattern:
+    console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
