@@ -126,5 +126,17 @@ public class LoansServiceImpl implements ILoansService {
         return true;
     }
 
+    /** With all the logic that we have written so far, the new mobile number is going to be updated inside the loans DBs.
+     * Next, we need to go to the Saga Manager and we need to handle the same event that is being published by the Loans ms.
+     * */
+    @Override
+    public boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber) {
+        Loans loans = loansRepository.findByMobileNumberAndActiveSw(
+                oldMobileNumber, LoansConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber", oldMobileNumber));
+        loans.setMobileNumber(newMobileNumber);
+        loansRepository.save(loans);
+        return true;
+    }
+
 
 }

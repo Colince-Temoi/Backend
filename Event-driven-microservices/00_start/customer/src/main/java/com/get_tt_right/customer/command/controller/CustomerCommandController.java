@@ -1,21 +1,34 @@
 package com.get_tt_right.customer.command.controller;
 
+import com.get_tt_right.common.command.RollbackCusMobNumCommand;
+import com.get_tt_right.common.command.UpdateAccntMobileNumCommand;
+import com.get_tt_right.common.command.UpdateCusMobNumCommand;
+import com.get_tt_right.common.dto.MobileNumberUpdateDto;
 import com.get_tt_right.customer.command.CreateCustomerCommand;
 import com.get_tt_right.customer.command.DeleteCustomerCommand;
 import com.get_tt_right.customer.command.UpdateCustomerCommand;
 import com.get_tt_right.customer.constants.CustomerConstants;
 import com.get_tt_right.customer.dto.CustomerDto;
 import com.get_tt_right.customer.dto.ResponseDto;
+import com.get_tt_right.customer.query.FindCustomerQuery;
+import com.get_tt_right.customer.query.FindUpdateMobileSagaQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.CommandCallback;
+import org.axonframework.commandhandling.CommandMessage;
+import org.axonframework.commandhandling.CommandResultMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -34,6 +47,7 @@ import java.util.UUID;
 public class CustomerCommandController {
 
     private final CommandGateway commandGateway;
+    private final QueryGateway queryGateway;
 
     /** As of now, inside this method if you closely observe, we are going to accept the data with the help of this CustomerDto class where we have fields like name, email and mobileNumber - the other 2 fields i.e., customerId and activeSw are optional as end user does not need to send them as we are going to generate them inside our business logic.
      * Inside this method 1st we are trying to create a customerId with the help of this UUID class. Later on we are trying to invoke the method iCustomerService.createCustomer which is present inside the CustomerServiceImpl class - But with that logic, what is going to happen is that the customer data is going to be stored inside the customer DB normally/traditionally like we already used to.
@@ -90,6 +104,59 @@ public class CustomerCommandController {
         commandGateway.sendAndWait(deleteCustomerCommand);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
+
+    }
+
+    /** Creating a new REST API that is of type patch mapping with the path /mobile-number. Next we are creating a method below this annotation which is of the signature +updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto): ResponseEntity<ResponseDto>
+     * Inside this method we are going to accept a request body of type MobileNumberUpdateDto. Since inside the class MobileNumberUpdateDto we have mentioned some validation annotations, the same we want to execute when this API is invoked and that's why we are using the @Valid annotation. This method returns a ResponseEntity object of type ResponseDto. Using the data present inside this MobileNumberUpdateDto object, we need to create and populate the object of UpdateCusMobNumCommand. Inside this UpdateCusMobNumCommand class, there is a builder method and using the same we are going to populate all the data. Towards the end I need to invoke the build method which is going to create the object of UpdateCusMobNumCommand.
+     * Next, just like how we are dispatching the command as seen in the above methods, we need to do the same here - so just copy and paste. When the command us dispatched, where do we need to handle it? Inside the aggregate class i.e., CustomerAggregate.java. Check this out for more details.
+     *
+     * Subscription Queries.
+     * ---------------------
+     * Just before dispatching the command i.e., just before the line of code, commandGateway.sendAndWait(updateCusMobNumCommand); What we will do is, we will try to invoke a query but to invoke a query we need to inject QueryGateway dependency in this class. With the help of this QueryGateway, I am going to invoke the method#subscriptionQuery. To this method, 1st  we need to provide the object of the query class that we have just created now i.e. FindUpdateMobileSagaQuery. This will be the very 1st parameter. Followed by, inside the 2nd parameter, we need to tell what is the return data type that we are expecting as part of the initial state response. Like we discussed previously, the subscription query is capable of sharing the initial state output followed by further updates. So, under this 2nd parameter, I can mention the return datatype that I am expecting under the initial state response - For this, let us use the ResponseTypes class then on top of it, invoke the instanceOf method. In this instanceOf method I will mention the return datatype which I am expecting which is ResponseDto.class. So, this is the initial state response that I am expecting.
+     * Similarly, I can mention what is the return datatype that I am expecting for the subsequent updates that I am going to receive from the subscription query. For the subsequent updates also I am going to expect the same data type - that's why I am trying to mention the 2nd parameter as of type ResponseDto.class as can be seen in the 3rd parameter of subscriptionQuery. If you open this method#subscriptionQuery you will get to know the details about this method. The very 1st param indicates the type of the query, the 2nd param indicates the type of the initial response and finally the 3rd param indicates the type of the incremental update that we are going to receive. With what we have done so far you should be crisp clear. On the LHS, I need to catch the output with the help of SubscriptionQueryResult. Since we are expecting 2 types of updates (Initial update and incremental updates) we need in a generics, mention the 2 types that we are expecting as a response/result/return types from the subscriptionQuery. So, we need in the generics to mention <ResponseDto,ResponseDto> only. Reason: On the RHS we have mentioned ResponseDto as a 2nd parameter and 3rd parameter respectively. Followed by we are mentioning the variable name as "queryResult".
+     * Now, using this "queryResult" variable I can do the magic. towards the end of this method, we were initially trying to return a new ResponseDto object as can be seen commented. Instead of that, to the body method I can pass the output that I am catching/that I am getting in the queryResult. So, using queryResult invoke a method#updates() and then after this invoke the method#blockFirst(). With this blockFirst command, what is going to happen is - the thread that is executing this method is going to wait until it receives the 1st response of type ResponseDto. If needed we can invoke the method#blockFirst that accepts Duration as an input which mean that your thread is only going to wait for the duration that you have provided. In my scenario, I want to wait indefinitely and that's why I am trying to invoke the plain method. As a developer I need to make sure I am closing the connection of the queryResult as well before I try to exit from this method. To close the resource what I can do is, I can leverage try with resources block and inside that try parenthesis I can move the code i.e., SubscriptionQueryResult<ResponseDto,ResponseDto> queryResult = queryGateway.subscriptionQuery(new FindUpdateMobileSagaQuery(), ResponseTypes.instanceOf(ResponseDto.class),ResponseTypes.instanceOf(ResponseDto.class))
+     * Then in the open and close curly braces, I can move the entire subsequent lines of code including the return statement.
+     * With this, what is going to happen is, whenever my try block execution is completed the queryResult resource is going to be automatically closed. So far, we have just created a subscription query which is going to wait for the very first update. As a next step, we need to publish/emmit the 1st update towards the end of the Saga flow so that we can send the same update/response to the client application. Inside our Saga manager class i.e., UpdateMobileNumberSaga, Inside this class there are only 2 methods that have @EndSaga annotation. This @EndSaga annotations indicates that it is going to end the Saga flow. These methods are the right places to emit the overall status to the client application. That's why we are going to make changes inside these methods. Check them out for more details. Before we try to make any changes to these methods, 1st we need to make sure we are injecting a bean of type QueryUpdateEmitter using which we can be able to emit the response to the subscription query.
+     * With the changes we have made, now my client application is going to wait for the overall status.
+     * Now, there is a catch that we need to be aware of - Whatever overall status that we have developed so far with the help of subscription query, it will only work in the scenarios where the Saga flow is triggered by the Saga manager. You need to think like, what if there is a RTE happens inside my CustomerAggregate class itself while processing this UpdateCusMobNumCommand. Why? The RTE can happen in this layer as well before the request is handed over to the Saga manager. To handle this scenario, what we can do is - we can try to write very similar logic that we have written inside the Saga manager. Check out the Saga Manager class docstring for more details.
+     * For the new commandGateway.send(...) logic to dispatch the command that we have introduced here due to the catch we have discussed in the previous line, is going to have some CEs. Just do some modifications to resolve the same. I.e., the command name should be updateCusMobNumCommand. In the generics of CommandMessage we need to update the correct command class name i.e.,UpdateCusMobNumCommand. Followed by we don't want to roll back/ compensate anything here, that's why in the if block what we want to do is - we are going to return the overall response indicating internal server error. If you see, with the help of ResponseEntity, we are trying to populate the status and the body. Under the body I am trying to send the ResponseDto object with the status code as 500 and the message I am going to send whatever message I am going to receive from the Exception result of the CommandResultMessage. This way the client application is always going to have a proper response.
+     * After making all these changes, toward the end we can get rid of the line of code commandGateway.sendAndWait(updateCusMobNumCommand); Save the changes do a build and retest your services to verify the introduced changes are working as expected - Nothing but to ensure that the subscription query results are loaded properly.
+     * */
+    @PatchMapping("/mobile-number")
+    public ResponseEntity<ResponseDto> updateMobileNumber(@Valid @RequestBody MobileNumberUpdateDto mobileNumberUpdateDto) {
+        UpdateCusMobNumCommand updateCusMobNumCommand = UpdateCusMobNumCommand.builder()
+                .customerId(mobileNumberUpdateDto.getCustomerId())
+                .accountNumber(mobileNumberUpdateDto.getAccountNumber())
+                .loanNumber(mobileNumberUpdateDto.getLoanNumber())
+                .cardNumber(mobileNumberUpdateDto.getCardNumber())
+                .mobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber())
+                .newMobileNumber(mobileNumberUpdateDto.getNewMobileNumber()).build();
+
+//        try(SubscriptionQueryResult<ResponseDto,ResponseDto> queryResult = queryGateway.subscriptionQuery(new FindUpdateMobileSagaQuery(), ResponseTypes.instanceOf(ResponseDto.class),ResponseTypes.instanceOf(ResponseDto.class))) {
+          try(SubscriptionQueryResult<ResponseDto,ResponseDto> queryResult = queryGateway.subscriptionQuery(
+                  new FindCustomerQuery(mobileNumberUpdateDto.getNewMobileNumber()),
+                  ResponseTypes.instanceOf(ResponseDto.class),ResponseTypes.instanceOf(ResponseDto.class))) {
+            commandGateway.send(updateCusMobNumCommand, new CommandCallback<>() {
+                @Override
+                public void onResult(@Nonnull CommandMessage<? extends UpdateCusMobNumCommand> commandMessage,
+                                     @Nonnull CommandResultMessage<?> commandResultMessage) {
+                    if (commandResultMessage.isExceptional()) {
+                        ResponseEntity
+                                .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new ResponseDto(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                                        commandResultMessage.exceptionResult().getMessage()));
+                    }
+                }
+            });
+
+//            commandGateway.sendAndWait(updateCusMobNumCommand); // Like this we are going to dispatch the command of type UpdateCusMobNumCommand
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(queryResult.updates().blockFirst());
+        }
+
 
     }
 

@@ -1,0 +1,22 @@
+package com.get_tt_right.common.command;
+
+import lombok.Builder;
+import lombok.Data;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+/**This command class is going to be used whenever someone wants to trigger the compensation txn on the customer ms.
+ * Here you can see we have the fields customerId, mobileNumber, newMobileNumber and errorMsg.
+ * If keen enough, you can see that I don't have fields related to the loanNumber, cardNumber and accountNumber. Reason: My customer ms does not need them as this is the last compensation txn that is going to be invoked in the saga pattern. Hope you are clear, if not when we will be creating the other rollback/compensation command classes it is going to make sense to you.
+ *
+ * */
+@Data
+@Builder
+public class RollbackCusMobNumCommand {
+
+    @TargetAggregateIdentifier
+    private final String customerId;
+    private final String mobileNumber;
+    private final String newMobileNumber;
+    private final String errorMsg; // To indicate the reason on why the rollback operation has been triggered.
+
+}

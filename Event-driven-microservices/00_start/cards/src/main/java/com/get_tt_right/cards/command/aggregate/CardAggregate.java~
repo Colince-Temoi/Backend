@@ -18,7 +18,7 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
 
-@Aggregate(snapshotTriggerDefinition = "cardSnapshotTrigger")
+@Aggregate
 public class CardAggregate {
     @AggregateIdentifier
     private Long cardNumber;

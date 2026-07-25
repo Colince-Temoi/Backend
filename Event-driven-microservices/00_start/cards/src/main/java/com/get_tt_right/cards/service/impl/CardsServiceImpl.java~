@@ -132,7 +132,7 @@ public class CardsServiceImpl implements ICardsService {
     @Override
     public boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber) {
         Cards cards = cardsRepository.findByMobileNumberAndActiveSw(
-                oldMobileNumber, CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", oldMobileNumber));
+                oldMobileNumber, true).orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", oldMobileNumber));
         cards.setMobileNumber(newMobileNumber);
         cardsRepository.save(cards);
         return true;

@@ -1,5 +1,7 @@
 package com.get_tt_right.loans.query.projection;
 
+import com.get_tt_right.common.event.CardMobileNumUpdatedEvent;
+import com.get_tt_right.common.event.LoanMobileNumUpdatedEvent;
 import com.get_tt_right.loans.command.event.LoanCreatedEvent;
 import com.get_tt_right.loans.command.event.LoanDeletedEvent;
 import com.get_tt_right.loans.command.event.LoanUpdatedEvent;
@@ -32,5 +34,10 @@ public class LoanProjection {
     @EventHandler
     public void on(LoanDeletedEvent event) {
         iLoansService.deleteLoan(event.getLoanNumber());
+    }
+
+    @EventHandler
+    public void on(LoanMobileNumUpdatedEvent loanMobileNumUpdatedEvent) {
+        iLoansService.updateMobileNumber(loanMobileNumUpdatedEvent.getMobileNumber(), loanMobileNumUpdatedEvent.getNewMobileNumber());
     }
 }

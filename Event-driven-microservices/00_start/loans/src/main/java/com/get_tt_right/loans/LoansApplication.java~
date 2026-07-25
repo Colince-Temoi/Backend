@@ -1,7 +1,7 @@
-package com.get_tt_right.cards;
+package com.get_tt_right.loans;
 
-import com.get_tt_right.cards.command.interceptor.CardCommandInterceptor;
 import com.get_tt_right.common.config.AxonConfig;
+import com.get_tt_right.loans.command.interceptor.LoanCommandInterceptor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.EventProcessingConfigurer;
 import org.axonframework.eventhandling.PropagatingErrorHandler;
@@ -19,24 +19,24 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 @Import(AxonConfig.class)
-public class CardsApplication {
+public class LoansApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CardsApplication.class, args);
+        SpringApplication.run(LoansApplication.class, args);
     }
     @Autowired
     public void registerCustomerCommandInterceptor(ApplicationContext context, CommandGateway commandGateway) {
-        commandGateway.registerDispatchInterceptor(context.getBean(CardCommandInterceptor.class));
+        commandGateway.registerDispatchInterceptor(context.getBean(LoanCommandInterceptor.class));
     }
 
     @Autowired
     public void configure(EventProcessingConfigurer config) {
-        config.registerListenerInvocationErrorHandler("card-group",
+        config.registerListenerInvocationErrorHandler("customer-group",
                 conf -> PropagatingErrorHandler.instance());
     }
 
-    @Bean(name="cardSnapshotTrigger")
-    public SnapshotTriggerDefinition cardSnapshotTrigger(Snapshotter snapshotter) {
-        return new EventCountSnapshotTriggerDefinition(snapshotter,6);
+    @Bean(name="loanSnapshotTrigger")
+    public SnapshotTriggerDefinition loanSnapshotTrigger(Snapshotter snapshotter) {
+        return new EventCountSnapshotTriggerDefinition(snapshotter,3);
     }
 }

@@ -1,6 +1,7 @@
 package com.get_tt_right.loans.query.projection;
 
 import com.get_tt_right.loans.command.event.LoanCreatedEvent;
+import com.get_tt_right.loans.command.event.LoanDeletedEvent;
 import com.get_tt_right.loans.command.event.LoanUpdatedEvent;
 import com.get_tt_right.loans.entity.Loans;
 import com.get_tt_right.loans.service.ILoansService;

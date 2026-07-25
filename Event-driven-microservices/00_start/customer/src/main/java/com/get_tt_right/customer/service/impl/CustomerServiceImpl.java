@@ -117,4 +117,19 @@ public class CustomerServiceImpl implements ICustomerService {
         return true;
     }
 
+    /** Here we are writing simple business logic - as can be seen, using findByMobileNumberAndActiveSw we are trying to verify is there is an existing customer otherwise we are throwing a resource not found exception.
+     * If there is an existing customer, using the same we are trying to invoke the setMobileNumber to which we are going to pass the new mobile number and  eventually invoke the method#save to save/persist the updated customer into the DB.
+     * With these code changes we are going to save the new mobile number inside the read DB as well. This completes the functionality on the customer ms to accept the request  >> Convert the request into command >> Using the command it is going to create an event >> Using the event it is going to store the data both in read and write DBs. Once these actions are completed, we want the customer ms to handle the execution of the Saga pattern to the Saga manager. To take our request further into a Saga manager, 1st we have to create a class which is going to act as a Saga manager.
+     * To the same class we can let the request forwarded to take care and implement the saga pattern. So, inside the customer ms, I can create a new package with the name "saga". Inside this Saga package, I am going to create a new class with the name "UpdateMobileNumberSaga" - Check out this class for more details.
+     * */
+    @Override
+    public boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber) {
+        Customer customer = customerRepository.findByMobileNumberAndActiveSw(
+                oldMobileNumber, CustomerConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", oldMobileNumber));
+        customer.setMobileNumber(newMobileNumber);
+        customerRepository.save(customer);
+        return true;
+    }
+
+
 }

@@ -5,10 +5,14 @@ import com.get_tt_right.loans.command.interceptor.LoanCommandInterceptor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.EventProcessingConfigurer;
 import org.axonframework.eventhandling.PropagatingErrorHandler;
+import org.axonframework.eventsourcing.EventCountSnapshotTriggerDefinition;
+import org.axonframework.eventsourcing.SnapshotTriggerDefinition;
+import org.axonframework.eventsourcing.Snapshotter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
@@ -29,5 +33,10 @@ public class LoansApplication {
     public void configure(EventProcessingConfigurer config) {
         config.registerListenerInvocationErrorHandler("customer-group",
                 conf -> PropagatingErrorHandler.instance());
+    }
+
+    @Bean(name="loanSnapshotTrigger")
+    public SnapshotTriggerDefinition loanSnapshotTrigger(Snapshotter snapshotter) {
+        return new EventCountSnapshotTriggerDefinition(snapshotter,6);
     }
 }

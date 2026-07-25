@@ -1,5 +1,6 @@
 package com.get_tt_right.loans.service;
 
+import com.get_tt_right.loans.command.event.LoanUpdatedEvent;
 import com.get_tt_right.loans.dto.LoansDto;
 import com.get_tt_right.loans.entity.Loans;
 

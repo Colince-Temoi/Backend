@@ -46,4 +46,11 @@ public interface ICardsService {
      */
     boolean deleteCard(Long cardNumber);
 
+    /**
+     * @param oldMobileNumber - Old mobile number of Card
+     *  @param newMobileNumber - New mobile number of Card
+     * @return boolean indicating if the update of mobile number is successful or not
+     */
+    boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber);
+
 }

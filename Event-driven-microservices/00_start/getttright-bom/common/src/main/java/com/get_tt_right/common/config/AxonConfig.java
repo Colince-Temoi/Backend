@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AxonConfig {
 
+    /**With this method we are trying to avoid any Security related exceptions that may arise while our event objects are being serialized from one application to another application.
+     * After making these changes we need to make sure we are importing this AxonConfig in all the ms's respective main class. This we have discussed in detail.
+     * */
     @Bean
     public XStream xStream() {
         XStream xStream = new XStream();

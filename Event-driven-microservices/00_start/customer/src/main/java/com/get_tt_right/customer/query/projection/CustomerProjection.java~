@@ -85,7 +85,7 @@ public class CustomerProjection {
 
     /** Here we are invoking the updateMobileNumber method of the IAccountsService interface, but we need to swap the mobile numbers. In the actual successful event above we passed the old mobile number as the first argument and the new mobile number as the second argument. In the rollback/compensation scenario we need to swap the mobile numbers because we are trying to revert the changes.
      * 1st we need to pass the new mobile number as the first argument (Which is already saved into the DB) and the old mobile number as the second argument
-     * With the logic that we have written in the Customer ms, haha!, the compensation txn is going to be executed. As a next step, we need to go to the Saga manager class and we need to create a new Saga event handler method which is going to handle the event of type CusMobNumRollbackedEvent. Check out the SagaManager class for more details
+     * With the logic that we have written in the Customer ms, haha!, the compensation txn is going to be executed. As a next step, we need to go to the Saga manager class 
      * */
     @EventHandler
     public void on(CusMobNumRollbackedEvent cusMobNumRollbackedEvent) {

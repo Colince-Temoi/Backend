@@ -1,5 +1,11 @@
 package com.get_tt_right.customer.command.aggregate;
 
+import com.get_tt_right.common.command.RollbackAccntMobNumCommand;
+import com.get_tt_right.common.command.RollbackCusMobNumCommand;
+import com.get_tt_right.common.command.UpdateCusMobNumCommand;
+import com.get_tt_right.common.event.AccntMobNumRollbackedEvent;
+import com.get_tt_right.common.event.CusMobNumRollbackedEvent;
+import com.get_tt_right.common.event.CusMobNumUpdatedEvent;
 import com.get_tt_right.common.event.CustomerDataChangedEvent;
 import com.get_tt_right.customer.command.CreateCustomerCommand;
 import com.get_tt_right.customer.command.DeleteCustomerCommand;
@@ -31,7 +37,7 @@ import java.util.Optional;
  * While we were trying to handle the CreateCustomerCommand, we have created a parameterized constructor of this CustomerAggregate class. With this it should sink in your brain that we should only leverage this constructor during the create operation. For the update and delete operations, we should define normal Java methods. That's why what I am going to do is - after @EventSourcingHandler method, I am going to create a method which is - handle - Check out its docstring to understand more details.
  * Very similarly, we need to create the logic to handle the DeleteCustomerCommand. Same way as we did for UpdateCustomerCommand in the detailed discussion - just change the input command from UpdateCustomerCommand to DeleteCustomerCommand.
  */
-@Aggregate
+@Aggregate(snapshotTriggerDefinition = "customerSnapshotTrigger")
 public class CustomerAggregate {
     @AggregateIdentifier
     private String customerId;
@@ -39,6 +45,7 @@ public class CustomerAggregate {
     private String email;
     private String mobileNumber;
     private boolean activeSw;
+    private String errorMsg;
 
     public CustomerAggregate() {}
 
@@ -58,6 +65,10 @@ public class CustomerAggregate {
      * --------------------------------
      * Just like we are creating the CustomerCreatedEvent object, what we are going to do is, we are going to create a new object of CustomerDataChangedEvent. Once this object is created, using the same BeanUtils#copyProperties method, I am going to copy the data from the CreateCustomerCommand object to the CustomerDataChangedEvent object. Once the CustomerDataChangedEvent event object is ready we are going to disburse the event. How? By Invoking the apply method and behind the scenes, the event object is going to be dispatched once the "@EventSourcingHandler" method is executed/handled. This we already know. But with the help of apply method, we will be able to dispatch/publish ONLY one event object which we have already done i.e., the CustomerCreatedEvent object. How about the other event that we have? Let's now understand how to dispatch multiple events. If you go to the apply method that we are trying to invoke, you will see that it is going to return an object of type ApplyMore. Using this ApplyMore we should be able to invoke many other methods available to dispatch more event objects. If you check on the members of ApplyMore(I) by entering into it and clicking ctrl + f12 , you will see there are 4 more different methods - you can always read the documentation of these methods to understand when to use them. But in our scenario, we are going to invoke the method which is andThen because we want to dispatch the event without any conditions. As soon as the 1st event is dispatched and processed, immediately we want to dispatch the 2nd event without worrying about any conditions. That's why we are using this method.
      * Now, to this method we need to pass the lambda expression and inside this lambda expression using the AggregateLifecycle#apply method, we are going to pass the CustomerDataChangedEvent object. With this, what is going to happen? Once the very 1st event is dispatched and processed, immediately the 2nd event is going to be dispatched to the event bus. This is just one approach - we will discuss other approaches as well. Next, under the update and delete command handlers as well we need to do the same drill.
+     *
+     * Orchestration Saga Pattern impl for update mobile number Saga flow.
+     * --------------------------------------------------------------------
+     *  Here, inside this class, what we can do is - just copy the command handler method and the event sourcing handler method for the patch delete operation on customer and paste it again as we are going to modify this to accommodate our patch operation when it comes to updating the mobile number. Check the 2 methods below for more details.
      * */
     @CommandHandler
     public CustomerAggregate(CreateCustomerCommand createCustomerCommand, CustomerRepository customerRepository) {
@@ -161,6 +172,46 @@ public class CustomerAggregate {
     @EventSourcingHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
         this.activeSw = customerDeletedEvent.isActiveSw();
+    }
+
+    /** orchestration Saga Pattern impl for update mobile number Saga flow.
+     * ---------------------------------------------------------------------
+     * In this method, we are handling the UpdateCusMobNumCommand that is being dispatched from the CustomerCommandController class.
+     * Using the same command, I am going to prepare a new event i.e,  CusMobNumUpdatedEvent object and at last I am going to dispatch/publish this event object by invoking the AggregateLifeCycle#apply method.
+     * */
+
+    @CommandHandler
+    public void handle(UpdateCusMobNumCommand updateCusMobNumCommand) {
+        CusMobNumUpdatedEvent cusMobNumUpdatedEvent = new CusMobNumUpdatedEvent();
+        BeanUtils.copyProperties(updateCusMobNumCommand, cusMobNumUpdatedEvent);
+        AggregateLifecycle.apply(cusMobNumUpdatedEvent);
+    }
+
+    /**orchestration Saga Pattern impl for update mobile number Saga flow.
+     * -------------------------------------------------------------------
+     * Here on the Event sourcing handler side, we need to handle the event of type CusMobNumUpdatedEvent. From this event object we need to populate the latest mobile number.
+     * This Event sourcing handler method is going to take care of updating the new mobile number inside the write/ES DB. Apart from updating the data inside the Write DB, we also want to update inside the read DB as well - we have all the logic of updating the read DB inside the projection class - CustomerProjection. Check the CustomerProjection class for more details.
+     * */
+    @EventSourcingHandler
+    public void on(CusMobNumUpdatedEvent cusMobNumUpdatedEvent) {
+        this.mobileNumber = cusMobNumUpdatedEvent.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void handle(RollbackCusMobNumCommand rollbackCusMobNumCommand) {
+        CusMobNumRollbackedEvent cusMobNumRollbackedEvent = new CusMobNumRollbackedEvent();
+        BeanUtils.copyProperties(rollbackCusMobNumCommand, cusMobNumRollbackedEvent);
+        AggregateLifecycle.apply(cusMobNumRollbackedEvent); // Dispatching the event
+    }
+
+    /** In this method, we need to write some tricky logic haha! 1st we need to update the old mobile number. Reason: We are trying to rollback using the compensation txn.
+     * Followed by I want to also populate the error message inside the write DB to understand the error faced. To achieve this, I will add one more class level primary attribute/field i.e., errorMessage. If you can recall, inside the Saga manager class,we are trying to populate the errorMsg attribute with the help of commandResultMessage.exceptionResult().getMessage(). The same we are trying to save into the write DB.
+     * S0, whatever logic we have written here is going to take care of reverting the changes on the customer write DB. As a nxt step, we need to go to the customer projection class write the rollback logic. Check it out for more details.
+     * */
+    @EventSourcingHandler // Handling the event dispatched
+    public void on(CusMobNumRollbackedEvent cusMobNumRollbackedEvent) {
+        this.mobileNumber = cusMobNumRollbackedEvent.getMobileNumber();
+        this.errorMsg = cusMobNumRollbackedEvent.getErrorMsg();
     }
 
 

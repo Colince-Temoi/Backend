@@ -147,5 +147,18 @@ public class AccountsServiceImpl  implements IAccountsService {
         return true;
     }
 
+    /** Here also the business logic is the same as what we have written inside the CustomerServiceImpl class method#updateMobileNumber.
+     * As you can see here, we are trying to update the new mobile number into the read DB as well. In simple terms, all the logic inside the projection and aggregate classes of accounts ms that we have written so far is going to take care of updating the new mobile number inside the accounts ms read and write DBs.
+     * So, as a next step, we need to go back to the UpdateMobileNumberSaga Saga manager class and just like how e are listening to the CusMobNumUpdatedEvent event here we need to create a new method again which is going to listen to the event that we are going to publish from the account ms. If you go to the accounts ms aggregate class, we are trying to publish the event object AccntMobileNumUpdatedEvent. The very same event we need to listen in the Saga Manager - Check out the SagaManager class for more details.
+     * */
+    @Override
+    public boolean updateMobileNumber(String oldMobileNumber, String newMobileNumber) {
+        Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(
+                oldMobileNumber, AccountsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", oldMobileNumber));
+        accounts.setMobileNumber(newMobileNumber);
+        accountsRepository.save(accounts);
+        return true;
+    }
+
 
 }

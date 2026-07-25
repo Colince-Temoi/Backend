@@ -1,0 +1,22 @@
+package com.get_tt_right.common.command;
+
+import lombok.Builder;
+import lombok.Data;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+/** Inside this class I have the fields accountNumber, customerId, mobileNumber, newMobileNumber and errorMsg.
+ * The reason why I am trying to maintain the customerId here is, once the compensation txn is executed inside the accounts ms it needs to trigger the compensation txn present inside the customer ms.
+ * Whenever we want to trigger a command on the customer ms, the customerId is mandatory because it is the target aggregate identifier inside the customer event sourcing DB. That's why the rollback of account ms it should have the customerId as well along with the accountNumber.
+ * */
+@Data
+@Builder
+public class RollbackAccntMobNumCommand {
+
+    @TargetAggregateIdentifier
+    private final Long accountNumber;
+    private final String customerId;
+    private final String mobileNumber;
+    private final String newMobileNumber;
+    private final String errorMsg;
+
+}

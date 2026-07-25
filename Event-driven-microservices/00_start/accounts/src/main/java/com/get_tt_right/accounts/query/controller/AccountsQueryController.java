@@ -28,7 +28,7 @@ public class AccountsQueryController {
                                                            @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
                                                            String mobileNumber) {
         FindAccountQuery findAccountQuery = new FindAccountQuery(mobileNumber);
-        AccountsDto customer = queryGateway.query(findAccountQuery, ResponseTypes.instanceOf(AccountsDto.class)).join();
-        return ResponseEntity.status(org.springframework.http.HttpStatus.OK).body(customer);
+        AccountsDto account = queryGateway.query(findAccountQuery, ResponseTypes.instanceOf(AccountsDto.class)).join();
+        return ResponseEntity.status(org.springframework.http.HttpStatus.OK).body(account);
     }
 }

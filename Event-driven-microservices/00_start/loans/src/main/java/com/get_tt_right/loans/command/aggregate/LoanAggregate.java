@@ -1,6 +1,8 @@
 package com.get_tt_right.loans.command.aggregate;
 
+import com.get_tt_right.common.command.UpdateLoanMobileNumCommand;
 import com.get_tt_right.common.event.LoanDataChangedEvent;
+import com.get_tt_right.common.event.LoanMobileNumUpdatedEvent;
 import com.get_tt_right.loans.command.CreateLoanCommand;
 import com.get_tt_right.loans.command.DeleteLoanCommand;
 import com.get_tt_right.loans.command.UpdateLoanCommand;
@@ -15,7 +17,7 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
 
-@Aggregate
+@Aggregate(snapshotTriggerDefinition = "loanSnapshotTrigger")
 @Slf4j
 public class LoanAggregate {
     @AggregateIdentifier
@@ -85,5 +87,18 @@ public class LoanAggregate {
     @EventSourcingHandler
     public void on(LoanDeletedEvent loanDeletedEvent) {
         this.activeSw = loanDeletedEvent.isActiveSw();
+    }
+
+    @CommandHandler
+    public void handle(UpdateLoanMobileNumCommand updateLoanMobileNumCommand) {
+        LoanMobileNumUpdatedEvent loanMobileNumUpdatedEvent = new LoanMobileNumUpdatedEvent();
+        BeanUtils.copyProperties(updateLoanMobileNumCommand, loanMobileNumUpdatedEvent);
+        AggregateLifecycle.apply(loanMobileNumUpdatedEvent); // Dispatching the event
+        throw new RuntimeException("An error occurred in loans service while processing UpdateLoanMobileNumCommand");
+    }
+
+    @EventSourcingHandler // Handling the event
+    public void on(LoanMobileNumUpdatedEvent loanMobileNumUpdatedEvent) {
+        this.mobileNumber = loanMobileNumUpdatedEvent.getNewMobileNumber(); // Updating the mobile number in the write DB.
     }
 }
